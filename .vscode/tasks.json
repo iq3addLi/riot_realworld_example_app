@@ -1,0 +1,21 @@
+{
+    "version": "2.0.0",
+    "command": "sh",
+    "args": ["-c"],
+    "isShellCommand": true,
+    "showOutput": "always",
+    "suppressTaskName": true,
+    "echoCommand" : true,
+    "tasks": [
+        {
+            "taskName"      : "build",
+            "args"          : ["npm run build"],
+            "isBuildCommand": true,
+            "isBackground"  : false,
+            "problemMatcher": [
+                "$tsc",
+                "$gulp-tsc"
+            ]
+        }
+    ]
+}

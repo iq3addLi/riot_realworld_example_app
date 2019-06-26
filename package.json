@@ -1,0 +1,68 @@
+{
+  "name": "template_made_riotjs",
+  "version": "1.0.0",
+  "description": "このプロジェクトはテンプレートです。",
+  "main": "index.js",
+  "scripts": {
+    "build": "gulp",
+    "rollup": "rollup -c",
+    "test": "mocha -r ts-node/register test/tests/**/*.ts",
+    "local": "python -m SimpleHTTPServer"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/iq3addLi/template_made_riotjs.git"
+  },
+  "keywords": [
+    "riotjs",
+    "single-page-app"
+  ],
+  "author": "+Li, Inc.",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/iq3addLi/template_made_riotjs/issues"
+  },
+  "homepage": "https://github.com/iq3addLi/template_made_riotjs#readme",
+  "dependencies": {
+    "fetch-polyfill": "^0.8.2",
+    "i18next": "^13.1.0",
+    "inversify": "^5.0.1",
+    "marked": "^0.6.0",
+    "moment": "^2.23.0",
+    "natives": "^1.1.6",
+    "reflect-metadata": "^0.1.12",
+    "riot": "^3.13.2",
+    "riot-nav": "^0.2.3",
+    "riot-route": "^3.1.4",
+    "riot-tab": "^0.2.3"
+  },
+  "devDependencies": {
+    "@fortawesome/fontawesome-free": "^5.6.3",
+    "@types/chai": "^4.1.7",
+    "@types/mocha": "^5.2.5",
+    "chai": "^4.2.0",
+    "gulp": "^4.0.0",
+    "gulp-connect": "^5.7.0",
+    "gulp-hjson": "^2.4.3",
+    "gulp-replace": "^1.0.0",
+    "gulp-sass": "^4.0.2",
+    "gulp-tslint": "^8.1.3",
+    "mocha": "^5.2.0",
+    "node-env-file": "^0.1.8",
+    "open-sans-fonts": "^1.5.0",
+    "rollup": "^1.0.2",
+    "rollup-plugin-commonjs": "^9.2.0",
+    "rollup-plugin-node-resolve": "^4.0.0",
+    "rollup-plugin-riot": "^2.1.0",
+    "rollup-plugin-typescript": "^1.0.0",
+    "rollup-plugin-uglify": "^6.0.0",
+    "ts-node": "^7.0.1",
+    "typescript": "^3.2.2",
+    "typescript-simple": "^8.0.6",
+    "typings": "^2.1.1"
+  },
+  "optionalDependencies": {
+    "tslint": "^5.12.0"
+  },
+  "peerDependencies": {}
+}

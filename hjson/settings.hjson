@@ -1,0 +1,13 @@
+//
+//  settings.json
+//  __PROJECT_NAME__
+//
+//  Created by +Li, Inc. on 2019/01/03.
+//  Copyright (c) 2019年 +Li, Inc. All rights reserved.
+//
+
+// アプリ内で使用する設定値はこのファイルに記載します
+{
+    // document.title
+    "title" : "Conduit",
+}
