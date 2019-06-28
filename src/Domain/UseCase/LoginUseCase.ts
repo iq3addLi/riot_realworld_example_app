@@ -1,26 +1,20 @@
+import ConduitProductionRepository from "../Repository/ConduitProductionRepository"
+import UserLocalStorageRepository from "../Repository/UserLocalStorageRepository"
+
 export default class LoginUseCase {
 
-    login = ( email: String, password: String, completion: ( error?: Error) => void ) => {
-        console.log("email: " + email + ", password: " + password );
+    conduit = new ConduitProductionRepository()
+    storage = new UserLocalStorageRepository()
 
-        (async () => {
-            try {
-                const response = await fetch("https://conduit.productionready.io/api/users/login",
-                {
-                    headers: {
-                    "Accept": "application/json",
-                    "Content-Type": "application/json"
-                    },
-                    method: "POST",
-                    body: JSON.stringify({"user": {"email": email, "password": password}})
-                })
-
-                const content = await response.json()
-                console.log(JSON.stringify(content))
-                completion(null)
-            } catch (error) {
-                completion(error)
-            }
-        })()
+    login = ( email: string, password: string ) => {
+        return new Promise<void>( (resolve, reject) => {
+            this.conduit.login(email, password ).then((user) => {
+                this.storage.setUser( user )
+                resolve()
+            }).catch((error) => {
+                reject(error)
+            })
+        })
     }
+
 }

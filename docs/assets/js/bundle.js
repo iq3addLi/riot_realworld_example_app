@@ -3392,7 +3392,7 @@
     util,
   });
 
-  riot$1.tag2('header_view', '<nav class="navbar navbar-light"> <div class="container"> <a class="navbar-brand" href="index.html">conduit</a> <ul class="nav navbar-nav pull-xs-right"> <li class="nav-item"> <a class="nav-link active" href="#/">Home</a> </li> <li class="nav-item"> <a class="nav-link" href="#/login">Sign In</a> </li> <li class="nav-item"> <a class="nav-link" href="#/register">Sign up</a> </li> </ul> </div> </nav>', '', '', function(opts) {
+  riot$1.tag2('header_view', '<nav class="navbar navbar-light"> <div class="container"> <a class="navbar-brand" href="/">conduit</a> <ul class="nav navbar-nav pull-xs-right"> <li class="nav-item"> <a class="nav-link active" href="#/">Home</a> </li> <li class="nav-item"> <a class="nav-link" href="#/login">Sign In</a> </li> <li class="nav-item"> <a class="nav-link" href="#/register">Sign up</a> </li> </ul> </div> </nav>', '', '', function(opts) {
   });
 
   riot$1.tag2('footer_view', '<footer> <div class="container"> <a href="/" class="logo-font">conduit</a> <span class="attribution"> An interactive learning project from <a href="https://thinkster.io">Thinkster</a>. Code &amp; design licensed under MIT. </span> </div> </footer>', '', '', function(opts) {
@@ -3444,8 +3444,160 @@
       }
   }
 
+  /*! *****************************************************************************
+  Copyright (c) Microsoft Corporation. All rights reserved.
+  Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+  this file except in compliance with the License. You may obtain a copy of the
+  License at http://www.apache.org/licenses/LICENSE-2.0
+
+  THIS CODE IS PROVIDED ON AN *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION ANY IMPLIED
+  WARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A PARTICULAR PURPOSE,
+  MERCHANTABLITY OR NON-INFRINGEMENT.
+
+  See the Apache Version 2.0 License for specific language governing permissions
+  and limitations under the License.
+  ***************************************************************************** */
+
+  function __awaiter(thisArg, _arguments, P, generator) {
+      return new (P || (P = Promise))(function (resolve, reject) {
+          function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+          function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+          function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+          step((generator = generator.apply(thisArg, _arguments || [])).next());
+      });
+  }
+
+  class User {
+      constructor(id, email, createdAt, updatedAt, token, bio, image) {
+          this.id = id;
+          this.email = email;
+          this.createdAt = createdAt;
+          this.updatedAt = updatedAt;
+          this.token = token;
+          this.bio = bio;
+          this.image = image;
+      }
+  }
+  User.init = (object) => {
+      return new User(object.id, object.email, object.createdAt, object.updatedAt, object.bio, object.image, object.token);
+  };
+  // {"user":
+  //     {"id":58598,
+  //     "email":"buyer01@ahk.jp",
+  //     "createdAt":"2019-06-20T02:56:36.621Z",
+  //     "updatedAt":"2019-06-20T02:56:36.630Z",
+  //     "username":"arupaka2525",
+  //     "bio":null,
+  //     "image":null,
+  //     "token":"..."
+  //     }
+  // }
+
+  class ConduitProductionRepository {
+      constructor() {
+          // Users
+          // login: (email: string, password: string ) => Promise<User>
+          this.login = (email, password) => {
+              return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
+                  try {
+                      const response = yield fetch("https://conduit.productionready.io/api/users/login", {
+                          headers: {
+                              "Accept": "application/json",
+                              "Content-Type": "application/json"
+                          },
+                          method: "POST",
+                          body: JSON.stringify({ "user": { "email": email, "password": password } })
+                      });
+                      const json = yield response.json();
+                      let user = User.init(json.user);
+                      resolve(user);
+                  }
+                  catch (error) {
+                      reject(error);
+                  }
+              }));
+          };
+          // // register: (form: UserForm ) => Promise<User>
+          // register = (form: UserForm ) => {
+          //     return new Promise<User>( async () => {
+          //         return new User()
+          //     })
+          // }
+          // // getUser: (token: string ) => Promise<User>
+          // getUser = (token: string ) => {
+          //     return new Promise<User>( async () => {
+          //         return new User()
+          //     })
+          // }
+          // // <<要調査>>// putUser: (token: ) => Promise<User>
+          // // Articles
+          // getArticles: ( token: string ) => Promise<Article[]>
+          // postArticle: ( token: String, article: Article ) => Promise<boolean>
+          // getArticlesForUser: ( username: string ) => Promise<Article[]>
+          // getArticlesForFavoriteUser: ( username: string ) => Promise<Article[]>
+          // getArticlesOfTagged: (tag: string ) => Promise<Article[]>
+          // getArticlesByFollowingUser: ( token: String ) => Promise<Article[]>
+          // getArticle: (slug: string) => Promise<Article>
+          // putArticle: (slug: string) => Promise<boolean>
+          // deleteArticle: (slug: string) => Promise<boolean>
+          // favorite: ( slug: string ) => Promise<boolean>
+          // unfavorite: ( slug: string ) => Promise<boolean>
+          // getComments: ( slug: string ) => Promise<Comment[]>
+          // postComment: ( token: string, message: string ) => Promise<boolean>
+          // deleteComment: ( token: string ) => Promise<boolean>
+          // // Profiles
+          // getProfile: ( token: string, message: string ) => Promise<Profile>
+          // follow: ( token: string, username: string ) => Promise<boolean>
+          // unfollow: ( token: string, username: string ) => Promise<boolean>
+          // // Tags
+          this.getTags = () => {
+              return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
+                  try {
+                      const response = yield fetch("https://conduit.productionready.io/api/tags", {
+                          headers: {
+                              "Accept": "application/json",
+                              "Content-Type": "application/json"
+                          },
+                          method: "GET"
+                      });
+                      const json = yield response.json();
+                      resolve(json.tags);
+                  }
+                  catch (error) {
+                      reject(error);
+                  }
+              }));
+          };
+      }
+  }
+
+  class UserLocalStorageRepository {
+      constructor() {
+          this.user = () => {
+              let value = localStorage.getItem("user");
+              if (value == null) {
+                  return null;
+              }
+              else {
+                  const object = JSON.parse(value);
+                  return User.init(object);
+              }
+          };
+          this.setUser = (user) => {
+              const string = JSON.stringify(user);
+              localStorage.setItem("user", string);
+          };
+          this.isLoggedIn = () => {
+              return this.user() != null; // todo: need check for expire
+          };
+      }
+  }
+
   class RootUseCase {
       constructor() {
+          this.conduit = new ConduitProductionRepository();
+          this.storage = new UserLocalStorageRepository();
           this.requestArticles = (completion) => {
               // stub
               // {
@@ -3471,22 +3623,11 @@
               ];
               completion(articles);
           };
-          this.requestTags = (completion) => {
-              let tags = [
-                  "programming",
-                  "javascript",
-                  "emberjs",
-                  "angularjs",
-                  "react",
-                  "mean",
-                  "node",
-                  "rails",
-                  "php"
-              ];
-              completion(tags);
+          this.requestTags = () => {
+              return this.conduit.getTags();
           };
-          this.isLogin = () => {
-              return false;
+          this.isLoggedIn = () => {
+              return this.storage.isLoggedIn();
           };
       }
   }
@@ -3498,7 +3639,7 @@
       }
   }
 
-  riot$1.tag2('root_view_controller', '<header_view></header_view> <banner_view></banner_view> <div class="container page"> <div class="row"> <div class="col-md-9"> <article_tab_view></article_tab_view> <articles_table_view></articles_table_view> </div> <div class="col-md-3"> <tags_view></tags_view> </div> </div> </div> <footer_view></footer_view>', '', '', function(opts) {
+  riot$1.tag2('root_view_controller', '<header_view></header_view> <virtual if="{isLoggedIn() == false}"> <banner_view></banner_view> </virtual> <div class="container page"> <div class="row"> <div class="col-md-9"> <article_tab_view></article_tab_view> <articles_table_view></articles_table_view> </div> <div class="col-md-3"> <tags_view ref="tagsView"></tags_view> </div> </div> </div> <footer_view></footer_view>', '', '', function(opts) {
 
   var self = this;
   var useCase = new RootUseCase();
@@ -3509,12 +3650,12 @@
           self.tags.articles_table_view.update();
       });
 
-      useCase.requestTags( ( tags, error ) => {
-          self.tags.tags_view.tagWords = tags;
-          self.tags.tags_view.update();
+      useCase.requestTags().then( (tags) => {
+          self.refs.tagsView.tagWords = tags;
+          self.refs.tagsView.update();
       });
 
-      if ( useCase.isLogin() == true ) {
+      if ( useCase.isLoggedIn() == true ) {
           self.tags.article_tab_view.items = [
               new ArticleTabItem( "Your Feed", "#/articles"),
               new ArticleTabItem( "Global Feed", "#/articles")
@@ -3529,54 +3670,25 @@
       }
   });
 
+  self.isLoggedIn = () => {
+      return useCase.isLoggedIn()
+  };
+
   });
-
-  /*! *****************************************************************************
-  Copyright (c) Microsoft Corporation. All rights reserved.
-  Licensed under the Apache License, Version 2.0 (the "License"); you may not use
-  this file except in compliance with the License. You may obtain a copy of the
-  License at http://www.apache.org/licenses/LICENSE-2.0
-
-  THIS CODE IS PROVIDED ON AN *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-  KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION ANY IMPLIED
-  WARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A PARTICULAR PURPOSE,
-  MERCHANTABLITY OR NON-INFRINGEMENT.
-
-  See the Apache Version 2.0 License for specific language governing permissions
-  and limitations under the License.
-  ***************************************************************************** */
-
-  function __awaiter(thisArg, _arguments, P, generator) {
-      return new (P || (P = Promise))(function (resolve, reject) {
-          function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-          function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-          function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-          step((generator = generator.apply(thisArg, _arguments || [])).next());
-      });
-  }
 
   class LoginUseCase {
       constructor() {
-          this.login = (email, password, completion) => {
-              console.log("email: " + email + ", password: " + password);
-              (() => __awaiter(this, void 0, void 0, function* () {
-                  try {
-                      const response = yield fetch("https://conduit.productionready.io/api/users/login", {
-                          headers: {
-                              "Accept": "application/json",
-                              "Content-Type": "application/json"
-                          },
-                          method: "POST",
-                          body: JSON.stringify({ "user": { "email": email, "password": password } })
-                      });
-                      const content = yield response.json();
-                      console.log(JSON.stringify(content));
-                      completion(null);
-                  }
-                  catch (error) {
-                      completion(error);
-                  }
-              }))();
+          this.conduit = new ConduitProductionRepository();
+          this.storage = new UserLocalStorageRepository();
+          this.login = (email, password) => {
+              return new Promise((resolve, reject) => {
+                  this.conduit.login(email, password).then((user) => {
+                      this.storage.setUser(user);
+                      resolve();
+                  }).catch((error) => {
+                      reject(error);
+                  });
+              });
           };
       }
   }
@@ -3588,8 +3700,10 @@
   self.errorMessage = null;
 
   self.actionOfLoginButton = ( event ) => {
-      useCase.login( self.refs.emailField.value, self.refs.passwordField.value, ( error ) => {
-          console.log("コールバック呼ばれた");
+      useCase.login( self.refs.emailField.value, self.refs.passwordField.value ).then( () => {
+
+          window.location.href = '/';
+      }).catch( (error) => {
 
           self.errorMessage = "email or password is invalid";
           self.update();

@@ -11,9 +11,11 @@ var useCase = new LoginUseCase()
 self.errorMessage = null
 
 self.actionOfLoginButton = ( event ) => {
-    useCase.login( self.refs.emailField.value, self.refs.passwordField.value, ( error ) => {
-        console.log("コールバック呼ばれた")
-
+    useCase.login( self.refs.emailField.value, self.refs.passwordField.value ).then( () => {
+        // success
+        window.location.href = '/'
+    }).catch( (error) => {
+        // fail
         self.errorMessage = "email or password is invalid"
         self.update()
     })

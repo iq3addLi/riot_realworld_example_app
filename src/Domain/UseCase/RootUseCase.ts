@@ -1,7 +1,13 @@
 import Article from "../Model/Article"
 import Author from "../Model/Author"
 
+import ConduitProductionRepository from "../Repository/ConduitProductionRepository"
+import UserLocalStorageRepository from "../Repository/UserLocalStorageRepository"
+
 export default class RootUseCase {
+
+    conduit = new ConduitProductionRepository()
+    storage = new UserLocalStorageRepository()
 
     requestArticles = ( completion: (articles: Article[], error?: Error) => void ) => {
         // stub
@@ -53,23 +59,11 @@ export default class RootUseCase {
         completion(articles)
     }
 
-
-    requestTags = ( completion: (tags: string[], error?: Error) => void ) => {
-        let tags = [
-            "programming",
-            "javascript",
-            "emberjs",
-            "angularjs",
-            "react",
-            "mean",
-            "node",
-            "rails",
-            "php"
-        ]
-        completion(tags)
+    requestTags = () => {
+        return this.conduit.getTags()
     }
 
-    isLogin = () => {
-        return false
+    isLoggedIn = () => {
+        return this.storage.isLoggedIn()
     }
 }

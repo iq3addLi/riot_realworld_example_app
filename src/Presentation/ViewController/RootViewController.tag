@@ -24,12 +24,12 @@ this.on('mount', () => {
         self.tags.articles_table_view.update()
     })
 
-    useCase.requestTags( ( tags, error ) => {
-        self.tags.tags_view.tagWords = tags
-        self.tags.tags_view.update()
+    useCase.requestTags().then( (tags) => {
+        self.refs.tagsView.tagWords = tags // riot.tags are undefined from the promise function 
+        self.refs.tagsView.update()
     })
 
-    if ( useCase.isLogin() == true ) {
+    if ( useCase.isLoggedIn() == true ) {
         self.tags.article_tab_view.items = [
             new ArticleTabItem( "Your Feed", "#/articles"),
             new ArticleTabItem( "Global Feed", "#/articles")
@@ -44,10 +44,16 @@ this.on('mount', () => {
     }
 })
 
+self.isLoggedIn = () => {
+    return useCase.isLoggedIn()
+}
+
 </script>
                 
 <header_view />
-<banner_view />
+<virtual if={ isLoggedIn() == false }>
+    <banner_view />
+</virtual>
 
 <div class="container page">
     <div class="row">
@@ -56,7 +62,7 @@ this.on('mount', () => {
             <articles_table_view />
         </div>
         <div class="col-md-3">
-            <tags_view />
+            <tags_view ref="tagsView"/>
         </div>
     </div>
 </div>
