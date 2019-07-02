@@ -4,6 +4,9 @@
 import Settings from "../../Infrastructure/Settings"
 import riot from "riot"
 import route from "riot-route"
+// import parse from "url-parse" // don't parse query :(
+
+import SPALocation from "../../Infrastructure/SPALocation"
 // import Analytics from "../../Infrastructure/Analytics"
 
 // import "../../Presentation/ViewController/RootViewController.tag"
@@ -18,34 +21,30 @@ interface Menu {
 
 export default class ApplicationUseCase {
 
-    private menus: Menu[] = [
-        {
+    private menus: Menu[] = [{
             identifier : "",
-            viewControllerName : "root_view_controller"
-        },
-        {
+            viewControllerName : "articles_view_controller"
+        }, {
             identifier : "login",
             viewControllerName : "login_view_controller"
-        },
-        {
+        }, {
             identifier : "settings",
             viewControllerName : "settings_view_controller"
-        },
-        {
+        }, {
             identifier : "article",
             viewControllerName : "article_view_controller"
-        },
-        {
+        }, {
             identifier : "editer",
             viewControllerName : "editer_view_controller"
-        },
-        {
+        }, {
             identifier : "profile",
             viewControllerName : "profile_view_controller"
-        },
-        {
+        }, {
             identifier : "register",
             viewControllerName : "register_view_controller"
+        }, {
+            identifier : "articles",
+            viewControllerName : "articles_view_controller"
         }
     ]
 
@@ -106,7 +105,6 @@ export default class ApplicationUseCase {
     }
 
     setRoute = () => {
-
         route.start()
 
         // 404
@@ -124,17 +122,19 @@ export default class ApplicationUseCase {
 
 
     routing = () => {
+
+        let location = SPALocation.shared()
+        console.log( location )
+
         // in launch
-        if ( location.hash ) {
-            let ident = location.hash.substr(2)
-            console.log("hash is " + ident )
+        if ( location.page() ) {
             let filterd = this.menus.filter( ( menu: Menu ) => {
-                return menu.identifier === ident
+                return menu.identifier === location.page()
             })
             if ( filterd.length > 0 ) {
                 let menu = filterd[0]
                 setTimeout( () => {
-                    riot.mount( "div#mainView", menu.viewControllerName, menu  )
+                    riot.mount( "div#mainView", menu.viewControllerName )
                 }, 5)
             }
         } else {

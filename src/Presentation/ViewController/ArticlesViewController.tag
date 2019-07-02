@@ -5,15 +5,16 @@ import "../View/ArticleTabView.tag"
 import "../View/ArticlesTableView.tag"
 import "../View/TagsView.tag"
 
-<root_view_controller>
+<articles_view_controller>
 
 <script>
-import RootUseCase from "../../Domain/UseCase/RootUseCase"
+import ArticlesUseCase from "../../Domain/UseCase/ArticlesUseCase"
 
 var self = this
-var useCase = new RootUseCase()
+var useCase = new ArticlesUseCase()
 
 this.on('mount', () => {
+    
     useCase.requestArticles().then( (container) => {
         self.tags.articles_table_view.setArticles( container.articles )
     })
@@ -54,4 +55,4 @@ self.isLoggedIn = () => {
 
 <footer_view />
 
-</root_view_controller>
+</articles_view_controller>

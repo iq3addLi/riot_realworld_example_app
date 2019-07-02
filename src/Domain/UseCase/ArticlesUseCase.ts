@@ -4,7 +4,7 @@ import Author from "../Model/Author"
 import ConduitProductionRepository from "../Repository/ConduitProductionRepository"
 import UserLocalStorageRepository from "../Repository/UserLocalStorageRepository"
 
-export default class RootUseCase {
+export default class ArticlesUseCase {
 
     conduit = new ConduitProductionRepository()
     storage = new UserLocalStorageRepository()

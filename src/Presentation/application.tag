@@ -1,4 +1,4 @@
-import "./ViewController/RootViewController.tag"
+import "./ViewController/ArticlesViewController.tag"
 import "./ViewController/LoginViewController.tag"
 import "./ViewController/ArticleViewController.tag"
 import "./ViewController/EditerViewController.tag"
