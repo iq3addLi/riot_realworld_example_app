@@ -9,14 +9,17 @@ export default class User {
     token: string
 
     public static init = (object: any) => {
-        return new User(object.id, object.email, object.createdAt, object.updatedAt, object.bio, object.image, object.token)
+        return new User(object.id, object.email, object.createdAt, object.updatedAt, object.username,
+            object.bio, object.image, object.token)
     }
 
-    constructor(id: number, email: string, createdAt: Date, updatedAt: Date, token: string, bio?: string, image?: string) {
+    constructor(id: number, email: string, createdAt: Date, updatedAt: Date,
+        username: string, token: string, bio?: string, image?: string) {
         this.id = id
         this.email = email
         this.createdAt = createdAt
         this.updatedAt = updatedAt
+        this.username = username
         this.token = token
         this.bio = bio
         this.image = image

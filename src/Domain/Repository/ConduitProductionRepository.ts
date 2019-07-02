@@ -4,6 +4,8 @@ import Article from "../Model/Article"
 import Comment from "../Model/Comment"
 import Profile from "../Model/Profile"
 import UserForm from "../Model/UserForm"
+import ServerError from "../Model/ServerError"
+import ArticleContainer from "../Model/ArticleContainer"
 
 export default class ConduitProductionRepository implements ConduitRepository {
 
@@ -20,22 +22,51 @@ export default class ConduitProductionRepository implements ConduitRepository {
                     method: "POST",
                     body: JSON.stringify({"user": {"email": email, "password": password}})
                 })
-
-                const json = await response.json()
-                let user = User.init(json.user)
-                resolve( user )
-            } catch (error) {
+                if ( response.status === 200 ) {
+                    const json = await response.json()
+                    let user = User.init(json.user)
+                    resolve( user )
+                } else if ( response.status === 422 ) {
+                    const json = await response.json()
+                    let errors = Object.keys(json.errors).map(key => new ServerError(key, json.errors[key]))
+                    throw errors.map((error) => new Error( error.subject + " " + error.concatObjects() ))
+                } else {
+                    throw new Error("Unexpected error.")
+                }
+            } catch ( error ) {
                 reject(error)
             }
         })
     }
 
     // // register: (form: UserForm ) => Promise<User>
-    // register = (form: UserForm ) => {
-    //     return new Promise<User>( async () => {
-    //         return new User()
-    //     })
-    // }
+    register = (username: string, email: string, password: string ) => {
+        return new Promise<User>( async (resolve, reject) => {
+            try {
+                const response = await fetch("https://conduit.productionready.io/api/users", {
+                    headers: {
+                    "Accept": "application/json",
+                    "Content-Type": "application/json"
+                    },
+                    method: "POST",
+                    body: JSON.stringify({"user": {"username": username, "email": email, "password": password}})
+                })
+                if ( response.status === 200 ) {
+                    const json = await response.json()
+                    let user = User.init(json.user)
+                    resolve( user )
+                } else if ( response.status === 422 ) {
+                    const json = await response.json()
+                    let errors = Object.keys(json.errors).map(key => new ServerError(key, json.errors[key]))
+                    throw errors.map((error) => new Error( error.subject + " " + error.concatObjects() ))
+                } else {
+                    throw new Error("Unexpected error.")
+                }
+            } catch ( error ) {
+                reject(error)
+            }
+        })
+    }
     // // getUser: (token: string ) => Promise<User>
     // getUser = (token: string ) => {
     //     return new Promise<User>( async () => {
@@ -45,7 +76,26 @@ export default class ConduitProductionRepository implements ConduitRepository {
     // // <<要調査>>// putUser: (token: ) => Promise<User>
 
     // // Articles
-    // getArticles: ( token: string ) => Promise<Article[]>
+    getArticles = () => {
+        return new Promise<ArticleContainer>( async (resolve, reject) => {
+            try {
+                const response = await fetch("https://conduit.productionready.io/api/articles", {
+                    headers: {
+                    "Accept": "application/json",
+                    "Content-Type": "application/json"
+                    },
+                    method: "GET"
+                })
+
+                const json = await response.json()
+                let container = new ArticleContainer( json.articleCount, json.articles)
+                resolve( container )
+            } catch (error) {
+                reject(error)
+            }
+        })
+    }
+
     // postArticle: ( token: String, article: Article ) => Promise<boolean>
     // getArticlesForUser: ( username: string ) => Promise<Article[]>
     // getArticlesForFavoriteUser: ( username: string ) => Promise<Article[]>

@@ -2,8 +2,13 @@
 
 <script>
 
-var self = this
-self.articles = []
+    var self = this
+
+    self.articles = []
+    self.setArticles = ( articles ) => {
+        self.articles = articles
+        self.update()
+    }
 
 </script>
 

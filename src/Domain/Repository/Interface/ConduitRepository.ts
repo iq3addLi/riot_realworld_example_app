@@ -1,5 +1,6 @@
 import User from "../../Model/User"
 import Article from "../../Model/Article"
+import ArticleContainer from "../../Model/ArticleContainer"
 import Comment from "../../Model/Comment"
 import Profile from "../../Model/Profile"
 import UserForm from "../../Model/UserForm"
@@ -13,7 +14,7 @@ export default interface ConduitRepository {
     // // <<要調査>>// putUser: (token: ) => Promise<User>
 
     // // Articles
-    // getArticles: ( token: string ) => Promise<Article[]>
+    getArticles: () => Promise<ArticleContainer>
     // postArticle: ( token: String, article: Article ) => Promise<boolean>
     // getArticlesForUser: ( username: string ) => Promise<Article[]>
     // getArticlesForFavoriteUser: ( username: string ) => Promise<Article[]>

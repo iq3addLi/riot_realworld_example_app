@@ -20,6 +20,10 @@ export default class ApplicationUseCase {
 
     private menus: Menu[] = [
         {
+            identifier : "",
+            viewControllerName : "root_view_controller"
+        },
+        {
             identifier : "login",
             viewControllerName : "login_view_controller"
         },
@@ -38,6 +42,10 @@ export default class ApplicationUseCase {
         {
             identifier : "profile",
             viewControllerName : "profile_view_controller"
+        },
+        {
+            identifier : "register",
+            viewControllerName : "register_view_controller"
         }
     ]
 
@@ -109,7 +117,7 @@ export default class ApplicationUseCase {
         this.menus.forEach( ( menu: Menu ) => {
             route( "/" + menu.identifier, () => {
                 console.log("route is " + menu.identifier )
-                riot.mount("root_view_controller", menu.viewControllerName, menu )
+                riot.mount( "div#mainView", menu.viewControllerName, menu )
             })
         })
     }
@@ -126,12 +134,12 @@ export default class ApplicationUseCase {
             if ( filterd.length > 0 ) {
                 let menu = filterd[0]
                 setTimeout( () => {
-                    riot.mount( "root_view_controller", menu.viewControllerName, menu  )
+                    riot.mount( "div#mainView", menu.viewControllerName, menu  )
                 }, 5)
             }
         } else {
             setTimeout( () => {
-                riot.mount( "root_view_controller" )
+                riot.mount( "div#mainView", "root_view_controller" )
             }, 5)
         }
     }

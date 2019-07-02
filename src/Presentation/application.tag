@@ -4,6 +4,7 @@ import "./ViewController/ArticleViewController.tag"
 import "./ViewController/EditerViewController.tag"
 import "./ViewController/SettingsViewController.tag"
 import "./ViewController/ProfileViewController.tag"
+import "./ViewController/RegisterViewController.tag"
 
 <application>
 
@@ -25,6 +26,6 @@ this.on('mount', function() {
 })
 </script>
 
-<root_view_controller />
+<div id="mainView"></div> <!-- To prevent it from being mounted automatically -->
 
 </application>

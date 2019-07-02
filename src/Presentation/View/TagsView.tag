@@ -1,7 +1,13 @@
 <tags_view>
 <script>
     var self = this
-    self.tagWords = []
+
+    self.tagWords = [] // tags is reserved word in riot.js
+    self.setTagWords = ( tagWords  ) => {
+        self.tagWords = tagWords
+        self.update()
+    }
+
 </script>
 
 <div class="sidebar">

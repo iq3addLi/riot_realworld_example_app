@@ -8,15 +8,19 @@ import LoginUseCase from "../../Domain/UseCase/LoginUseCase"
 
 var self = this
 var useCase = new LoginUseCase()
-self.errorMessage = null
+self.errors = null
 
-self.actionOfLoginButton = ( event ) => {
+self.actionOfSubmitButton = ( event ) => {
     useCase.login( self.refs.emailField.value, self.refs.passwordField.value ).then( () => {
         // success
         window.location.href = '/'
     }).catch( (error) => {
-        // fail
-        self.errorMessage = "email or password is invalid"
+        // failure
+        if (error instanceof Array ) {
+            self.errors = error.map( (aError) => aError.message )
+        }else if( error instanceof Error ) {
+            self.errors = [ error.message ]
+        }
         self.update()
     })
 }
@@ -40,8 +44,8 @@ self.shouldSubmit = ( event ) => {
             </p>
     
 
-            <ul if={ errorMessage != null } class="error-messages">
-                <li>{ errorMessage }</li>
+            <ul if={ errors != null } class="error-messages">
+                <li each={ error in errors }>{ error }</li>
             </ul>
     
             <fieldset class="form-group">
@@ -50,7 +54,7 @@ self.shouldSubmit = ( event ) => {
             <fieldset class="form-group">
                 <input ref="passwordField" class="form-control form-control-lg" type="password" placeholder="Password" oninput={ shouldSubmit }>
             </fieldset>
-            <button ref="submitButton" class="btn btn-lg btn-primary pull-xs-right" onclick={ actionOfLoginButton } disabled>
+            <button ref="submitButton" class="btn btn-lg btn-primary pull-xs-right" onclick={ actionOfSubmitButton } disabled>
                 Sign in
             </button>
         </div>
