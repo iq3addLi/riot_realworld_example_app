@@ -14,14 +14,14 @@ export default interface ConduitRepository {
     // // <<要調査>>// putUser: (token: ) => Promise<User>
 
     // // Articles
-    getArticles: () => Promise<ArticleContainer>
-    // postArticle: ( token: String, article: Article ) => Promise<boolean>
-    // getArticlesForUser: ( username: string ) => Promise<Article[]>
-    // getArticlesForFavoriteUser: ( username: string ) => Promise<Article[]>
-    // getArticlesOfTagged: (tag: string ) => Promise<Article[]>
-    // getArticlesByFollowingUser: ( token: String ) => Promise<Article[]>
+    getArticles: (  limit?: number, offset?: number) => Promise<ArticleContainer>
+    getArticlesOfAuthor: ( author: string, limit?: number, offset?: number ) => Promise<ArticleContainer>
+    getArticlesForFavoriteUser: ( username: string, limit?: number, offset?: number ) => Promise<ArticleContainer>
+    getArticlesOfTagged: ( tag: string, limit?: number, offset?: number ) => Promise<ArticleContainer>
+    getArticlesByFollowingUser: ( token: string, limit?: number, offset?: number ) => Promise<ArticleContainer>
 
     // getArticle: (slug: string) => Promise<Article>
+    // postArticle: ( token: String, article: Article ) => Promise<boolean>
     // putArticle: (slug: string) => Promise<boolean>
     // deleteArticle: (slug: string) => Promise<boolean>
 

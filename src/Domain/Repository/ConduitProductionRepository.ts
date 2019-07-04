@@ -67,42 +67,36 @@ export default class ConduitProductionRepository implements ConduitRepository {
             }
         })
     }
-    // // getUser: (token: string ) => Promise<User>
-    // getUser = (token: string ) => {
-    //     return new Promise<User>( async () => {
-    //         return new User()
-    //     })
-    // }
-    // // <<要調査>>// putUser: (token: ) => Promise<User>
 
-    // // Articles
-    getArticles = () => {
-        return new Promise<ArticleContainer>( async (resolve, reject) => {
-            try {
-                const response = await fetch("https://conduit.productionready.io/api/articles", {
-                    headers: {
-                    "Accept": "application/json",
-                    "Content-Type": "application/json"
-                    },
-                    method: "GET"
-                })
-
-                const json = await response.json()
-                let container = new ArticleContainer( json.articleCount, json.articles)
-                resolve( container )
-            } catch (error) {
-                reject(error)
-            }
-        })
+    // /articles
+    getArticles = ( limit?: number, offset?: number ) => {
+        return this.callArticleAPI( this.buildPath("articles", this.buildArticlesQuery(limit, offset)), "GET" )
     }
 
-    // postArticle: ( token: String, article: Article ) => Promise<boolean>
-    // getArticlesForUser: ( username: string ) => Promise<Article[]>
-    // getArticlesForFavoriteUser: ( username: string ) => Promise<Article[]>
-    // getArticlesOfTagged: (tag: string ) => Promise<Article[]>
-    // getArticlesByFollowingUser: ( token: String ) => Promise<Article[]>
+    // /articles?author={ username }
+    getArticlesOfAuthor = ( author: string, limit?: number, offset?: number ) => {
+        return this.callArticleAPI( this.buildPath("articles", this.buildArticlesQuery(limit, offset, null, null, author) ), "GET" )
+    }
+
+    // /articles?favorited={ username }
+    getArticlesForFavoriteUser = ( username: string, limit?: number, offset?: number ) => {
+        return this.callArticleAPI( this.buildPath("articles", this.buildArticlesQuery(limit, offset, null, username) ), "GET" )
+    }
+
+    // /articles?tag={ tag }
+    getArticlesOfTagged = ( tag: string, limit?: number, offset?: number ) => {
+        return this.callArticleAPI( this.buildPath("articles", this.buildArticlesQuery(limit, offset, tag) ), "GET" )
+    }
+
+    // /articles/feed
+    getArticlesByFollowingUser = ( token: string, limit?: number, offset?: number ) => {
+        return this.callArticleAPI( this.buildPath("articles/feed", this.buildArticlesQuery(limit, offset)),
+                            "GET", this.buildHeader( { "Authorization" : "Token " + token } ) )
+    }
 
     // getArticle: (slug: string) => Promise<Article>
+
+    // postArticle: ( token: String, article: Article ) => Promise<boolean>
     // putArticle: (slug: string) => Promise<boolean>
     // deleteArticle: (slug: string) => Promise<boolean>
 
@@ -136,5 +130,63 @@ export default class ConduitProductionRepository implements ConduitRepository {
                 reject(error)
             }
         })
+    }
+    // // getUser: (token: string ) => Promise<User>
+    // getUser = (token: string ) => {
+    //     return new Promise<User>( async () => {
+    //         return new User()
+    //     })
+    // }
+    // // <<要調査>>// putUser: (token: ) => Promise<User>
+
+    // // Articles
+    private callArticleAPI = ( endpoint: string, method: string, headers?: {[key: string]: string } ) => {
+        return new Promise<ArticleContainer>( async (resolve, reject) => {
+            try {
+                const response = await fetch("https://conduit.productionready.io/api/" + endpoint, {
+                    headers: headers,
+                    method: method
+                })
+
+                const json = await response.json()
+                let container = new ArticleContainer( json.articlesCount, json.articles)
+                resolve( container )
+            } catch (error) {
+                reject(error)
+            }
+        })
+    }
+
+    private buildHeader = ( addtionalHeaders?:  {[key: string]: string } ) => {
+        let headers = {
+            "Accept": "application/json",
+            "Content-Type": "application/json"
+        }
+        if ( addtionalHeaders == null ) { return headers }
+        return Object.assign(headers, addtionalHeaders)
+    }
+
+    private buildPath = ( application: string, queries?:  {[key: string]: string } ) => {
+        let path = application
+        if ( queries != null ) {
+            let concated = "?"
+            Object.keys(queries).forEach((key, index, keys) => {
+                concated += key + "=" + queries[key]
+                if (index !== keys.length - 1) { concated += "&" }
+            })
+            if (concated.length > 0) { path += concated }
+        }
+        return path
+    }
+
+    private buildArticlesQuery = (limit?: number, offset?: number, tag?: string, favorited?: string, author?: string) => {
+        if (tag == null && favorited == null && author == null && offset == null && limit == null) { return null }
+        let queries = {}
+        if (offset != null && offset > 0 ) { queries["offset"] = offset.toString() }
+        if (limit != null && limit > 0 ) { queries["limit"] = limit.toString() }
+        if (tag != null) { queries["tag"] = tag }
+        else if (favorited != null) { queries["favorited"] = favorited }
+        else if (author != null) { queries["author"] = author }
+        return queries
     }
 }

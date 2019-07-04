@@ -113,7 +113,7 @@ export default class ApplicationUseCase {
         })
 
         this.menus.forEach( ( menu: Menu ) => {
-            route( "/" + menu.identifier, () => {
+            route( "/" + menu.identifier + "..", () => {
                 console.log("route is " + menu.identifier )
                 riot.mount( "div#mainView", menu.viewControllerName, menu )
             })
@@ -123,13 +123,13 @@ export default class ApplicationUseCase {
 
     routing = () => {
 
-        let location = SPALocation.shared()
-        console.log( location )
+        let loc = SPALocation.shared()
+        console.log( loc )
 
         // in launch
-        if ( location.page() ) {
+        if ( loc.application() ) {
             let filterd = this.menus.filter( ( menu: Menu ) => {
-                return menu.identifier === location.page()
+                return menu.identifier === loc.application()
             })
             if ( filterd.length > 0 ) {
                 let menu = filterd[0]
@@ -139,7 +139,7 @@ export default class ApplicationUseCase {
             }
         } else {
             setTimeout( () => {
-                riot.mount( "div#mainView", "root_view_controller" )
+                riot.mount( "div#mainView", "articles_view_controller" )
             }, 5)
         }
     }

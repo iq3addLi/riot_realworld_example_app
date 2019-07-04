@@ -18,17 +18,21 @@ export default class HTTPURLParser {
       // path
       let pathAtLater = hostAtLater.substr(host.length + separator.length)
       let qindex = pathAtLater.indexOf("?")
-      if (qindex === -1) { return null }
-      let path = pathAtLater.substr(0, qindex)
-
-      // query
-      let queryAtLater = pathAtLater.substr(path.length + 1)
-      let keyValues = queryAtLater.split("&")
+      let path = null
       let query: { [key: string]: string} = {}
-      keyValues.forEach( (keyValue) => {
-        let arr = keyValue.split("=")
-        query[arr[0]] = arr[1]
-      })
+      if (qindex !== -1) {
+        path = pathAtLater.substr(0, qindex)
+        // query
+        let queryAtLater = pathAtLater.substr(path.length + 1)
+        let keyValues = queryAtLater.split("&")
+        keyValues.forEach( (keyValue) => {
+          let arr = keyValue.split("=")
+          query[arr[0]] = arr[1]
+        })
+      } else {
+        path = pathAtLater
+      }
+
       // Success.
       return new HTTPURL(scheme, host, path, query)
     }

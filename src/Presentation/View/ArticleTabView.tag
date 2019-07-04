@@ -4,24 +4,15 @@
 
     import ArticleTabItem from "../Model/ArticleTabItem"
     var self = this
-
-    self.user = null
-    self.setUser = ( user ) => {
-        self.user = user
+    var _items = null
+    
+    self.setItems = ( items ) => {
+        _items = items
         self.update()
     }
 
     self.items = () => {
-        if ( self.user == null ){
-            return [
-                new ArticleTabItem( "Global Feed", "#/articles")
-            ]
-        }else{
-            return [
-                new ArticleTabItem( "Your Feed", "#/articles"),
-                new ArticleTabItem( "Global Feed", "#/articles")
-            ]
-        }
+        return _items
     }
 
 </script>
@@ -29,7 +20,7 @@
 <div class="feed-toggle">
     <ul class="nav nav-pills outline-active">
         <li class="nav-item" each={ item in items() }>
-            <a class="nav-link" href="{ item.href }">{ item.title }</a>
+            <a class={ item.isActive ? "nav-link active" : "nav-link" } href="{ item.href }">{ item.title }</a>
         </li>
     </ul>
 </div>

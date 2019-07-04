@@ -1,7 +1,7 @@
 {
-  "name": "template_made_riotjs",
+  "name": "riot_realworld_example_app",
   "version": "1.0.0",
-  "description": "このプロジェクトはテンプレートです。",
+  "description": "",
   "main": "index.js",
   "scripts": {
     "build": "gulp",
