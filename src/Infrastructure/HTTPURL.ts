@@ -2,18 +2,20 @@ export default class HTTPURL {
 
     scheme: string
     host: string
-    path: string
-    query: { [key: string]: string}
+    port?: number
+    path?: string
+    query?: { [key: string]: string}
 
-    constructor( scheme: string, host: string, path: string, query: { [key: string]: string}  ) {
+    constructor( scheme: string, host: string, path?: string, query?: { [key: string]: string}, port?: number ) {
       this.scheme = scheme
       this.host = host
       this.path = path
       this.query = query
+      this.port = port
     }
 
     fullPath = () => {
-      return this.scheme + "://" + this.host + "/" + this.path + "?" + this.concatedQuery()
+      return this.scheme + "://" + this.hostAndPort() + "/" + this.path + "?" + this.concatedQuery()
     }
 
     debugDescription = () => {
@@ -38,5 +40,14 @@ export default class HTTPURL {
         if (index !== keys.length - 1) { concated += "&" }
       })
       return concated
+    }
+
+    private hostAndPort = () => {
+      let hostAndPort = ""
+      if ( this.port === null ) {
+        return this.host
+      } else {
+        return this.host + ":" + this.port
+      }
     }
   }

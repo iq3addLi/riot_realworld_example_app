@@ -1,5 +1,6 @@
-import HTTPURL from "./HTTPURL"
+
 import HTTPURLParser from "./HTTPURLParser"
+
 /**
  * Location parser Specialized in SPA.
  */
