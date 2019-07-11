@@ -6,7 +6,7 @@
   "scripts": {
     "build": "gulp",
     "rollup": "rollup -c",
-    "test": "mocha -r ts-node/register test/tests/**/*.ts",
+    "test": "mocha -r ts-node/register test/**/*.ts",
     "local": "python -m SimpleHTTPServer"
   },
   "repository": {

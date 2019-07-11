@@ -2,15 +2,38 @@
     "version": "2.0.0",
     "command": "sh",
     "args": ["-c"],
-    "isShellCommand": true,
-    "showOutput": "always",
-    "suppressTaskName": true,
+    "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+    },
     "echoCommand" : true,
     "tasks": [
         {
-            "taskName"      : "build",
-            "args"          : ["npm run build"],
-            "isBuildCommand": true,
+            "label" : "build",
+            "args" : ["npm run build"],
+            "type" : "shell",
+            "group": {
+                "kind": "build",
+                "isDefault": true,
+            },
+            "isBackground"  : false,
+            "problemMatcher": [
+                "$tsc",
+                "$gulp-tsc"
+            ]
+        },
+        {
+            "label" : "test",
+            "args" : ["npm run test"],
+            "type" : "shell",
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            },
             "isBackground"  : false,
             "problemMatcher": [
                 "$tsc",
