@@ -38,7 +38,7 @@ export default class SPALocation {
             this._paths = null
             this._query = null
         } else {
-            let url = HTTPURLParser.parse(location.href)
+            let url = new HTTPURLParser().parse(location.href)
             let index = url.path.indexOf("#/")
             let str = url.path.substr( index + 2 )
             let splited = str.split("/")

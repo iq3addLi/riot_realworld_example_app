@@ -43,7 +43,6 @@ export default class HTTPURL {
     }
 
     private hostAndPort = () => {
-      let hostAndPort = ""
       if ( this.port === null ) {
         return this.host
       } else {

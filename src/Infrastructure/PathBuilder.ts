@@ -17,7 +17,7 @@ export default class PathBuilder {
     }
 
     fullPath = () => {
-        let url = HTTPURLParser.parse(location.href)
+        let url = new HTTPURLParser().parse(location.href)
         let index = url.path.indexOf("#/")
         let path = index !== -1 ? "/" + url.path.substr( 0, index ) : ""
         return url.scheme + "://" + url.host + path + this.path()
