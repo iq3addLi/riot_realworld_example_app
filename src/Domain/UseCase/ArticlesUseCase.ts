@@ -5,6 +5,7 @@ import ConduitProductionRepository from "../Repository/ConduitProductionReposito
 import UserLocalStorageRepository from "../Repository/UserLocalStorageRepository"
 import SPALocation from "../../Infrastructure/SPALocation"
 import Settings from "../../Infrastructure/Settings"
+import PathBuilder from "../../Infrastructure/PathBuilder"
 import ArticleContainer from "../Model/ArticleContainer"
 import ArticleTabItem from "../../Presentation/Model/ArticleTabItem"
 
@@ -18,7 +19,7 @@ export default class ArticlesUseCase {
     requestArticles = () => {
         let limit: number = Settings.shared().valueForKey("countOfArticleInView")
         let page = this.currentPage()
-        let offset = page == null ? null : page * limit
+        let offset = page == null ? null : (page - 1) * limit
         let postProcess = (container: ArticleContainer) => {
             this.currentArticle = container
             return container
@@ -74,18 +75,47 @@ export default class ArticlesUseCase {
         // Add "Your feed" ?
         if ( this.storage.user() != null ) {
             let isActiveYour = ( paths != null && paths[0] === "your" )
-            tabs.push( new ArticleTabItem( "Your Feed", "#/articles/your", isActiveYour) )
+            tabs.push( new ArticleTabItem( "your", "Your Feed", isActiveYour) )
         }
         // Add "Global feed"
         let isActiveGlobal = ( paths == null || paths[0] === "global" )
-        tabs.push( new ArticleTabItem( "Global Feed", "#/articles/global", isActiveGlobal) )
+        tabs.push( new ArticleTabItem( "global", "Global Feed", isActiveGlobal) )
         // Add "# {tag}" ?
         if ( paths != null && paths[0] === "tag" ) {
             let tag = paths[1]
             if (tag != null) {
-                tabs.push( new ArticleTabItem( "# " + tag, "#/articles/tag/" + tag, true) )
+                tabs.push( new ArticleTabItem( "tag", "# " + tag, true) )
             }
         }
         return tabs
+    }
+
+    jumpPage = (page: number) => {
+        let loc = SPALocation.shared()
+        let query = loc.query() ? loc.query() : {}
+        query["page"] = String(page)
+        let top = loc.application() ? loc.application() : "articles"
+        let path = new PathBuilder(top, loc.paths(), query ).fullPath()
+        // page transition
+        location.href = path
+    }
+
+
+    jumpPageBySubPath = (path: string) => {
+        let loc = SPALocation.shared()
+        let top = loc.application() ? loc.application() : "articles"
+        let full = new PathBuilder(top, [path]).fullPath()
+        // page transition
+        location.href = full
+    }
+
+    jumpPageByAuthor = (author: Author) => {
+        // page transition
+        location.href = new PathBuilder("profile", [author.username]).fullPath()
+    }
+
+    jumpPageByArticle = (article: Article) => {
+        // page transition
+        location.href = new PathBuilder("article", [article.slug]).fullPath()
     }
 }

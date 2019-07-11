@@ -3,6 +3,19 @@ import "../View/FooterView.tag"
 
 <profile_view_controller>
 
+<script>
+import ProfileUseCase from "../../Domain/UseCase/ProfileUseCase"
+
+var self = this
+var useCase = new ProfileUseCase()
+
+this.on('mount', () => {
+    if ( useCase.isLoggedIn() == true ) {
+        self.tags.header_view.setUser( useCase.loggedUser() )
+    }
+})
+</script>
+
 <header_view />
 
 <div class="profile-page">

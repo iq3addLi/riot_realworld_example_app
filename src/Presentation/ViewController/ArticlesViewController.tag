@@ -33,6 +33,21 @@ this.on('mount', () => {
     }
 
     self.tags.article_tab_view.setItems( useCase.tabItems() )
+
+    // set handler
+    self.tags.pagenation_view.didSelectPageNumber = (page) => {
+        console.log("page " + page + " selected.")
+        useCase.jumpPage(page)
+    }
+    self.tags.article_tab_view.didSelectTab = (item) => {
+        useCase.jumpPageBySubPath(item.identifier)
+    }
+    self.tags.articles_table_view.didSelectArticle = (article) => {
+        useCase.jumpPageByArticle(article)
+    }
+    self.tags.articles_table_view.didSelectAuthor = (author) => {
+        useCase.jumpPageByAuthor(author)
+    }
 })
 
 self.isLoggedIn = () => {

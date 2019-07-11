@@ -16,34 +16,43 @@ import SPALocation from "../../Infrastructure/SPALocation"
 
 interface Menu {
     identifier: String
+    filter: String
     viewControllerName: String
 }
 
 export default class ApplicationUseCase {
 
     private menus: Menu[] = [{
-            identifier : "",
-            viewControllerName : "articles_view_controller"
-        }, {
             identifier : "login",
+            filter : "/login",
             viewControllerName : "login_view_controller"
         }, {
-            identifier : "settings",
+            identifier: "identifier",
+            filter : "/settings",
             viewControllerName : "settings_view_controller"
         }, {
+            identifier : "articles",
+            filter : "/articles..",
+            viewControllerName : "articles_view_controller"
+        }, {
             identifier : "article",
+            filter : "/article..",
             viewControllerName : "article_view_controller"
         }, {
             identifier : "editer",
+            filter : "/editer",
             viewControllerName : "editer_view_controller"
         }, {
             identifier : "profile",
+            filter : "/profile..",
             viewControllerName : "profile_view_controller"
         }, {
             identifier : "register",
+            filter : "/register",
             viewControllerName : "register_view_controller"
         }, {
-            identifier : "articles",
+            identifier : "",
+            filter : "/",
             viewControllerName : "articles_view_controller"
         }
     ]
@@ -113,8 +122,7 @@ export default class ApplicationUseCase {
         })
 
         this.menus.forEach( ( menu: Menu ) => {
-            route( "/" + menu.identifier + "..", () => {
-                console.log("route is " + menu.identifier )
+            route( menu.filter, () => {
                 riot.mount( "div#mainView", menu.viewControllerName, menu )
             })
         })

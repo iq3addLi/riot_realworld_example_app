@@ -2,7 +2,20 @@ import "../View/HeaderView.tag"
 import "../View/FooterView.tag"
 
 <settings_view_controller>
-    
+
+<script>
+import SettingsUseCase from "../../Domain/UseCase/SettingsUseCase"
+
+var self = this
+var useCase = new SettingsUseCase()
+
+this.on('mount', () => {
+    if ( useCase.isLoggedIn() == true ) {
+        self.tags.header_view.setUser( useCase.loggedUser() )
+    }
+})
+</script>
+
 <header_view />
 
     <div class="settings-page">

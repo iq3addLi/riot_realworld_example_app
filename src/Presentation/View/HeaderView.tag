@@ -29,7 +29,7 @@
 
             <virtual if={ isLoggedIn() == true }>
                 <li class="nav-item">
-                    <a class="nav-link" href=""><i class="ion-compose"></i>&nbsp;New Post</a>
+                    <a class="nav-link" href="#/editer"><i class="ion-compose"></i>&nbsp;New Post</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="#/settings"><i class="ion-gear-a"></i>&nbsp;Settings</a>

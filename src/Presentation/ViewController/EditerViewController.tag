@@ -3,6 +3,19 @@ import "../View/FooterView.tag"
 
 <editer_view_controller>
 
+<script>
+import EditerUseCase from "../../Domain/UseCase/EditerUseCase"
+
+var self = this
+var useCase = new EditerUseCase()
+
+this.on('mount', () => {
+    if ( useCase.isLoggedIn() == true ) {
+        self.tags.header_view.setUser( useCase.loggedUser() )
+    }
+})
+</script>
+
 <header_view />
 
     <div class="editor-page">

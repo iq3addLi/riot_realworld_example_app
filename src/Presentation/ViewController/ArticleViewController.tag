@@ -3,6 +3,19 @@ import "../View/FooterView.tag"
 
 <article_view_controller>
 
+<script>
+import ArticleUseCase from "../../Domain/UseCase/ArticleUseCase"
+
+var self = this
+var useCase = new ArticleUseCase()
+
+this.on('mount', () => {
+    if ( useCase.isLoggedIn() == true ) {
+        self.tags.header_view.setUser( useCase.loggedUser() )
+    }
+})
+</script>
+
 <header_view />
 
 <div class="article-page">

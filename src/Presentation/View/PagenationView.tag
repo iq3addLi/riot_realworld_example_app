@@ -3,13 +3,16 @@
     var self = this
     var countOfPage = 0
 
+    // public property
+    self.shownPage = 1
+    // public hundler
+    self.didSelectPageNumber = () => {}
+
+    // public functions
     self.setCountOfPage = ( count ) => {
         countOfPage = count
         self.update()
     }
-
-    self.shownPage = 1
-
     self.isShow = () => {
         return countOfPage > 0
     }
@@ -22,18 +25,19 @@
         return "page-item" // or "page-item active"
     }
 
-    self.hrefOfPage = () => {
-        return "#/articles" // "#/articles?page={page}"
-    }
-
     self.arrayOfPageNumber = () => {
         return [...Array(countOfPage).keys()].map(i => ++i)
     }
+
+    self.actionOfClickPageLink = (event) =>{
+        self.didSelectPageNumber( event.item.page )
+    }
+
 </script>
 
 <ul class="pagination" if={ isShow }>
     <li each={ page in arrayOfPageNumber() } class={ classOfPage() }>
-        <a class="page-link" href={ hrefOfPage() }>{ page }</a>
+        <a class="page-link" onclick={ actionOfClickPageLink }>{ page }</a>
     </li>
 </ul>
 
