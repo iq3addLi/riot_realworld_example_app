@@ -9,11 +9,38 @@ import EditerUseCase from "../../Domain/UseCase/EditerUseCase"
 var self = this
 var useCase = new EditerUseCase()
 
-this.on('mount', () => {
+self.errors = null
+self.on('mount', () => {
     if ( useCase.isLoggedIn() == true ) {
         self.tags.header_view.setUser( useCase.loggedUser() )
     }
 })
+
+self.actionOfPublishButton = () => {
+    let title = self.refs.titleField.value
+    let description = self.refs.descriptionField.value
+    let body = self.refs.bodyField.value
+    let tagList = self.refs.tagListField.value
+    console.log(
+        "title=" + title + ", " +
+        "description=" + description + ", " +
+        "body=" + body + ", " +
+        "tagList=" + tagList 
+    )
+    useCase.post(title, description, body, tagList).then( (article) => {
+        // success
+        useCase.jumpPageByArticle(article)
+    }).catch( (error) => {
+        // failure
+        if (error instanceof Array ) {
+            self.errors = error.map( (aError) => aError.message )
+        }else if( error instanceof Error ) {
+            self.errors = [ error.message ]
+        }
+        self.update()
+    })
+}
+
 </script>
 
 <header_view />
@@ -23,21 +50,25 @@ this.on('mount', () => {
         <div class="row">
     
         <div class="col-md-10 offset-md-1 col-xs-12">
+
+            <ul if={ errors != null } class="error-messages">
+                <li each={ error in errors }>{ error }</li>
+            </ul>
             <form>
             <fieldset>
                 <fieldset class="form-group">
-                    <input type="text" class="form-control form-control-lg" placeholder="Article Title">
+                    <input ref="titleField" type="text" class="form-control form-control-lg" placeholder="Article Title">
                 </fieldset>
                 <fieldset class="form-group">
-                    <input type="text" class="form-control" placeholder="What's this article about?">
+                    <input ref="descriptionField" type="text" class="form-control" placeholder="What's this article about?">
                 </fieldset>
                 <fieldset class="form-group">
-                    <textarea class="form-control" rows="8" placeholder="Write your article (in markdown)"></textarea>
+                    <textarea ref="bodyField" class="form-control" rows="8" placeholder="Write your article (in markdown)"></textarea>
                 </fieldset>
                 <fieldset class="form-group">
-                    <input type="text" class="form-control" placeholder="Enter tags"><div class="tag-list"></div>
+                    <input ref="tagListField" type="text" class="form-control" placeholder="Enter tags"><div class="tag-list"></div>
                 </fieldset>
-                <button class="btn btn-lg pull-xs-right btn-primary" type="button">
+                <button class="btn btn-lg pull-xs-right btn-primary" type="button" onclick={ actionOfPublishButton }>
                     Publish Article
                 </button>
             </fieldset>

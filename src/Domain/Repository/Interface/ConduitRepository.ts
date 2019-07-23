@@ -16,7 +16,7 @@ export default interface ConduitRepository {
 
     // // Articles
     getArticles: (  limit?: number, offset?: number) => Promise<ArticleContainer>
-    getArticlesOfAuthor: ( author: string, limit?: number, offset?: number ) => Promise<ArticleContainer>
+    getArticlesOfProfile: ( profile: string, limit?: number, offset?: number ) => Promise<ArticleContainer>
     getArticlesForFavoriteUser: ( username: string, limit?: number, offset?: number ) => Promise<ArticleContainer>
     getArticlesOfTagged: ( tag: string, limit?: number, offset?: number ) => Promise<ArticleContainer>
     getArticlesByFollowingUser: ( token: string, limit?: number, offset?: number ) => Promise<ArticleContainer>

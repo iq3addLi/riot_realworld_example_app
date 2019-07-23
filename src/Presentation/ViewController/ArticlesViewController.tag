@@ -45,8 +45,8 @@ this.on('mount', () => {
     self.tags.articles_table_view.didSelectArticle = (article) => {
         useCase.jumpPageByArticle(article)
     }
-    self.tags.articles_table_view.didSelectAuthor = (author) => {
-        useCase.jumpPageByAuthor(author)
+    self.tags.articles_table_view.didSelectProfile  = (profile) => {
+        useCase.jumpPageByProfile (profile)
     }
 })
 
@@ -64,7 +64,7 @@ self.isLoggedIn = () => {
 <div class="container page">
     <div class="row">
         <div class="col-md-9">
-            <article_tab_view />
+            <article_tab_view toggle_style="feed-toggle"/>
             <articles_table_view />
             <pagenation_view />
         </div>

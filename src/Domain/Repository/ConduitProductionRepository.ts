@@ -1,6 +1,7 @@
 import ConduitRepository from "./interface/ConduitRepository"
 import User from "../Model/User"
 import Article from "../Model/Article"
+import PostArticle from "../Model/PostArticle"
 import Comment from "../Model/Comment"
 import Profile from "../Model/Profile"
 import UserForm from "../Model/UserForm"
@@ -74,8 +75,8 @@ export default class ConduitProductionRepository implements ConduitRepository {
     }
 
     // /articles?author={ username }
-    getArticlesOfAuthor = ( author: string, limit?: number, offset?: number ) => {
-        return this.callArticleAPI( this.buildPath("articles", this.buildArticlesQuery(limit, offset, null, null, author) ), "GET" )
+    getArticlesOfProfile = ( profile: string, limit?: number, offset?: number ) => {
+        return this.callArticleAPI( this.buildPath("articles", this.buildArticlesQuery(limit, offset, null, null, profile) ), "GET" )
     }
 
     // /articles?favorited={ username }
@@ -96,7 +97,36 @@ export default class ConduitProductionRepository implements ConduitRepository {
 
     // getArticle: (slug: string) => Promise<Article>
 
-    // postArticle: ( token: String, article: Article ) => Promise<boolean>
+    postArticle = ( token: String, article: PostArticle ): Promise<Article> => {
+        return new Promise<Article>( async (resolve, reject) => {
+            try {
+                const response = await fetch("https://conduit.productionready.io/api/articles", {
+                    headers: {
+                    "Accept": "application/json",
+                    "Content-Type": "application/json",
+                    "Authorization" : "Token " + token
+                    },
+                    method: "POST",
+                    body: JSON.stringify({ "article": article })
+                })
+                if ( response.status === 200 ) {
+                    const json = await response.json()
+                    let article = Article.init(json.article)
+                    resolve( article )
+                } else if ( response.status === 422 ) {
+                    const json = await response.json()
+                    let errors = Object.keys(json.errors).map(key => new ServerError(key, json.errors[key]))
+                    throw errors.map((error) => new Error( error.subject + " " + error.concatObjects() ))
+                } else {
+                    throw new Error("Unexpected error.")
+                }
+            } catch ( error ) {
+                reject(error)
+            }
+        })
+        return null
+    }
+
     // putArticle: (slug: string) => Promise<boolean>
     // deleteArticle: (slug: string) => Promise<boolean>
 
@@ -179,14 +209,14 @@ export default class ConduitProductionRepository implements ConduitRepository {
         return path
     }
 
-    private buildArticlesQuery = (limit?: number, offset?: number, tag?: string, favorited?: string, author?: string) => {
-        if (tag == null && favorited == null && author == null && offset == null && limit == null) { return null }
+    private buildArticlesQuery = (limit?: number, offset?: number, tag?: string, favorited?: string, profile?: string) => {
+        if (tag == null && favorited == null && profile == null && offset == null && limit == null) { return null }
         let queries = {}
         if (offset != null && offset > 0 ) { queries["offset"] = offset.toString() }
         if (limit != null && limit > 0 ) { queries["limit"] = limit.toString() }
         if (tag != null) { queries["tag"] = tag }
         else if (favorited != null) { queries["favorited"] = favorited }
-        else if (author != null) { queries["author"] = author }
+        else if (profile != null) { queries["profile"] = profile }
         return queries
     }
 }

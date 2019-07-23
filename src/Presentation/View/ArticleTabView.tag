@@ -24,7 +24,7 @@
     }
 </script>
 
-<div class="feed-toggle">
+<div class={ opts.toggle_style }>
     <ul class="nav nav-pills outline-active">
         <li class="nav-item" each={ item in items() }>
             <a class={ item.isActive ? "nav-link active" : "nav-link" } onclick={ actionOfClickTab }>{ item.title }</a>

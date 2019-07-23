@@ -14,6 +14,10 @@ this.on('mount', () => {
         self.tags.header_view.setUser( useCase.loggedUser() )
     }
 })
+
+self.actionOfUpdateButton = () => {
+    console.log("Update")
+}
 </script>
 
 <header_view />
@@ -28,21 +32,21 @@ this.on('mount', () => {
                 <form>
                 <fieldset>
                     <fieldset class="form-group">
-                        <input class="form-control" type="text" placeholder="URL of profile picture">
+                        <input ref="iconURLField" class="form-control" type="text" placeholder="URL of profile picture">
                     </fieldset>
                     <fieldset class="form-group">
-                        <input class="form-control form-control-lg" type="text" placeholder="Your Name">
+                        <input ref="nameField" class="form-control form-control-lg" type="text" placeholder="Your Name">
                     </fieldset>
                     <fieldset class="form-group">
-                        <textarea class="form-control form-control-lg" rows="8" placeholder="Short bio about you"></textarea>
+                        <textarea ref="bioField" class="form-control form-control-lg" rows="8" placeholder="Short bio about you"></textarea>
                     </fieldset>
                     <fieldset class="form-group">
-                        <input class="form-control form-control-lg" type="text" placeholder="Email">
+                        <input ref="emailField" class="form-control form-control-lg" type="text" placeholder="Email">
                     </fieldset>
                     <fieldset class="form-group">
-                        <input class="form-control form-control-lg" type="password" placeholder="Password">
+                        <input ref="passwordField" class="form-control form-control-lg" type="password" placeholder="Password">
                     </fieldset>
-                    <button class="btn btn-lg btn-primary pull-xs-right">
+                    <button class="btn btn-lg btn-primary pull-xs-right" type="button" onclick={ actionOfUpdateButton }>
                         Update Settings
                     </button>
                 </fieldset>

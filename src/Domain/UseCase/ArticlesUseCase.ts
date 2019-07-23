@@ -1,5 +1,5 @@
 import Article from "../Model/Article"
-import Author from "../Model/Author"
+import Profile  from "../Model/Profile "
 
 import ConduitProductionRepository from "../Repository/ConduitProductionRepository"
 import UserLocalStorageRepository from "../Repository/UserLocalStorageRepository"
@@ -109,7 +109,7 @@ export default class ArticlesUseCase {
         location.href = full
     }
 
-    jumpPageByAuthor = (author: Author) => {
+    jumpPageByProfile  = (profile: Profile ) => {
         // page transition
         location.href = new SPAPathBuilder("profile", [profile.username]).fullPath()
     }

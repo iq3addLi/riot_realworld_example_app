@@ -10,9 +10,9 @@ self.setArticles = ( articles ) => {
     self.update()
 }
 
-self.didSelectAuthor = () => {}
-self.actionOfClickAuthor = (event) => {
-    self.didSelectAuthor( event.item.article.author )
+self.didSelectProfile  = () => {}
+self.actionOfClickProfile  = (event) => {
+    self.didSelectProfile ( event.item.article.profile )
 }
 
 self.didSelectArticle = () => {}
@@ -24,9 +24,9 @@ self.actionOfClickArticle = (event) => {
 
 <div class="article-preview" each={ article in articles }>
     <div class="article-meta">
-        <a onclick={ actionOfClickAuthor }><img src={ article.author.image } /></a>
+        <a onclick={ actionOfClickProfile  }><img src={ article.author.image } /></a>
         <div class="info">
-            <a class="author" onclick={ actionOfClickAuthor }>{ article.author.username }</a>
+            <a class="author" onclick={ actionOfClickProfile  }>{ article.author.username }</a>
             <span class="date">January 20th</span>
         </div>
         <button class="btn btn-outline-primary btn-sm pull-xs-right">
