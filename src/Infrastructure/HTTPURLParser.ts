@@ -16,7 +16,7 @@ export default class HTTPURLParser {
             let path = this.parsedPath(urlString)
             let query = this.parsedQuery(urlString)
             if ( scheme == null || host == null || Number.isNaN(port) || (path === null && query !== null) ) {
-                throw Error("Argument is not HTTPURL.")
+                throw Error("urlString is not HTTPURL.")
             }
             // Success
             return new HTTPURL( scheme, host, path, query, port )

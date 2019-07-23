@@ -135,9 +135,9 @@ export default class ApplicationUseCase {
         console.log( loc )
 
         // in launch
-        if ( loc.application() ) {
+        if ( loc.scene() ) {
             let filterd = this.menus.filter( ( menu: Menu ) => {
-                return menu.identifier === loc.application()
+                return menu.identifier === loc.scene()
             })
             if ( filterd.length > 0 ) {
                 let menu = filterd[0]

@@ -8,7 +8,7 @@ export default class SPALocation {
 
     private static _instance: SPALocation
 
-    private _application?: string
+    private _scene?: string
     private _paths?: string[]
     private _query?: {[key: string]: string}
 
@@ -20,7 +20,7 @@ export default class SPALocation {
         return SPALocation._instance
     }
 
-    public application = () => { return this._application }
+    public scene = () => { return this._scene }
     public paths = () => { return this._paths }
     public query = () => { return this._query }
 
@@ -32,24 +32,32 @@ export default class SPALocation {
     }
 
     private updateProperties = () => {
-        // Update properties
-        if (location.hash === null || location.hash.length === 0 ) {
-            this._application = null
+        try {
+            if (location.hash === null || location.hash.length === 0 ) {
+                throw Error("location is empty.")
+            }
+            let url = new HTTPURLParser().parse(location.href)
+            let path = url.path
+            if ( path === null ) {
+                throw Error("A path is empty.")
+            }
+            let index = path.indexOf("#/")
+            if ( index === -1 ) {
+                throw Error("hashbang is not found.")
+            }
+            let str = path.substr( index + 2 )
+            let splited = str.split("/")
+            if ( splited.length < 1 ) {
+                throw Error("A path is not splittable.")
+            }
+            this._scene = splited.shift()
+            this._paths = splited.length > 0 ? splited : null
+            this._query = url.query
+
+        } catch (error) {
+            this._scene = null
             this._paths = null
             this._query = null
-        } else {
-            let url = new HTTPURLParser().parse(location.href)
-            let index = url.path.indexOf("#/")
-            let str = url.path.substr( index + 2 )
-            let splited = str.split("/")
-            // page
-            this._application = splited.shift()
-            // paths
-            this._paths = splited
-            // query
-            if ( Object.keys(url.query).length > 0 ) {
-                this._query = url.query
-            }
         }
     }
 }

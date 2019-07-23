@@ -1,5 +1,6 @@
 import User from "../../Model/User"
 import Article from "../../Model/Article"
+import PostArticle from "../../Model/PostArticle"
 import ArticleContainer from "../../Model/ArticleContainer"
 import Comment from "../../Model/Comment"
 import Profile from "../../Model/Profile"
@@ -21,7 +22,7 @@ export default interface ConduitRepository {
     getArticlesByFollowingUser: ( token: string, limit?: number, offset?: number ) => Promise<ArticleContainer>
 
     // getArticle: (slug: string) => Promise<Article>
-    // postArticle: ( token: String, article: Article ) => Promise<boolean>
+    postArticle: ( token: String, article: PostArticle ) => Promise<Article>
     // putArticle: (slug: string) => Promise<boolean>
     // deleteArticle: (slug: string) => Promise<boolean>
 

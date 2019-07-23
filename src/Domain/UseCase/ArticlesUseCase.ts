@@ -5,7 +5,7 @@ import ConduitProductionRepository from "../Repository/ConduitProductionReposito
 import UserLocalStorageRepository from "../Repository/UserLocalStorageRepository"
 import SPALocation from "../../Infrastructure/SPALocation"
 import Settings from "../../Infrastructure/Settings"
-import PathBuilder from "../../Infrastructure/PathBuilder"
+import SPAPathBuilder from "../../Infrastructure/SPAPathBuilder"
 import ArticleContainer from "../Model/ArticleContainer"
 import ArticleTabItem from "../../Presentation/Model/ArticleTabItem"
 
@@ -94,8 +94,8 @@ export default class ArticlesUseCase {
         let loc = SPALocation.shared()
         let query = loc.query() ? loc.query() : {}
         query["page"] = String(page)
-        let top = loc.application() ? loc.application() : "articles"
-        let path = new PathBuilder(top, loc.paths(), query ).fullPath()
+        let top = loc.scene() ? loc.scene() : "articles"
+        let path = new SPAPathBuilder(top, loc.paths(), query ).fullPath()
         // page transition
         location.href = path
     }
@@ -103,19 +103,19 @@ export default class ArticlesUseCase {
 
     jumpPageBySubPath = (path: string) => {
         let loc = SPALocation.shared()
-        let top = loc.application() ? loc.application() : "articles"
-        let full = new PathBuilder(top, [path]).fullPath()
+        let top = loc.scene() ? loc.scene() : "articles"
+        let full = new SPAPathBuilder(top, [path]).fullPath()
         // page transition
         location.href = full
     }
 
     jumpPageByAuthor = (author: Author) => {
         // page transition
-        location.href = new PathBuilder("profile", [author.username]).fullPath()
+        location.href = new SPAPathBuilder("profile", [profile.username]).fullPath()
     }
 
     jumpPageByArticle = (article: Article) => {
         // page transition
-        location.href = new PathBuilder("article", [article.slug]).fullPath()
+        location.href = new SPAPathBuilder("article", [article.slug]).fullPath()
     }
 }

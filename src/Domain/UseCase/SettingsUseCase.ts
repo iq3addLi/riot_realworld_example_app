@@ -1,4 +1,5 @@
 import UserLocalStorageRepository from "../Repository/UserLocalStorageRepository"
+import PostUser from "../Model/PostUser"
 
 export default class SettingsUseCase {
 
