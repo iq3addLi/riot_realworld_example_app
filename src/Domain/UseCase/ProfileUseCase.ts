@@ -35,7 +35,7 @@ export default class ProfileUseCase {
     requestArticles = ( completion: (articles?: Article[]) => void) => {
         let articles = [
             new Article("Dummy Article", "dumm-ahjsishljfb", "# You are dummy!", "", "", ["dummy", "big"], "Why need description on a article?",
-                new Profile ("hoge", "http://flat-icon-design.com/f/f_object_169/svg_f_object_169_0bg.svg", true, "bio") , true, 100)
+                new Profile ("hoge", "bio", "http://flat-icon-design.com/f/f_object_169/svg_f_object_169_0bg.svg", true) , true, 100)
         ]
         this.currentArticle = new ArticleContainer(1, articles)
         completion(articles)
@@ -46,7 +46,7 @@ export default class ProfileUseCase {
             return 0
         }
         let limit: number = Settings.shared().valueForKey("countOfArticleInView")
-        return this.currentArticle.count / limit
+        return Math.floor(this.currentArticle.count / limit)
     }
 
     currentPage = () => {

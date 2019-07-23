@@ -59,7 +59,7 @@ export default class ArticlesUseCase {
             return 0
         }
         let limit: number = Settings.shared().valueForKey("countOfArticleInView")
-        return this.currentArticle.count / limit
+        return Math.floor(this.currentArticle.count / limit)
     }
 
     currentPage = () => {

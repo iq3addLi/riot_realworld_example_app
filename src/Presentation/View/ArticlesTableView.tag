@@ -24,9 +24,9 @@ self.actionOfClickArticle = (event) => {
 
 <div class="article-preview" each={ article in articles }>
     <div class="article-meta">
-        <a onclick={ actionOfClickProfile  }><img src={ article.author.image } /></a>
+        <a onclick={ actionOfClickProfile  }><img src={ article.profile.image } /></a>
         <div class="info">
-            <a class="author" onclick={ actionOfClickProfile  }>{ article.author.username }</a>
+            <a class="author" onclick={ actionOfClickProfile  }>{ article.profile.username }</a>
             <span class="date">January 20th</span>
         </div>
         <button class="btn btn-outline-primary btn-sm pull-xs-right">

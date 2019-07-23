@@ -10,7 +10,7 @@
 
     // public functions
     self.setCountOfPage = ( count ) => {
-        countOfPage = count
+        countOfPage = count === null ? 0 : count
         self.update()
     }
     self.isShow = () => {
