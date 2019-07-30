@@ -121,7 +121,7 @@ export default class ArticleUseCase {
 }
 
 class ArticleState {
-    scene: string // article
+    scene: string
 
     constructor( location: SPALocation ) {
         // scene

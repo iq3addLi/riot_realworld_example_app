@@ -4,17 +4,7 @@
 
 var self = this
 
-self.user = null
 self.items = []
-self.setUser = ( user ) => {
-    self.user = user
-    self.update()
-}
-
-self.isLoggedIn = () => {
-    return self.user != null
-}
-
 self.setItems = (items) => {
     self.items = items
     self.update()

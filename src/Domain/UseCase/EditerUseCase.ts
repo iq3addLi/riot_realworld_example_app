@@ -28,10 +28,28 @@ export default class EditerUseCase {
         return new MenuItemsBuilder().items( this.state.scene, this.storage.user() )
     }
 
+    ifNeededRequestArticle = () => {
+        if ( this.state.slug === null ) {
+            // needless
+            return new Promise<Article>( async (resolve, _) => { resolve(null) } )
+        }
+        return this.conduit.getArticle( this.state.slug )
+    }
+
+    isNewArticle = () => {
+        return this.state.slug === null
+    }
+
     post = ( title: string, description: string, body: string, tagList: string) => {
         let splitted = tagList.split(",")
         let tags: string[] = (splitted.length > 0 ? splitted : null )
-        return this.conduit.postArticle(this.storage.user().token, new PostArticle(title, description, body, tags))
+        if ( this.state.slug === null ) {
+            // new article
+            return this.conduit.postArticle(this.storage.user().token, new PostArticle(title, description, body, tags))
+        } else {
+            // update
+            return this.conduit.updateArticle(this.storage.user().token, new PostArticle(title, description, body, tags), this.state.slug)
+        }
     }
 
     jumpPageByArticle = (article: Article) => {
@@ -41,10 +59,15 @@ export default class EditerUseCase {
 }
 
 class EditerState {
-    scene: string // article
+    scene: string
+    slug?: string // slug or null
 
     constructor( location: SPALocation ) {
         // scene
         this.scene = location.scene()
+
+        // slug
+        let paths = location.paths() ? location.paths() : []
+        this.slug = ( paths.length >= 1 ) ? paths[0] : null
     }
 }

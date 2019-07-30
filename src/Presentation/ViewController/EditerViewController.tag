@@ -13,19 +13,24 @@ self.errors = null
 self.on('mount', () => {
     // setup header
     self.tags.header_view.setItems( useCase.menuItems() )
+
+    // request article
+    useCase.ifNeededRequestArticle().then( (article) => {
+        if (article === null ) return
+        // setup form
+        self.refs.titleField.value = article.title
+        self.refs.descriptionField.value = article.description
+        self.refs.bodyField.value = article.body
+        self.refs.tagListField.value = article.tagList.join(",")
+    })
 })
 
-self.actionOfPublishButton = () => {
+self.actionOfSubmitButton = () => {
     let title = self.refs.titleField.value
     let description = self.refs.descriptionField.value
     let body = self.refs.bodyField.value
     let tagList = self.refs.tagListField.value
-    console.log(
-        "title=" + title + ", " +
-        "description=" + description + ", " +
-        "body=" + body + ", " +
-        "tagList=" + tagList 
-    )
+
     useCase.post(title, description, body, tagList).then( (article) => {
         // success
         useCase.jumpPageByArticle(article)
@@ -38,6 +43,10 @@ self.actionOfPublishButton = () => {
         }
         self.update()
     })
+}
+
+self.submitButtonTitle = () => {
+    return useCase.isNewArticle() ? "Publish Article" : "Update Article"
 }
 
 </script>
@@ -67,8 +76,8 @@ self.actionOfPublishButton = () => {
                 <fieldset class="form-group">
                     <input ref="tagListField" type="text" class="form-control" placeholder="Enter tags"><div class="tag-list"></div>
                 </fieldset>
-                <button class="btn btn-lg pull-xs-right btn-primary" type="button" onclick={ actionOfPublishButton }>
-                    Publish Article
+                <button class="btn btn-lg pull-xs-right btn-primary" type="button" onclick={ actionOfSubmitButton }>
+                    { submitButtonTitle() }
                 </button>
             </fieldset>
             </form>

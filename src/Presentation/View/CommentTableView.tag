@@ -51,7 +51,6 @@ self.actionOfTrashButton = ( commentId ) => {
         <!-- comment controls -->
         <virtual if={ comment.author.username === loggedUserProfile.username }>
             <span class="mod-options">
-                <!-- <i class="ion-edit"></i> -->
                 <i onclick={ actionOfTrashButton.bind( this, comment.id ) } class="ion-trash-a"></i>
             </span>
         </virtual>

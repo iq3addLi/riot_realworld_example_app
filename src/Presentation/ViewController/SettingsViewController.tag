@@ -9,8 +9,9 @@ import SettingsUseCase from "../../Domain/UseCase/SettingsUseCase"
 var self = this
 var useCase = new SettingsUseCase()
 
-this.on('mount', () => {
+self.errors = null
 
+this.on('mount', () => {
     // setup header
     self.tags.header_view.setItems( useCase.menuItems() )
 
@@ -23,7 +24,24 @@ this.on('mount', () => {
 })
 
 self.actionOfUpdateButton = () => {
-    console.log("Update")
+    let email = this.refs.emailField.value
+    let username = this.refs.nameField.value
+    let bio = this.refs.bioField.value
+    let image = this.refs.iconURLField.value
+    let password = this.refs.passwordField.value
+
+    useCase.post(email, username, bio, image, password).then( (user) => {
+        // success
+        useCase.jumpToHome()
+    }).catch( (error) => {
+        // failure
+        if (error instanceof Array ) {
+            self.errors = error.map( (aError) => aError.message )
+        }else if( error instanceof Error ) {
+            self.errors = [ error.message ]
+        }
+        self.update()
+    })
 }
 
 self.actionOfLogoutButton = () => {
@@ -41,6 +59,11 @@ self.actionOfLogoutButton = () => {
             <div class="col-md-6 offset-md-3 col-xs-12">
                 <h1 class="text-xs-center">Your Settings</h1>
         
+
+                <ul if={ errors != null } class="error-messages">
+                    <li each={ error in errors }>{ error }</li>
+                </ul>
+
                 <form>
                 <fieldset>
                     <fieldset class="form-group">

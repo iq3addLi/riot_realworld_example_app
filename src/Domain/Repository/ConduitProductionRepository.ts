@@ -7,10 +7,12 @@ import Profile from "../Model/Profile"
 import UserForm from "../Model/UserForm"
 import ServerError from "../Model/ServerError"
 import ArticleContainer from "../Model/ArticleContainer"
+import PostUser from "../Model/PostUser"
 
 export default class ConduitProductionRepository implements ConduitRepository {
 
-    // Users
+    // Auths
+
     // login: (email: string, password: string ) => Promise<User>
     login = (email: string, password: string ) => {
         return new Promise<User>( async (resolve, reject) => {
@@ -69,7 +71,68 @@ export default class ConduitProductionRepository implements ConduitRepository {
         })
     }
 
-    // /articles
+    // GET {{APIURL}}/user
+    getUser = (token: string ): Promise<User> => {
+        return new Promise<User>( async (resolve, reject) => {
+            try {
+                const response = await fetch("https://conduit.productionready.io/api/user", {
+                    headers: {
+                    "Accept": "application/json",
+                    "Content-Type": "application/json",
+                    "Authorization" : "Token " + token
+                    },
+                    method: "GET"
+                })
+                if ( response.status === 200 ) {
+                    const json = await response.json()
+                    let user = User.init(json.user)
+                    resolve( user )
+                } else if ( response.status === 422 ) {
+                    const json = await response.json()
+                    let errors = Object.keys(json.errors).map(key => new ServerError(key, json.errors[key]))
+                    throw errors.map((error) => new Error( error.subject + " " + error.concatObjects() ))
+                } else {
+                    throw new Error("Unexpected error.")
+                }
+            } catch ( error ) {
+                reject(error)
+            }
+        })
+    }
+
+    // PUT {{APIURL}}/user
+    updateUser = (token: string, user: PostUser): Promise<User> => {
+        return new Promise<User>( async (resolve, reject) => {
+            try {
+                const response = await fetch("https://conduit.productionready.io/api/user", {
+                    headers: {
+                    "Accept": "application/json",
+                    "Content-Type": "application/json",
+                    "Authorization" : "Token " + token
+                    },
+                    method: "PUT",
+                    body: JSON.stringify({"user": user.trimmed() })
+                })
+                if ( response.status === 200 ) {
+                    const json = await response.json()
+                    let user = User.init(json.user)
+                    resolve( user )
+                } else if ( response.status === 422 ) {
+                    const json = await response.json()
+                    let errors = Object.keys(json.errors).map(key => new ServerError(key, json.errors[key]))
+                    throw errors.map((error) => new Error( error.subject + " " + error.concatObjects() ))
+                } else {
+                    throw new Error("Unexpected error.")
+                }
+            } catch ( error ) {
+                reject(error)
+            }
+        })
+    }
+
+
+    // articles
+
     getArticles = ( limit?: number, offset?: number ) => {
         return this.callArticleAPI( this.buildPath("articles", this.buildArticlesQuery(limit, offset)), "GET" )
     }
@@ -153,6 +216,91 @@ export default class ConduitProductionRepository implements ConduitRepository {
             }
         })
     }
+
+    // DEL {{APIURL}}/articles/{{slug}}/comments/{{commentId}}
+    deleteComment = ( token: string, slug: string, commentId: number ): Promise<void> => {
+        return new Promise<void>( async (resolve, reject) => {
+            try {
+                const response = await fetch("https://conduit.productionready.io/api/articles/" + slug + "/comments/" + commentId, {
+                    headers: {
+                    "Accept": "application/json",
+                    "Content-Type": "application/json",
+                    "Authorization" : "Token " + token
+                    },
+                    method: "DELETE"
+                })
+                if ( response.status === 200 ) {
+                    resolve()
+                } else if ( response.status === 422 ) {
+                    const json = await response.json()
+                    let errors = Object.keys(json.errors).map(key => new ServerError(key, json.errors[key]))
+                    throw errors.map((error) => new Error( error.subject + " " + error.concatObjects() ))
+                } else {
+                    throw new Error("Unexpected error.")
+                }
+            } catch ( error ) {
+                reject(error)
+            }
+        })
+    }
+
+    // PUT {{APIURL}}/articles/{{slug}}
+    updateArticle = ( token: string, article: PostArticle, slug: string): Promise<Article> => {
+        return new Promise<Article>( async (resolve, reject) => {
+            try {
+                const response = await fetch("https://conduit.productionready.io/api/articles/" + slug, {
+                    headers: {
+                    "Accept": "application/json",
+                    "Content-Type": "application/json",
+                    "Authorization" : "Token " + token
+                    },
+                    method: "PUT",
+                    body: JSON.stringify({ "article": article })
+                })
+                if ( response.status === 200 ) {
+                    const json = await response.json()
+                    let article = Article.init(json.article)
+                    resolve( article )
+                } else if ( response.status === 422 ) {
+                    const json = await response.json()
+                    let errors = Object.keys(json.errors).map(key => new ServerError(key, json.errors[key]))
+                    throw errors.map((error) => new Error( error.subject + " " + error.concatObjects() ))
+                } else {
+                    throw new Error("Unexpected error.")
+                }
+            } catch ( error ) {
+                reject(error)
+            }
+        })
+    }
+
+    // DELETE {{APIURL}}/articles/{{slug}}
+    deleteArticle = ( token: string, slug: string): Promise<void> => {
+        return new Promise<void>( async (resolve, reject) => {
+            try {
+                const response = await fetch("https://conduit.productionready.io/api/articles/" + slug, {
+                    headers: {
+                    "Accept": "application/json",
+                    "Content-Type": "application/json",
+                    "Authorization" : "Token " + token
+                    },
+                    method: "DELETE"
+                })
+                if ( response.status === 200 ) {
+                    resolve()
+                } else if ( response.status === 422 ) {
+                    const json = await response.json()
+                    let errors = Object.keys(json.errors).map(key => new ServerError(key, json.errors[key]))
+                    throw errors.map((error) => new Error( error.subject + " " + error.concatObjects() ))
+                } else {
+                    throw new Error("Unexpected error.")
+                }
+            } catch ( error ) {
+                reject(error)
+            }
+        })
+    }
+
     // POST {{APIURL}}/articles/{{slug}}/favorite
     favorite = ( token: string, slug: string ): Promise<Article> => {
         return this.callArticleFavoriteAPI( token, slug, "POST")
@@ -278,63 +426,6 @@ export default class ConduitProductionRepository implements ConduitRepository {
             }
         })
     }
-
-    // DEL {{APIURL}}/articles/{{slug}}/comments/{{commentId}}
-    deleteComment = ( token: string, slug: string, commentId: number ): Promise<void> => {
-        return new Promise<void>( async (resolve, reject) => {
-            try {
-                const response = await fetch("https://conduit.productionready.io/api/articles/" + slug + "/comments/" + commentId, {
-                    headers: {
-                    "Accept": "application/json",
-                    "Content-Type": "application/json",
-                    "Authorization" : "Token " + token
-                    },
-                    method: "DELETE"
-                })
-                if ( response.status === 200 ) {
-                    resolve()
-                } else if ( response.status === 422 ) {
-                    const json = await response.json()
-                    let errors = Object.keys(json.errors).map(key => new ServerError(key, json.errors[key]))
-                    throw errors.map((error) => new Error( error.subject + " " + error.concatObjects() ))
-                } else {
-                    throw new Error("Unexpected error.")
-                }
-            } catch ( error ) {
-                reject(error)
-            }
-        })
-    }
-
-    // putArticle: (slug: string) => Promise<boolean>
-
-    // DELETE {{APIURL}}/articles/{{slug}}
-    deleteArticle = ( token: string, slug: string): Promise<void> => {
-        return new Promise<void>( async (resolve, reject) => {
-            try {
-                const response = await fetch("https://conduit.productionready.io/api/articles/" + slug, {
-                    headers: {
-                    "Accept": "application/json",
-                    "Content-Type": "application/json",
-                    "Authorization" : "Token " + token
-                    },
-                    method: "DELETE"
-                })
-                if ( response.status === 200 ) {
-                    resolve()
-                } else if ( response.status === 422 ) {
-                    const json = await response.json()
-                    let errors = Object.keys(json.errors).map(key => new ServerError(key, json.errors[key]))
-                    throw errors.map((error) => new Error( error.subject + " " + error.concatObjects() ))
-                } else {
-                    throw new Error("Unexpected error.")
-                }
-            } catch ( error ) {
-                reject(error)
-            }
-        })
-    }
-
 
     // Privates
 

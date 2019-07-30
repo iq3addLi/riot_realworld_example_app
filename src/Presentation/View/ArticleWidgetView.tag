@@ -37,7 +37,7 @@ self.isOwnArticle = () =>{
         <span class="date">{ formattedDate( article.createdAt ) }</span>
     </div>
 
-    <!-- follow of favorite to other user -->
+    <!-- follow or favorite to other user -->
     <virtual if={ isOwnArticle() == false }>
         <button onclick={ didFollowHandler } class={ btn: true, btn-sm: true, btn-secondary: article.author.following, btn-outline-secondary: !article.author.following }>
             <i class="ion-plus-round"></i>&nbsp;

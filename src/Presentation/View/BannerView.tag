@@ -1,4 +1,5 @@
 <banner_view>
+    
 <style>
 .spotlink{
     color: white;

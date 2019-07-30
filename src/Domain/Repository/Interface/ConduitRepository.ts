@@ -4,15 +4,18 @@ import PostArticle from "../../Model/PostArticle"
 import ArticleContainer from "../../Model/ArticleContainer"
 import Comment from "../../Model/Comment"
 import Profile from "../../Model/Profile"
-import UserForm from "../../Model/UserForm"
+import PostUser from "../../Model/PostUser"
 
 export default interface ConduitRepository {
 
     // Users
     login: (email: string, password: string ) => Promise<User>
-    // register: (form: UserForm ) => Promise<User>
-    // getUser: (token: string ) => Promise<User>
-    // // <<要調査>>// putUser: (token: ) => Promise<User>
+    register: (username: string, email: string, password: string ) => Promise<User>
+    // GET {{APIURL}}/user
+    getUser: (token: string ) => Promise<User>
+
+    // PUT {{APIURL}}/user
+    updateUser: (token: string, user: PostUser) => Promise<User>
 
     // // Articles
     getArticles: (  limit?: number, offset?: number) => Promise<ArticleContainer>
@@ -28,7 +31,7 @@ export default interface ConduitRepository {
     postArticle: ( token: string, article: PostArticle ) => Promise<Article>
 
     // PUT {{APIURL}}/articles/{{slug}}
-    // updateArticle: (slug: string) => Promise<boolean>
+    updateArticle: ( token: string, article: PostArticle, slug: string) => Promise<Article>
 
     // DELETE {{APIURL}}/articles/{{slug}}
     deleteArticle: ( token: string, slug: string) => Promise<void>
@@ -57,7 +60,7 @@ export default interface ConduitRepository {
     // DEL {{APIURL}}/profiles/{{FOLLOWEE}}/follow
     unfollow: ( token: string, username: string ) => Promise<Profile>
 
-    // // Tags
+    // Tags
     getTags: () => Promise<string[]>
 }
 

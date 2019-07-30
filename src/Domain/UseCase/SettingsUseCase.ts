@@ -18,6 +18,7 @@ export default class SettingsUseCase {
     isLoggedIn = () => {
         return this.storage.isLoggedIn()
     }
+
     loggedUser = () => {
         return this.storage.user()
     }
@@ -26,16 +27,16 @@ export default class SettingsUseCase {
         return new MenuItemsBuilder().items( this.state.scene, this.storage.user() )
     }
 
-    requestUser = () => {
-
-    }
-
-    post = (user: PostUser) => {
-
+    post = (email: string, username: string, bio: string, image: string, password?: string) => {
+        return this.conduit.updateUser( this.storage.user().token, new PostUser(email, username, bio, image, password) )
     }
 
     logoutAfterJumpToHome = () => {
         this.storage.setUser( null )
+        this.jumpToHome()
+    }
+
+    jumpToHome = () => {
         location.href = "/"
     }
 }

@@ -26,7 +26,7 @@ export default class LoginUseCase {
 }
 
 class LoginState {
-    scene: string // article
+    scene: string
 
     constructor( location: SPALocation ) {
         // scene
