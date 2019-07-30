@@ -12,7 +12,7 @@ self.setArticles = ( articles ) => {
 
 self.didSelectProfile  = () => {}
 self.actionOfClickProfile  = (event) => {
-    self.didSelectProfile ( event.item.article.profile )
+    self.didSelectProfile ( event.item.article.author )
 }
 
 self.didSelectArticle = () => {}
@@ -22,11 +22,23 @@ self.actionOfClickArticle = (event) => {
 
 </script>
 
+<style>
+.author-link{
+    color: #5cb85c;
+    cursor : pointer;
+    text-decoration: none;
+}
+.author-link:hover{
+    color: #5cb85c;
+    text-decoration: underline;
+}
+</style>
+
 <div class="article-preview" each={ article in articles }>
     <div class="article-meta">
-        <a onclick={ actionOfClickProfile  }><img src={ article.profile.image } /></a>
+        <a onclick={ actionOfClickProfile  }><img src={ article.author.image } /></a>
         <div class="info">
-            <a class="author" onclick={ actionOfClickProfile  }>{ article.profile.username }</a>
+            <a class="author author-link" onclick={ actionOfClickProfile  }>{ article.author.username }</a>
             <span class="date">January 20th</span>
         </div>
         <button class="btn btn-outline-primary btn-sm pull-xs-right">

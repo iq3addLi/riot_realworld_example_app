@@ -1,5 +1,5 @@
 import Article from "../Model/Article"
-import Profile  from "../Model/Profile "
+import Profile  from "../Model/Profile"
 
 import ConduitProductionRepository from "../Repository/ConduitProductionRepository"
 import UserLocalStorageRepository from "../Repository/UserLocalStorageRepository"
@@ -7,41 +7,44 @@ import SPALocation from "../../Infrastructure/SPALocation"
 import Settings from "../../Infrastructure/Settings"
 import SPAPathBuilder from "../../Infrastructure/SPAPathBuilder"
 import ArticleContainer from "../Model/ArticleContainer"
-import ArticleTabItem from "../../Presentation/Model/ArticleTabItem"
+import ArticleTabItem from "../Model/ArticleTabItem"
+import MenuItemsBuilder from "../Utility/MenuItemsBuilder"
 
 export default class ArticlesUseCase {
 
-    conduit = new ConduitProductionRepository()
-    storage = new UserLocalStorageRepository()
+    private conduit = new ConduitProductionRepository()
+    private storage = new UserLocalStorageRepository()
 
     private currentArticle?: ArticleContainer = null
+    private state: ArticlesState
+
+    constructor() {
+        this.state = new ArticlesState( SPALocation.shared() )
+    }
 
     requestArticles = () => {
         let limit: number = Settings.shared().valueForKey("countOfArticleInView")
-        let page = this.currentPage()
-        let offset = page == null ? null : (page - 1) * limit
-        let postProcess = (container: ArticleContainer) => {
-            this.currentArticle = container
-            return container
-        }
-        let paths = SPALocation.shared().paths()
-        let first = paths != null ? paths[0] : "global"
-        switch (first) {
+        let offset = this.state.page == null ? null : (this.state.page - 1) * limit
+        let pastProcess = (c) => { this.currentArticle = c; return c }
+
+        switch (this.state.kind) {
         case "your":
             let user = this.storage.user()
             if ( user != null ) {
-                return this.conduit.getArticlesByFollowingUser( user.token, limit, offset).then( postProcess )
+                return this.conduit.getArticlesByFollowingUser( user.token, limit, offset).then( pastProcess )
             } else {
                 // 不正な呼び出し /loginへ転送する
+                console.log("Unexpected page call.")
             }
             break
         case "tag":
-            return this.conduit.getArticlesOfTagged(paths[1], limit, offset).then( postProcess ); break
+            return this.conduit.getArticlesOfTagged( this.state.tag, limit, offset).then( pastProcess )
         case "global":
         default:
-            return this.conduit.getArticles(limit, offset).then( postProcess )
+            return this.conduit.getArticles(limit, offset).then( pastProcess )
         }
     }
+
     requestTags = () => {
         return this.conduit.getTags()
     }
@@ -63,26 +66,26 @@ export default class ArticlesUseCase {
     }
 
     currentPage = () => {
-        let loc = SPALocation.shared()
-        let query = loc.query()
-        if ( query == null || query["page"] == null ) { return null }
-        return Number(query["page"])
+        return this.state.page
+    }
+
+    menuItems = () => {
+        return new MenuItemsBuilder().items( this.state.scene, this.storage.user() )
     }
 
     tabItems = () => {
         let tabs: ArticleTabItem[] = []
-        let paths = SPALocation.shared().paths()
+
         // Add "Your feed" ?
-        if ( this.storage.user() != null ) {
-            let isActiveYour = ( paths != null && paths[0] === "your" )
-            tabs.push( new ArticleTabItem( "your", "Your Feed", isActiveYour) )
+        if ( this.isLoggedIn() ) {
+            tabs.push( new ArticleTabItem( "your", "Your Feed", ( this.state.kind === "your")) )
         }
         // Add "Global feed"
-        let isActiveGlobal = ( paths == null || paths[0] === "global" )
-        tabs.push( new ArticleTabItem( "global", "Global Feed", isActiveGlobal) )
+        tabs.push( new ArticleTabItem( "global", "Global Feed", ( this.state.kind === "global")) )
+
         // Add "# {tag}" ?
-        if ( paths != null && paths[0] === "tag" ) {
-            let tag = paths[1]
+        if ( this.state.kind === "tag" ) {
+            let tag = this.state.tag
             if (tag != null) {
                 tabs.push( new ArticleTabItem( "tag", "# " + tag, true) )
             }
@@ -91,20 +94,14 @@ export default class ArticlesUseCase {
     }
 
     jumpPage = (page: number) => {
-        let loc = SPALocation.shared()
-        let query = loc.query() ? loc.query() : {}
-        query["page"] = String(page)
-        let top = loc.scene() ? loc.scene() : "articles"
-        let path = new SPAPathBuilder(top, loc.paths(), query ).fullPath()
+        let path = new SPAPathBuilder( this.state.scene, SPALocation.shared().paths(), { "page" : String(page) } ).fullPath()
         // page transition
         location.href = path
     }
 
 
     jumpPageBySubPath = (path: string) => {
-        let loc = SPALocation.shared()
-        let top = loc.scene() ? loc.scene() : "articles"
-        let full = new SPAPathBuilder(top, [path]).fullPath()
+        let full = new SPAPathBuilder( this.state.scene, [path]).fullPath()
         // page transition
         location.href = full
     }
@@ -117,5 +114,38 @@ export default class ArticlesUseCase {
     jumpPageByArticle = (article: Article) => {
         // page transition
         location.href = new SPAPathBuilder("article", [article.slug]).fullPath()
+    }
+}
+
+
+class ArticlesState {
+    scene: string // articles
+    kind: string // global, your or tag
+    page: number // since by 1
+    tag?: string // tagword or null
+
+    constructor( location: SPALocation ) {
+
+        // scene
+        this.scene = location.scene() ? location.scene() : "articles"
+
+        // kind
+        let paths = location.paths() ? location.paths() : []
+        let kind = ( paths.length >= 1 ) ? paths[0] : "global"
+        this.kind = kind
+
+        // tag
+        if ( kind === "tag" && paths.length >= 2 ) {
+            this.tag = paths[1]
+        }
+
+        // page
+        switch ( location.query() ) {
+        case undefined: case null: this.page = 1; break
+        default:
+            let page = location.query()["page"]
+            if ( page === undefined || page == null ) { this.page = 1 }
+            else { this.page = Number(page) }
+        }
     }
 }

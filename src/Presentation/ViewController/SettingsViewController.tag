@@ -10,14 +10,26 @@ var self = this
 var useCase = new SettingsUseCase()
 
 this.on('mount', () => {
-    if ( useCase.isLoggedIn() == true ) {
-        self.tags.header_view.setUser( useCase.loggedUser() )
-    }
+
+    // setup header
+    self.tags.header_view.setItems( useCase.menuItems() )
+
+    // setup form
+    let user = useCase.loggedUser()
+    self.refs.iconURLField.value = user.image
+    self.refs.nameField.value = user.username
+    self.refs.bioField.value = user.bio
+    self.refs.emailField.value = user.email
 })
 
 self.actionOfUpdateButton = () => {
     console.log("Update")
 }
+
+self.actionOfLogoutButton = () => {
+    useCase.logoutAfterJumpToHome()
+}
+
 </script>
 
 <header_view />
@@ -51,6 +63,9 @@ self.actionOfUpdateButton = () => {
                     </button>
                 </fieldset>
                 </form>
+
+                <hr>
+                <button class="btn btn-outline-danger" onclick={ actionOfLogoutButton }> Or click here to logout. </button>
             </div>
         
             </div>

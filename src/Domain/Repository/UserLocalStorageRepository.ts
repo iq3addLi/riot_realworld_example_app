@@ -5,17 +5,20 @@ export default class UserLocalStorageRepository implements UserRepository {
 
     user = () => {
         let value = localStorage.getItem("user")
-        if ( value == null ) {
-            return null
-        } else {
-            const object = JSON.parse( value )
-            return User.init(object)
-        }
+        if ( value == null ) { return null }
+        const object = JSON.parse( value )
+        return User.init(object)
     }
 
     setUser = (user: User) => {
-        const string = JSON.stringify( user )
-        localStorage.setItem("user", string )
+        if ( user ) {
+            // set
+            const string = JSON.stringify( user )
+            localStorage.setItem("user", string )
+        } else {
+            // remove
+            localStorage.removeItem("user")
+        }
     }
 
     isLoggedIn = () => {

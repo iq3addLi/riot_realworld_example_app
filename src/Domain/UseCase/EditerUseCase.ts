@@ -3,16 +3,29 @@ import ConduitProductionRepository from "../Repository/ConduitProductionReposito
 import PostArticle from "../Model/PostArticle"
 import Article from "../Model/Article"
 import SPAPathBuilder from "../../Infrastructure/SPAPathBuilder"
+import MenuItemsBuilder from "../Utility/MenuItemsBuilder"
+import SPALocation from "../../Infrastructure/SPALocation"
 
 export default class EditerUseCase {
 
-    conduit = new ConduitProductionRepository()
-    storage = new UserLocalStorageRepository()
+    private conduit = new ConduitProductionRepository()
+    private storage = new UserLocalStorageRepository()
+
+    private state: EditerState
+
+    constructor() {
+        this.state = new EditerState( SPALocation.shared() )
+    }
+
     isLoggedIn = () => {
         return this.storage.isLoggedIn()
     }
     loggedUser = () => {
         return this.storage.user()
+    }
+
+    menuItems = () => {
+        return new MenuItemsBuilder().items( this.state.scene, this.storage.user() )
     }
 
     post = ( title: string, description: string, body: string, tagList: string) => {
@@ -24,5 +37,14 @@ export default class EditerUseCase {
     jumpPageByArticle = (article: Article) => {
         // page transition
         location.href = new SPAPathBuilder("article", [article.slug]).fullPath()
+    }
+}
+
+class EditerState {
+    scene: string // article
+
+    constructor( location: SPALocation ) {
+        // scene
+        this.scene = location.scene()
     }
 }

@@ -16,27 +16,28 @@ var useCase = new ArticlesUseCase()
 
 this.on('mount', () => {
 
+    // setup header
+    self.tags.header_view.setItems( useCase.menuItems() )
+
+    // request articles
     useCase.requestArticles().then( (container) => {
         self.tags.articles_table_view.setArticles( container.articles )
 
+        // setup pagenation
         self.tags.pagenation_view.shownPage = useCase.currentPage()
         self.tags.pagenation_view.setCountOfPage( useCase.pageCount() )
     })
+    // request tagList
     useCase.requestTags().then( (tags) => {
-        self.tags.tags_view.setTagWords( tags ) // riot.tags are undefined from the promise function
+        self.tags.tags_view.setTagWords( tags ) // note: riot.tags are undefined from the promise function
         self.tags.tags_view.update()
     })
 
-    if ( useCase.isLoggedIn() == true ) {
-        let user = useCase.loggedUser()
-        self.tags.header_view.setUser( user )
-    }
-
+    // setup article tab
     self.tags.article_tab_view.setItems( useCase.tabItems() )
 
-    // set handler
+    // setup view action handler
     self.tags.pagenation_view.didSelectPageNumber = (page) => {
-        console.log("page " + page + " selected.")
         useCase.jumpPage(page)
     }
     self.tags.article_tab_view.didSelectTab = (item) => {
@@ -55,25 +56,33 @@ self.isLoggedIn = () => {
 }
 
 </script>
-                
-<header_view />
-<virtual if={ isLoggedIn() == false }>
-    <banner_view />
-</virtual>
 
-<div class="container page">
-    <div class="row">
-        <div class="col-md-9">
-            <article_tab_view toggle_style="feed-toggle"/>
-            <articles_table_view />
-            <pagenation_view />
-        </div>
-        <div class="col-md-3">
-            <tags_view/>
+
+<div class="home-page">
+    <!-- Header -->
+    <header_view />
+
+    <!-- Banner -->
+    <virtual if={ isLoggedIn() == false }>
+        <banner_view />
+    </virtual>
+
+    <!-- Body -->
+    <div class="container page">
+        <div class="row">
+            <div class="col-md-9">
+                <article_tab_view toggle_style="feed-toggle"/>
+                <articles_table_view />
+                <pagenation_view />
+            </div>
+            <div class="col-md-3">
+                <tags_view/>
+            </div>
         </div>
     </div>
-</div>
 
-<footer_view />
+    <!-- Footer -->
+    <footer_view />
+</div>
 
 </articles_view_controller>

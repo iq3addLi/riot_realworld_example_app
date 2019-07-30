@@ -21,10 +21,6 @@
         return countOfPage
     }
 
-    self.classOfPage = () => {
-        return "page-item" // or "page-item active"
-    }
-
     self.arrayOfPageNumber = () => {
         return [...Array(countOfPage).keys()].map(i => ++i)
     }
@@ -36,7 +32,7 @@
 </script>
 
 <ul class="pagination" if={ isShow }>
-    <li each={ page in arrayOfPageNumber() } class={ classOfPage() }>
+    <li each={ page in arrayOfPageNumber() } class={ page-item: true, active: page === shownPage }>
         <a class="page-link" onclick={ actionOfClickPageLink }>{ page }</a>
     </li>
 </ul>

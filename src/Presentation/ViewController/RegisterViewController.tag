@@ -4,34 +4,39 @@ import "../View/FooterView.tag"
 <register_view_controller>
 
 <script>
-    import RegisterUseCase from "../../Domain/UseCase/RegisterUseCase"
-    
-    var self = this
-    var useCase = new RegisterUseCase()
-    self.errors = null
-    
-    self.actionOfSubmitButton = ( event ) => {
-        useCase.register( self.refs.usernameField.value, self.refs.emailField.value, self.refs.passwordField.value ).then( () => {
-            // success
-            window.location.href = '/'
-        }).catch( (error) => {
-            // failure
-            if (error instanceof Array ) {
-                self.errors = error.map( (aError) => aError.message )
-            }else if( error instanceof Error ) {
-                self.errors = [ error.message ]
-            }
-            self.update()
-        })
-    }
-    
-    self.shouldSubmit = ( event ) => {
-        self.refs.submitButton.disabled = (
-            self.refs.usernameField.value.length == 0 ||
-            self.refs.emailField.value.length == 0 ||
-            self.refs.passwordField.value.length == 0
-        )
-    }
+import RegisterUseCase from "../../Domain/UseCase/RegisterUseCase"
+
+var self = this
+var useCase = new RegisterUseCase()
+self.errors = null
+
+this.on('mount', () => {
+    // setup header
+    self.tags.header_view.setItems( useCase.menuItems() )
+})
+
+self.actionOfSubmitButton = ( event ) => {
+    useCase.register( self.refs.usernameField.value, self.refs.emailField.value, self.refs.passwordField.value ).then( () => {
+        // success
+        window.location.href = '/'
+    }).catch( (error) => {
+        // failure
+        if (error instanceof Array ) {
+            self.errors = error.map( (aError) => aError.message )
+        }else if( error instanceof Error ) {
+            self.errors = [ error.message ]
+        }
+        self.update()
+    })
+}
+
+self.shouldSubmit = ( event ) => {
+    self.refs.submitButton.disabled = (
+        self.refs.usernameField.value.length == 0 ||
+        self.refs.emailField.value.length == 0 ||
+        self.refs.passwordField.value.length == 0
+    )
+}
     
 </script>
     

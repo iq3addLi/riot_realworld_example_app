@@ -16,27 +16,46 @@ export default interface ConduitRepository {
 
     // // Articles
     getArticles: (  limit?: number, offset?: number) => Promise<ArticleContainer>
-    getArticlesOfProfile: ( profile: string, limit?: number, offset?: number ) => Promise<ArticleContainer>
+    getArticlesOfAuthor: ( username: string, token?: string, limit?: number, offset?: number ) => Promise<ArticleContainer>
     getArticlesForFavoriteUser: ( username: string, limit?: number, offset?: number ) => Promise<ArticleContainer>
     getArticlesOfTagged: ( tag: string, limit?: number, offset?: number ) => Promise<ArticleContainer>
     getArticlesByFollowingUser: ( token: string, limit?: number, offset?: number ) => Promise<ArticleContainer>
 
-    // getArticle: (slug: string) => Promise<Article>
-    postArticle: ( token: String, article: PostArticle ) => Promise<Article>
-    // putArticle: (slug: string) => Promise<boolean>
-    // deleteArticle: (slug: string) => Promise<boolean>
+    // {{APIURL}}/articles/{{slug}}
+    getArticle: (slug: string) => Promise<Article>
 
-    // favorite: ( slug: string ) => Promise<boolean>
-    // unfavorite: ( slug: string ) => Promise<boolean>
+    // POST {{APIURL}}/articles
+    postArticle: ( token: string, article: PostArticle ) => Promise<Article>
 
-    // getComments: ( slug: string ) => Promise<Comment[]>
-    // postComment: ( token: string, message: string ) => Promise<boolean>
-    // deleteComment: ( token: string ) => Promise<boolean>
+    // PUT {{APIURL}}/articles/{{slug}}
+    // updateArticle: (slug: string) => Promise<boolean>
 
-    // // Profiles
-    // getProfile: ( token: string, message: string ) => Promise<Profile>
-    // follow: ( token: string, username: string ) => Promise<boolean>
-    // unfollow: ( token: string, username: string ) => Promise<boolean>
+    // DELETE {{APIURL}}/articles/{{slug}}
+    deleteArticle: ( token: string, slug: string) => Promise<void>
+
+    // POST {{APIURL}}/articles/{{slug}}/favorite
+    favorite: ( token: string, slug: string ) => Promise<Article>
+
+    // DEL {{APIURL}}/articles/{{slug}}/favorite
+    unfavorite: ( token: string, slug: string ) => Promise<Article>
+
+    // {{APIURL}}/articles/{{slug}}/comments
+    getComments: ( slug: string ) => Promise<Comment[]>
+
+    // POST {{APIURL}}/articles/{{slug}}/comments
+    postComment: ( token: string, slug: string, comment: string ) => Promise<Comment>
+
+    // DEL {{APIURL}}/articles/{{slug}}/comments/{{commentId}}
+    deleteComment: ( token: string, slug: string, commentId: number ) => Promise<void>
+
+    // GET {{APIURL}}/profiles/{{USERNAME}}
+    getProfile: ( username: string, token?: string ) => Promise<Profile>
+
+    // POST {{APIURL}}/profiles/{{FOLLOWEE}}/follow
+    follow: ( token: string, username: string ) => Promise<Profile>
+
+    // DEL {{APIURL}}/profiles/{{FOLLOWEE}}/follow
+    unfollow: ( token: string, username: string ) => Promise<Profile>
 
     // // Tags
     getTags: () => Promise<string[]>

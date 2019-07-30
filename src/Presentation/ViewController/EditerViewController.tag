@@ -11,9 +11,8 @@ var useCase = new EditerUseCase()
 
 self.errors = null
 self.on('mount', () => {
-    if ( useCase.isLoggedIn() == true ) {
-        self.tags.header_view.setUser( useCase.loggedUser() )
-    }
+    // setup header
+    self.tags.header_view.setItems( useCase.menuItems() )
 })
 
 self.actionOfPublishButton = () => {

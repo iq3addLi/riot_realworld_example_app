@@ -2,7 +2,6 @@
     
 <script>
 
-    import ArticleTabItem from "../Model/ArticleTabItem"
     var self = this
     var _items = null
     

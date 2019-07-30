@@ -4,15 +4,23 @@ import Article from "../Model/Article"
 import ArticleContainer from "../Model/ArticleContainer"
 import SPALocation from "../../Infrastructure/SPALocation"
 import Settings from "../../Infrastructure/Settings"
-import ArticleTabItem from "../../Presentation/Model/ArticleTabItem"
-import Profile  from "../Model/Profile "
+import ArticleTabItem from "../Model/ArticleTabItem"
+import SPAPathBuilder from "../../Infrastructure/SPAPathBuilder"
+import ConduitProductionRepository from "../Repository/ConduitProductionRepository"
+import MenuItemsBuilder from "../Utility/MenuItemsBuilder"
 
 export default class ProfileUseCase {
 
-    storage = new UserLocalStorageRepository()
+    private conduit = new ConduitProductionRepository()
+    private storage = new UserLocalStorageRepository()
 
-    profile?: Profile
+    private profile?: Profile
     private currentArticle?: ArticleContainer = null
+    private state: ProfileState
+
+    constructor() {
+        this.state = new ProfileState( SPALocation.shared() )
+    }
 
     isLoggedIn = () => {
         return this.storage.isLoggedIn()
@@ -22,23 +30,34 @@ export default class ProfileUseCase {
         return this.storage.user()
     }
 
+    menuItems = () => {
+        return new MenuItemsBuilder().items( this.state.scene, this.storage.user() )
+    }
+
     isOwnedProfile = () => {
-        return false
+        return this.storage.user().username === this.profile.username
     }
 
-    requestProfile = ( completion: (profile?: Profile) => void) => {
-        let profile = new Profile("dummy_monkey", "hey you are dunk to my ass!", "http://flat-icon-design.com/f/f_object_157/svg_f_object_157_0bg.svg", false)
-        this.profile = profile
-        completion(profile)
+    requestProfile = () => {
+        let token = this.storage.user().token
+        return this.conduit.getProfile( this.state.username, token ).then( ( p ) => { this.profile = p; return p } )
     }
 
-    requestArticles = ( completion: (articles?: Article[]) => void) => {
-        let articles = [
-            new Article("Dummy Article", "dumm-ahjsishljfb", "# You are dummy!", "", "", ["dummy", "big"], "Why need description on a article?",
-                new Profile ("hoge", "bio", "http://flat-icon-design.com/f/f_object_169/svg_f_object_169_0bg.svg", true) , true, 100)
-        ]
-        this.currentArticle = new ArticleContainer(1, articles)
-        completion(articles)
+    requestArticles = () => {
+        // calc offset
+        let limit: number = Settings.shared().valueForKey("countOfArticleInView")
+        let page = this.currentPage()
+        let offset = page == null ? null : (page - 1) * limit
+
+        // prepare request
+        let token = this.storage.user().token
+        let pastProcess = ( c ) => { this.currentArticle = c; return c }
+
+        // request
+        switch (this.state.articleKind) {
+        case "favorite_articles": return this.conduit.getArticlesForFavoriteUser(this.state.username, limit, offset).then( pastProcess ); break
+        default: return this.conduit.getArticlesOfAuthor(this.state.username, token, limit, offset).then( pastProcess ); break
+        }
     }
 
     pageCount = () => {
@@ -50,17 +69,92 @@ export default class ProfileUseCase {
     }
 
     currentPage = () => {
-        let loc = SPALocation.shared()
-        let query = loc.query()
-        if ( query == null || query["page"] == null ) { return null }
-        return Number(query["page"])
+        return this.state.page
     }
 
     tabItems = () => {
         let tabs: ArticleTabItem[] = [
-            new ArticleTabItem( "mine", "My Articles", true) ,
-            new ArticleTabItem( "favorite", "Favorite Articles", false)
+            new ArticleTabItem( "my_articles", "My Articles", (this.state.articleKind === "my_articles")) ,
+            new ArticleTabItem( "favorite_articles", "Favorite Articles", (this.state.articleKind  === "favorite_articles"))
         ]
         return tabs
+    }
+
+    toggleFollowing = () => {
+        let profile = this.profile
+        if ( profile === null ) { throw Error("A profile is empty.") }
+        // follow/unfollow
+        let token = this.storage.user().token
+        let username = profile.username
+        let process = ( p ) => { this.profile = p; return p }
+        switch (profile.following) {
+        case true:  return this.conduit.unfollow( token, username ).then( process )
+        case false: return this.conduit.follow( token, username ).then( process )
+        }
+    }
+
+    jumpPage = (page: number) => {
+        let pathBuilder = new SPAPathBuilder(this.state.scene, [this.state.username, this.state.articleKind], { "page" : String(page) } )
+        // page transition
+        location.href = pathBuilder.fullPath()
+    }
+
+    jumpPageBySubPath = (path: string) => {
+        let pathBuilder = new SPAPathBuilder(this.state.scene, [this.state.username, path])
+        // page transition
+        location.href = pathBuilder.fullPath()
+    }
+
+    jumpToSettingScene = () => {
+        // page transition
+        location.href = new SPAPathBuilder("settings").fullPath()
+    }
+
+    jumpPageByProfile  = (profile: Profile ) => {
+        // page transition
+        location.href = new SPAPathBuilder("profile", [profile.username]).fullPath()
+    }
+
+    jumpPageByArticle = (article: Article) => {
+        // page transition
+        location.href = new SPAPathBuilder("article", [article.slug]).fullPath()
+    }
+
+}
+
+
+class ProfileState {
+    scene: string
+    username: string
+    articleKind: string
+    page: number
+
+    constructor( location: SPALocation ) {
+
+        // scene
+        this.scene = location.scene()
+
+        // username
+        let paths = location.paths()
+        if ( paths.length >= 1 ) {
+            this.username = paths[0]
+        } else {
+            throw Error("A username is can't empty in this scene.")
+        }
+
+        // articleKind
+        this.articleKind =  ( paths.length === 2 ) ? paths[1] : "my_articles"
+        if ( paths.length >= 3 ) {
+            throw Error("Unexpected query of http.")
+        }
+
+        // page
+        switch ( location.query() ) {
+        case undefined: case null: this.page = 1; break
+        default:
+            let page = location.query()["page"]
+            if ( page === undefined || page == null ) { this.page = 1 }
+            else { this.page = Number(page) }
+        }
     }
 }

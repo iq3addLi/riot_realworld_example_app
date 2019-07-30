@@ -1,3 +1,5 @@
+import Profile from "./Profile"
+
 export default class User {
     id: number
     email: string
@@ -23,6 +25,10 @@ export default class User {
         this.token = token
         this.bio = bio
         this.image = image
+    }
+
+    profile = () => {
+        return new Profile(this.username, this.bio, this.image, false )
     }
 }
 

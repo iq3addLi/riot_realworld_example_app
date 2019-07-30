@@ -10,6 +10,11 @@ var self = this
 var useCase = new LoginUseCase()
 self.errors = null
 
+self.on('mount', () => {
+    // setup header
+    self.tags.header_view.setItems( useCase.menuItems() )
+})
+
 self.actionOfSubmitButton = ( event ) => {
     useCase.login( self.refs.emailField.value, self.refs.passwordField.value ).then( () => {
         // success

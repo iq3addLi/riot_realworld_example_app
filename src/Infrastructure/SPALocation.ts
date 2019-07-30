@@ -8,9 +8,9 @@ export default class SPALocation {
 
     private static _instance: SPALocation
 
-    private _scene?: string
-    private _paths?: string[]
-    private _query?: {[key: string]: string}
+    private _scene?: string = null
+    private _paths?: string[] = null
+    private _query?: {[key: string]: string} = null
 
     public static shared = () => {
         if ( SPALocation._instance === undefined ) {
@@ -45,7 +45,7 @@ export default class SPALocation {
             if ( index === -1 ) {
                 throw Error("hashbang is not found.")
             }
-            let str = path.substr( index + 2 )
+            let str = path.substr( index + 2 ).replace(/\/$/, "")
             let splited = str.split("/")
             if ( splited.length < 1 ) {
                 throw Error("A path is not splittable.")

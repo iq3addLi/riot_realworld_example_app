@@ -1,15 +1,38 @@
 <article_view>
 
 <script>
+import marked from "marked"
+
+let self = this
+self.article = null
+
+self.setArticle = ( article ) => {
+    self.article = article
+    self.update()
+}
+
+self.markedBody = ( body ) => {
+    return marked( self.article.body )
+}
 
 </script>
 
-<p>
-    Web development technologies have evolved at an incredible clip over the past few years.
-</p>
-<h2 id="introducing-ionic">Introducing RealWorld.</h2>
-<p>
-    It's a great solution for learning how other frameworks work.
-</p>
-
+<!-- markdown by marked -->
+<virtual if={ article !== null }>
+    <article_body_field marked_body={ markedBody(article.body) } />
+    <ul class="tag-list">
+        <virtual each={ tagWord in article.tagList }>
+            <li class="tag-default tag-pill tag-outline">{ tagWord }</li>
+        </virtual>
+    </ul>
+</virtual>
 </article_view>
+
+<article_body_field>
+<script>
+this.root.innerHTML = opts.marked_body
+this.on("update", () => {
+    this.root.innerHTML = opts.marked_body
+})
+</script>
+</article_body_field>

@@ -27,7 +27,7 @@ export default class ApplicationUseCase {
             filter : "/login",
             viewControllerName : "login_view_controller"
         }, {
-            identifier: "identifier",
+            identifier: "settings",
             filter : "/settings",
             viewControllerName : "settings_view_controller"
         }, {
@@ -40,7 +40,7 @@ export default class ApplicationUseCase {
             viewControllerName : "article_view_controller"
         }, {
             identifier : "editer",
-            filter : "/editer",
+            filter : "/editer..",
             viewControllerName : "editer_view_controller"
         }, {
             identifier : "profile",
