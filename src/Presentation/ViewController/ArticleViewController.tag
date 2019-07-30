@@ -19,12 +19,14 @@ this.on('mount', () => {
     self.tags.header_view.setItems( useCase.menuItems() )
 
     // set profile
-    let profile = useCase.loggedUserProfile()
-    self.refs.above_widget_view.loggedUserProfile = profile
-    self.refs.below_widget_view.loggedUserProfile = profile
-    self.tags.comment_table_view.loggedUserProfile = profile
-    self.tags.comment_form_view.setProfile( profile )
-
+    if (useCase.isLoggedIn()){
+        let profile = useCase.loggedUserProfile()
+        self.refs.above_widget_view.loggedUserProfile = profile
+        self.refs.below_widget_view.loggedUserProfile = profile
+        self.tags.comment_table_view.loggedUserProfile = profile
+        self.tags.comment_form_view.setProfile( profile )
+    }
+    
     // set article
     useCase.requestArticle().then( (article) => {
         self.tags.article_view.setArticle( article )
