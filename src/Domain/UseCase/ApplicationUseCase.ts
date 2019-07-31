@@ -1,18 +1,8 @@
-// import i18next from "i18next"
-// import moment from "moment"
-
 import Settings from "../../Infrastructure/Settings"
 import riot from "riot"
 import route from "riot-route"
-// import parse from "url-parse" // don't parse query :(
 
 import SPALocation from "../../Infrastructure/SPALocation"
-// import Analytics from "../../Infrastructure/Analytics"
-
-// import "../../Presentation/ViewController/RootViewController.tag"
-// import "../../Presentation/ViewController/LoginViewController.tag"
-// import "../../Presentation/ViewController/SettingsViewController.tag"
-
 
 interface Menu {
     identifier: String
@@ -69,41 +59,10 @@ export default class ApplicationUseCase {
             throw error
         })
 
-        // // Download loacalize strings.
-        // let lang = ((window.navigator.languages && window.navigator.languages[0]) ||
-        //              window.navigator.language).substr(0, 2) === "ja" ? "ja" : "en"
-        // let requestLocalizedString = fetch("assets/json/i18n/" + lang + "/localize.json")
-        // .then( (res) => { return res.json() })
-        // .then( (json) => {
-        //     let resources = {}
-        //     resources[lang] = { translation: json }
-        //     i18next.init({
-        //         lng: lang,
-        //         debug: false,
-        //         resources: resources,
-        //         interpolation: {
-        //             format: function(value, format, lng) {
-        //                 if (format === "uppercase") { return value.toUpperCase() }
-        //                 if (value instanceof Date) { return moment(value).format(format) }
-        //                 return value
-        //             }
-        //         }
-        //     }, function( error, translation ) {
-        //         throw error
-        //     })
-        // })
-        // .catch((error) => {
-        //     throw error
-        // })
-
-        // // Request of parallel.
-        Promise.all([requestSettings/*, requestLocalizedString*/])
+        // Parallel request
+        Promise.all([requestSettings])
         .then( () => {
-            // Start Analytics
-            // Analytics.shared().start( Settings.shared().valueForKey("analytics").trackingID )
-            // Analytics.shared().send("pageview")
-            // No error
-            // Set Title
+            // set title
             document.title = Settings.shared().valueForKey("title")
             completion(null)
         })
@@ -127,7 +86,6 @@ export default class ApplicationUseCase {
             })
         })
     }
-
 
     routing = () => {
 

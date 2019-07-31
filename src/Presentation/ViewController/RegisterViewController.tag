@@ -18,7 +18,7 @@ this.on('mount', () => {
 self.actionOfSubmitButton = ( event ) => {
     useCase.register( self.refs.usernameField.value, self.refs.emailField.value, self.refs.passwordField.value ).then( () => {
         // success
-        window.location.href = '/'
+        window.location.href = "/"
     }).catch( (error) => {
         // failure
         if (error instanceof Array ) {

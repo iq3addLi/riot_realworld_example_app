@@ -18,7 +18,7 @@ self.on('mount', () => {
 self.actionOfSubmitButton = ( event ) => {
     useCase.login( self.refs.emailField.value, self.refs.passwordField.value ).then( () => {
         // success
-        window.location.href = '/'
+        window.location.href = "/"
     }).catch( (error) => {
         // failure
         if (error instanceof Array ) {
@@ -48,7 +48,6 @@ self.shouldSubmit = ( event ) => {
             <a href="#/register">Need an account?</a>
             </p>
     
-
             <ul if={ errors != null } class="error-messages">
                 <li each={ error in errors }>{ error }</li>
             </ul>

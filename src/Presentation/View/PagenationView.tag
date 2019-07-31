@@ -1,33 +1,35 @@
 <pagenation_view>
+
 <script>
-    var self = this
-    var countOfPage = 0
 
-    // public property
-    self.shownPage = 1
-    // public hundler
-    self.didSelectPageNumber = () => {}
+var self = this
+var countOfPage = 0
 
-    // public functions
-    self.setCountOfPage = ( count ) => {
-        countOfPage = count === null ? 0 : count
-        self.update()
-    }
-    self.isShow = () => {
-        return countOfPage > 0
-    }
+// public property
+self.shownPage = 1
+// public hundler
+self.didSelectPageNumber = () => {}
 
-    self.pagesCount = () => {
-        return countOfPage
-    }
+// public functions
+self.setCountOfPage = ( count ) => {
+    countOfPage = count === null ? 0 : count
+    self.update()
+}
+self.isShow = () => {
+    return countOfPage > 0
+}
 
-    self.arrayOfPageNumber = () => {
-        return [...Array(countOfPage).keys()].map(i => ++i)
-    }
+self.pagesCount = () => {
+    return countOfPage
+}
 
-    self.actionOfClickPageLink = (event) =>{
-        self.didSelectPageNumber( event.item.page )
-    }
+self.arrayOfPageNumber = () => {
+    return [...Array(countOfPage).keys()].map(i => ++i)
+}
+
+self.actionOfClickPageLink = (event) =>{
+    self.didSelectPageNumber( event.item.page )
+}
 
 </script>
 

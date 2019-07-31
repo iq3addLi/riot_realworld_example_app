@@ -1,6 +1,7 @@
 <article_widget_view>
 
 <script>
+    
 import moment from "moment"
 var self = this
 self.article = null

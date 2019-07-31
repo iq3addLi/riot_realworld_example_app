@@ -33,7 +33,6 @@ export default class ArticlesUseCase {
             if ( user != null ) {
                 return this.conduit.getArticlesByFollowingUser( user.token, limit, offset).then( pastProcess )
             } else {
-                // 不正な呼び出し /loginへ転送する
                 console.log("Unexpected page call.")
             }
             break

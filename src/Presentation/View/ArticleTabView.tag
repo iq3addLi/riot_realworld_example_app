@@ -2,25 +2,26 @@
     
 <script>
 
-    var self = this
-    var _items = null
-    
-    // public handler
-    self.didSelectTab = () => {}
+var self = this
+var _items = null
 
-    // public fuction
-    self.setItems = ( items ) => {
-        _items = items
-        self.update()
-    }
+// public handler
+self.didSelectTab = () => {}
 
-    self.items = () => {
-        return _items
-    }
+// public fuction
+self.setItems = ( items ) => {
+    _items = items
+    self.update()
+}
 
-    self.actionOfClickTab = (event) => {
-        self.didSelectTab( event.item.item )
-    }
+self.items = () => {
+    return _items
+}
+
+self.actionOfClickTab = (event) => {
+    self.didSelectTab( event.item.item )
+}
+
 </script>
 
 <div class={ opts.toggle_style }>

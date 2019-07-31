@@ -37,7 +37,7 @@ self.actionOfProfileButton = () => {
     <h4>{ profile.username }</h4>
     <p>{ profile.bio }</p>
 
-    <button onclick={ actionOfProfileButton } class={ "btn btn-sm action-btn" + (profile.following ? " btn-secondary" : " btn-outline-secondary") }>
+    <button onclick={ actionOfProfileButton } class={ "btn btn-sm action-btn" + ( profile.following ? " btn-secondary" : " btn-outline-secondary" ) }>
         <i class={ isOwn === true ? "ion-gear-a" : "ion-plus-round" }></i>&nbsp;{ buttonTitle() }
     </button>
 

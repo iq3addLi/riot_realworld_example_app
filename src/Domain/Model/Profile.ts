@@ -1,13 +1,3 @@
-
-// {
-//     "profile": {
-//         "username": "arupaka2525",
-//         "bio": "My butt is danger",
-//         "image": "",
-//         "following": false
-//     }
-// }
-
 export default class Profile {
     username: string
     bio: string

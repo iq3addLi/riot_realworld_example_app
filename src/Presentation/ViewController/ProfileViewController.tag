@@ -9,6 +9,7 @@ import "../View/PagenationView.tag"
 <profile_view_controller>
 
 <script>
+
 import ProfileUseCase from "../../Domain/UseCase/ProfileUseCase"
 
 var self = this
@@ -60,7 +61,6 @@ this.on('mount', () => {
         useCase.jumpPageByProfile(profile)
     }
 })
-
 
 </script>
 

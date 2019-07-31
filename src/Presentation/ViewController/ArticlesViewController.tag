@@ -9,6 +9,7 @@ import "../View/PagenationView.tag"
 <articles_view_controller>
 
 <script>
+    
 import ArticlesUseCase from "../../Domain/UseCase/ArticlesUseCase"
 
 var self = this

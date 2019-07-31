@@ -26,7 +26,7 @@ this.on('mount', () => {
         self.tags.comment_table_view.loggedUserProfile = profile
         self.tags.comment_form_view.setProfile( profile )
     }
-    
+
     // set article
     useCase.requestArticle().then( (article) => {
         self.tags.article_view.setArticle( article )
@@ -127,7 +127,7 @@ var setArticleForWidgets = (article) => {
             <!-- Comment form -->
             <comment_form_view />
 
-            <!-- Comment threads -->
+            <!-- Comment table -->
             <comment_table_view />
         </div>
     </div>

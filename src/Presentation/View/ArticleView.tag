@@ -1,6 +1,7 @@
 <article_view>
 
 <script>
+    
 import marked from "marked"
 
 let self = this

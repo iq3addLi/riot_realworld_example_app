@@ -56,12 +56,12 @@ self.submitButtonTitle = () => {
     <div class="editor-page">
     <div class="container page">
         <div class="row">
-    
         <div class="col-md-10 offset-md-1 col-xs-12">
 
             <ul if={ errors != null } class="error-messages">
                 <li each={ error in errors }>{ error }</li>
             </ul>
+            
             <form>
             <fieldset>
                 <fieldset class="form-group">
@@ -81,8 +81,8 @@ self.submitButtonTitle = () => {
                 </button>
             </fieldset>
             </form>
+
         </div>
-    
         </div>
     </div>
     </div>

@@ -3412,23 +3412,24 @@
 
   riot$1.tag2('article_tab_view', '<div class="{opts.toggle_style}"> <ul class="nav nav-pills outline-active"> <li class="nav-item" each="{item in items()}"> <a class="{nav-link: true, active: item.isActive}" onclick="{actionOfClickTab}">{item.title}</a> </li> </ul> </div>', '', '', function(opts) {
 
-      var self = this;
-      var _items = null;
+  var self = this;
+  var _items = null;
 
-      self.didSelectTab = () => {};
+  self.didSelectTab = () => {};
 
-      self.setItems = ( items ) => {
-          _items = items;
-          self.update();
-      };
+  self.setItems = ( items ) => {
+      _items = items;
+      self.update();
+  };
 
-      self.items = () => {
-          return _items
-      };
+  self.items = () => {
+      return _items
+  };
 
-      self.actionOfClickTab = (event) => {
-          self.didSelectTab( event.item.item );
-      };
+  self.actionOfClickTab = (event) => {
+      self.didSelectTab( event.item.item );
+  };
+
   });
 
   riot$1.tag2('articles_table_view', '<div class="article-preview" each="{article in articles}"> <div class="article-meta"> <a onclick="{actionOfClickProfile}"><img riot-src="{article.author.image}"></a> <div class="info"> <a class="author author-link" onclick="{actionOfClickProfile}">{article.author.username}</a> <span class="date">January 20th</span> </div> <button class="btn btn-outline-primary btn-sm pull-xs-right"> <i class="ion-heart"></i> {article.favoritesCount} </button> </div> <a class="preview-link" onclick="{actionOfClickArticle}"> <h1>{article.title} </h1> <p>{article.description}</p> <span>Read more...</span> </a> </div>', 'articles_table_view .author-link,[data-is="articles_table_view"] .author-link{ color: #5cb85c; cursor : pointer; text-decoration: none; } articles_table_view .author-link:hover,[data-is="articles_table_view"] .author-link:hover{ color: #5cb85c; text-decoration: underline; }', '', function(opts) {
@@ -3465,32 +3466,33 @@
   });
 
   riot$1.tag2('pagenation_view', '<ul class="pagination" if="{isShow}"> <li each="{page in arrayOfPageNumber()}" class="{page-item: true, active: page === shownPage}"> <a class="page-link" onclick="{actionOfClickPageLink}">{page}</a> </li> </ul>', '', '', function(opts) {
-      var self = this;
-      var countOfPage = 0;
 
-      self.shownPage = 1;
+  var self = this;
+  var countOfPage = 0;
 
-      self.didSelectPageNumber = () => {};
+  self.shownPage = 1;
 
-      self.setCountOfPage = ( count ) => {
-          countOfPage = count === null ? 0 : count;
-          self.update();
-      };
-      self.isShow = () => {
-          return countOfPage > 0
-      };
+  self.didSelectPageNumber = () => {};
 
-      self.pagesCount = () => {
-          return countOfPage
-      };
+  self.setCountOfPage = ( count ) => {
+      countOfPage = count === null ? 0 : count;
+      self.update();
+  };
+  self.isShow = () => {
+      return countOfPage > 0
+  };
 
-      self.arrayOfPageNumber = () => {
-          return [...Array(countOfPage).keys()].map(i => ++i)
-      };
+  self.pagesCount = () => {
+      return countOfPage
+  };
 
-      self.actionOfClickPageLink = (event) =>{
-          self.didSelectPageNumber( event.item.page );
-      };
+  self.arrayOfPageNumber = () => {
+      return [...Array(countOfPage).keys()].map(i => ++i)
+  };
+
+  self.actionOfClickPageLink = (event) =>{
+      self.didSelectPageNumber( event.item.page );
+  };
 
   });
 
@@ -3518,14 +3520,6 @@
       });
   }
 
-  // {
-  //     "profile": {
-  //         "username": "arupaka2525",
-  //         "bio": "My butt is danger",
-  //         "image": "",
-  //         "following": false
-  //     }
-  // }
   class Profile {
       constructor(username, bio, image, following) {
           this.username = username;
@@ -4392,7 +4386,7 @@
   }
 
   /**
-   * Location parser Specialized in SPA.
+   * Location parser specialized in SPA.
    */
   class SPALocation {
       constructor() {
@@ -4582,7 +4576,6 @@
                           return this.conduit.getArticlesByFollowingUser(user.token, limit, offset).then(pastProcess);
                       }
                       else {
-                          // 不正な呼び出し /loginへ転送する
                           console.log("Unexpected page call.");
                       }
                       break;
@@ -4762,7 +4755,7 @@
   self.actionOfSubmitButton = ( event ) => {
       useCase.login( self.refs.emailField.value, self.refs.passwordField.value ).then( () => {
 
-          window.location.href = '/';
+          window.location.href = "/";
       }).catch( (error) => {
 
           if (error instanceof Array ) {
@@ -11552,7 +11545,7 @@
 
   });
 
-  riot$1.tag2('profile_view', '<virtual if="{profile !== null}"> <img riot-src="{profile.image}" class="user-img"> <h4>{profile.username}</h4> <p>{profile.bio}</p> <button onclick="{actionOfProfileButton}" class="{⁗btn btn-sm action-btn⁗ + (profile.following ? ⁗ btn-secondary⁗ : ⁗ btn-outline-secondary⁗)}"> <i class="{isOwn === true ? ⁗ion-gear-a⁗ : ⁗ion-plus-round⁗}"></i>&nbsp;{buttonTitle()} </button> </virtual>', '', '', function(opts) {
+  riot$1.tag2('profile_view', '<virtual if="{profile !== null}"> <img riot-src="{profile.image}" class="user-img"> <h4>{profile.username}</h4> <p>{profile.bio}</p> <button onclick="{actionOfProfileButton}" class="{⁗btn btn-sm action-btn⁗ + ( profile.following ? ⁗ btn-secondary⁗ : ⁗ btn-outline-secondary⁗ )}"> <i class="{isOwn === true ? ⁗ion-gear-a⁗ : ⁗ion-plus-round⁗}"></i>&nbsp;{buttonTitle()} </button> </virtual>', '', '', function(opts) {
 
   var self = this;
 
@@ -11798,7 +11791,7 @@
   self.actionOfSubmitButton = ( event ) => {
       useCase.register( self.refs.usernameField.value, self.refs.emailField.value, self.refs.passwordField.value ).then( () => {
 
-          window.location.href = '/';
+          window.location.href = "/";
       }).catch( (error) => {
 
           if (error instanceof Array ) {
@@ -12174,7 +12167,6 @@
   route.base();
   route.parser();
 
-  // import i18next from "i18next"
   class ApplicationUseCase {
       constructor() {
           this.menus = [{
@@ -12221,40 +12213,10 @@
                   .catch(function (error) {
                   throw error;
               });
-              // // Download loacalize strings.
-              // let lang = ((window.navigator.languages && window.navigator.languages[0]) ||
-              //              window.navigator.language).substr(0, 2) === "ja" ? "ja" : "en"
-              // let requestLocalizedString = fetch("assets/json/i18n/" + lang + "/localize.json")
-              // .then( (res) => { return res.json() })
-              // .then( (json) => {
-              //     let resources = {}
-              //     resources[lang] = { translation: json }
-              //     i18next.init({
-              //         lng: lang,
-              //         debug: false,
-              //         resources: resources,
-              //         interpolation: {
-              //             format: function(value, format, lng) {
-              //                 if (format === "uppercase") { return value.toUpperCase() }
-              //                 if (value instanceof Date) { return moment(value).format(format) }
-              //                 return value
-              //             }
-              //         }
-              //     }, function( error, translation ) {
-              //         throw error
-              //     })
-              // })
-              // .catch((error) => {
-              //     throw error
-              // })
-              // // Request of parallel.
-              Promise.all([requestSettings /*, requestLocalizedString*/])
+              // Parallel request
+              Promise.all([requestSettings])
                   .then(() => {
-                  // Start Analytics
-                  // Analytics.shared().start( Settings.shared().valueForKey("analytics").trackingID )
-                  // Analytics.shared().send("pageview")
-                  // No error
-                  // Set Title
+                  // set title
                   document.title = Settings.shared().valueForKey("title");
                   completion(null);
               })
