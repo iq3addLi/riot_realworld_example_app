@@ -4,7 +4,7 @@
 
 > **Riot.js codebase containing real world examples (CRUD, auth, advanced patterns, etc) that adheres to the RealWorld spec and API.**
 
-This project is a realworld implementation of riot.js v3. The major version of riot.js is v4. Please refer to the following about [this](#why-did-you-implement-it-using-v3?).
+This project is a realworld implementation of riot.js v3. The major version of riot.js is v4. Please refer to the following about [this](#why-did-you-implement-it-using-v3).
 
 ```
 ⚠️ This project is influenced by iOS development. Please be aware that it may be out of the context of web development.
