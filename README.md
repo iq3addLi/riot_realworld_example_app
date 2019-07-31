@@ -1,6 +1,7 @@
 [![RealWorld Frontend](https://img.shields.io/badge/realworld-frontend-%23783578.svg)](http://realworld.io)
 
-# ![RealWorld Example App](https://github.com/gothinkster/realworld/raw/master/media/realworld.png)
+# ![RealWorld Example App](./img/realworld_example_apps.png)
 
 This readme is progress☺️ 
 Please wait a bit😚
+
