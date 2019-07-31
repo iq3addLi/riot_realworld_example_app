@@ -16,7 +16,7 @@ This project is a realworld implementation of riot.js v3. The major version of r
 
 
 
-##Design policy
+## Design policy
 
 ### iOS Development Style
 
