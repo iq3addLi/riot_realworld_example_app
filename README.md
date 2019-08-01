@@ -61,7 +61,7 @@ This is also described [here](https://github.com/addli/motorhomes.addli.jp#appen
 
 ### Layerd Architecture
 
-I use layered architecture for iOS, server-side, and Web development. (When I first learned it, it was called [Onion Architecture](https://jeffreypalermo.com/2008/07/the-onion-architecture-part-1/).)  It is divided into three layers, Presentation, Domain, Infrastructure. The merits of that thing are omitted here.
+I use layered architecture for iOS, server-side, and Web development. (When I first learned it, it was called [Onion Architecture](https://jeffreypalermo.com/2008/07/the-onion-architecture-part-1/).)  It is divided into three layers, Presentation, Domain and Infrastructure. The merits of that thing are omitted here.
 
 The reason why I adopted this architecture is
 
