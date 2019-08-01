@@ -2,8 +2,6 @@ import riot         from 'rollup-plugin-riot'
 import nodeResolve  from 'rollup-plugin-node-resolve'
 import commonjs     from 'rollup-plugin-commonjs'
 import typescript   from 'rollup-plugin-typescript'
-import sass         from 'node-sass'
-//import uglify       from 'rollup-plugin-uglify'
 
 export default {
   input: 'src/main.ts',
@@ -13,14 +11,6 @@ export default {
   },
   plugins: [
     riot({
-        parsers:{
-            css:{
-                scss: function(tagName, css) {
-                    var result = sass.renderSync({ data: css })
-                    return result.css.toString()
-                },
-            }
-        },
         parserOptions:{
             js: {
                 module: 5, //commonjs
@@ -32,7 +22,6 @@ export default {
     }),
     nodeResolve({ jsnext: true }),
     typescript(),
-    commonjs(),
-    //uglify()
+    commonjs()
   ]
 }
