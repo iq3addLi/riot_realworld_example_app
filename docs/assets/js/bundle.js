@@ -3635,7 +3635,6 @@
   class ConduitProductionRepository {
       constructor() {
           // Auths
-          // login: (email: string, password: string ) => Promise<User>
           this.login = (email, password) => {
               return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
                   try {
@@ -3666,7 +3665,6 @@
                   }
               }));
           };
-          // // register: (form: UserForm ) => Promise<User>
           this.register = (username, email, password) => {
               return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
                   try {
@@ -3764,7 +3762,6 @@
           this.getArticles = (limit, offset) => {
               return this.callArticleAPI(this.buildPath("articles", this.buildArticlesQuery(limit, offset)), "GET");
           };
-          // /articles?author={ username }
           this.getArticlesOfAuthor = (username, token, limit, offset) => {
               let header = null;
               if (token !== null) {
@@ -3772,19 +3769,15 @@
               }
               return this.callArticleAPI(this.buildPath("articles", this.buildArticlesQuery(limit, offset, null, null, username)), "GET", header);
           };
-          // /articles?favorited={ username }
           this.getArticlesForFavoriteUser = (username, limit, offset) => {
               return this.callArticleAPI(this.buildPath("articles", this.buildArticlesQuery(limit, offset, null, username)), "GET");
           };
-          // /articles?tag={ tag }
           this.getArticlesOfTagged = (tag, limit, offset) => {
               return this.callArticleAPI(this.buildPath("articles", this.buildArticlesQuery(limit, offset, tag)), "GET");
           };
-          // /articles/feed
           this.getArticlesByFollowingUser = (token, limit, offset) => {
               return this.callArticleAPI(this.buildPath("articles/feed", this.buildArticlesQuery(limit, offset)), "GET", this.buildHeader({ "Authorization": "Token " + token }));
           };
-          // {{APIURL}}/articles/{{slug}}
           this.getArticle = (slug) => {
               return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
                   try {
@@ -3845,7 +3838,6 @@
                   }
               }));
           };
-          // DEL {{APIURL}}/articles/{{slug}}/comments/{{commentId}}
           this.deleteComment = (token, slug, commentId) => {
               return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
                   try {
@@ -3874,7 +3866,6 @@
                   }
               }));
           };
-          // PUT {{APIURL}}/articles/{{slug}}
           this.updateArticle = (token, article, slug) => {
               return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
                   try {
@@ -3906,7 +3897,6 @@
                   }
               }));
           };
-          // DELETE {{APIURL}}/articles/{{slug}}
           this.deleteArticle = (token, slug) => {
               return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
                   try {
@@ -3935,11 +3925,9 @@
                   }
               }));
           };
-          // POST {{APIURL}}/articles/{{slug}}/favorite
           this.favorite = (token, slug) => {
               return this.callArticleFavoriteAPI(token, slug, "POST");
           };
-          // DEL {{APIURL}}/articles/{{slug}}/favorite
           this.unfavorite = (token, slug) => {
               return this.callArticleFavoriteAPI(token, slug, "DELETE");
           };
@@ -3972,7 +3960,6 @@
                   }
               }));
           };
-          // GET {{APIURL}}/profiles/{{USERNAME}}
           this.getProfile = (username, token) => {
               let headers = {
                   "Accept": "application/json",
@@ -4011,7 +3998,6 @@
           this.unfollow = (token, username) => {
               return this.callUserFollowAPI(token, username, "DELETE");
           };
-          // // Tags
           this.getTags = () => {
               return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
                   try {
@@ -4031,7 +4017,6 @@
               }));
           };
           // Comment
-          // POST {{APIURL}}/articles/{{slug}}/comments
           this.postComment = (token, slug, comment) => {
               return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
                   try {
@@ -4124,14 +4109,6 @@
                   }
               }));
           };
-          // // getUser: (token: string ) => Promise<User>
-          // getUser = (token: string ) => {
-          //     return new Promise<User>( async () => {
-          //         return new User()
-          //     })
-          // }
-          // // <<要調査>>// putUser: (token: ) => Promise<User>
-          // // Articles
           this.callArticleAPI = (endpoint, method, headers) => {
               return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
                   try {
@@ -4438,14 +4415,6 @@
       SPALocation._instance.updateProperties();
       return SPALocation._instance;
   };
-  // declare global {
-  //     interface String {
-  //         isEmpty(): boolean
-  //     }
-  // }
-  // String.prototype.isEmpty = () => {
-  //     return ( this === null || this.length === 0)
-  // }
 
   /**
    * Application Settings Container
@@ -9402,10 +9371,9 @@
   var block = {
     newline: /^\n+/,
     code: /^( {4}[^\n]+\n*)+/,
-    fences: noop,
+    fences: /^ {0,3}(`{3,}|~{3,})([^`~\n]*)\n(?:|([\s\S]*?)\n)(?: {0,3}\1[~`]* *(?:\n+|$)|$)/,
     hr: /^ {0,3}((?:- *){3,}|(?:_ *){3,}|(?:\* *){3,})(?:\n+|$)/,
-    heading: /^ *(#{1,6}) *([^\n]+?) *(?:#+ *)?(?:\n+|$)/,
-    nptable: noop,
+    heading: /^ {0,3}(#{1,6}) +([^\n]*?)(?: +#+)? *(?:\n+|$)/,
     blockquote: /^( {0,3}> ?(paragraph|[^\n]*)(?:\n|$))+/,
     list: /^( {0,3})(bull) [\s\S]+?(?:hr|def|\n{2,}(?! )(?!\1bull )\n*|\s*$)/,
     html: '^ {0,3}(?:' // optional indentation
@@ -9419,9 +9387,12 @@
       + '|</(?!script|pre|style)[a-z][\\w-]*\\s*>(?=[ \\t]*(?:\\n|$))[\\s\\S]*?(?:\\n{2,}|$)' // (7) closing tag
       + ')',
     def: /^ {0,3}\[(label)\]: *\n? *<?([^\s>]+)>?(?:(?: +\n? *| *\n *)(title))? *(?:\n+|$)/,
+    nptable: noop,
     table: noop,
-    lheading: /^([^\n]+)\n *(=|-){2,} *(?:\n+|$)/,
-    paragraph: /^([^\n]+(?:\n(?!hr|heading|lheading| {0,3}>|<\/?(?:tag)(?: +|\n|\/?>)|<(?:script|pre|style|!--))[^\n]+)*)/,
+    lheading: /^([^\n]+)\n {0,3}(=+|-+) *(?:\n+|$)/,
+    // regex template, placeholders will be replaced according to different paragraph
+    // interruption rules of commonmark and the original markdown spec:
+    _paragraph: /^([^\n]+(?:\n(?!hr|heading|lheading|blockquote|fences|list|html)[^\n]+)*)/,
     text: /^[^\n]+/
   };
 
@@ -9457,10 +9428,14 @@
     .replace('attribute', / +[a-zA-Z:_][\w.:-]*(?: *= *"[^"\n]*"| *= *'[^'\n]*'| *= *[^\s"'=<>`]+)?/)
     .getRegex();
 
-  block.paragraph = edit(block.paragraph)
+  block.paragraph = edit(block._paragraph)
     .replace('hr', block.hr)
-    .replace('heading', block.heading)
-    .replace('lheading', block.lheading)
+    .replace('heading', ' {0,3}#{1,6} +')
+    .replace('|lheading', '') // setex headings don't interrupt commonmark paragraphs
+    .replace('blockquote', ' {0,3}>')
+    .replace('fences', ' {0,3}(?:`{3,}|~{3,})[^`\\n]*\\n')
+    .replace('list', ' {0,3}(?:[*+-]|1[.)]) ') // only lists starting from 1 can interrupt
+    .replace('html', '</?(?:tag)(?: +|\\n|/?>)|<(?:script|pre|style|!--)')
     .replace('tag', block._tag) // pars can be interrupted by type (6) html blocks
     .getRegex();
 
@@ -9479,28 +9454,12 @@
    */
 
   block.gfm = merge({}, block.normal, {
-    fences: /^ {0,3}(`{3,}|~{3,})([^`\n]*)\n(?:|([\s\S]*?)\n)(?: {0,3}\1[~`]* *(?:\n+|$)|$)/,
-    paragraph: /^/,
-    heading: /^ *(#{1,6}) +([^\n]+?) *#* *(?:\n+|$)/
-  });
-
-  block.gfm.paragraph = edit(block.paragraph)
-    .replace('(?!', '(?!'
-      + block.gfm.fences.source.replace('\\1', '\\2') + '|'
-      + block.list.source.replace('\\1', '\\3') + '|')
-    .getRegex();
-
-  /**
-   * GFM + Tables Block Grammar
-   */
-
-  block.tables = merge({}, block.gfm, {
     nptable: /^ *([^|\n ].*\|.*)\n *([-:]+ *\|[-| :]*)(?:\n((?:.*[^>\n ].*(?:\n|$))*)\n*|$)/,
     table: /^ *\|(.+)\n *\|?( *[-:]+[-| :]*)(?:\n((?: *[^>\n ].*(?:\n|$))*)\n*|$)/
   });
 
   /**
-   * Pedantic grammar
+   * Pedantic grammar (original John Gruber's loose markdown specification)
    */
 
   block.pedantic = merge({}, block.normal, {
@@ -9514,7 +9473,18 @@
         + '|sup|i|b|u|mark|ruby|rt|rp|bdi|bdo|span|br|wbr|ins|del|img)'
         + '\\b)\\w+(?!:|[^\\w\\s@]*@)\\b')
       .getRegex(),
-    def: /^ *\[([^\]]+)\]: *<?([^\s>]+)>?(?: +(["(][^\n]+[")]))? *(?:\n+|$)/
+    def: /^ *\[([^\]]+)\]: *<?([^\s>]+)>?(?: +(["(][^\n]+[")]))? *(?:\n+|$)/,
+    heading: /^ *(#{1,6}) *([^\n]+?) *(?:#+ *)?(?:\n+|$)/,
+    fences: noop, // fences not supported
+    paragraph: edit(block.normal._paragraph)
+      .replace('hr', block.hr)
+      .replace('heading', ' *#{1,6} *[^\n]')
+      .replace('lheading', block.lheading)
+      .replace('blockquote', ' {0,3}>')
+      .replace('|fences', '')
+      .replace('|list', '')
+      .replace('|html', '')
+      .getRegex()
   });
 
   /**
@@ -9530,11 +9500,7 @@
     if (this.options.pedantic) {
       this.rules = block.pedantic;
     } else if (this.options.gfm) {
-      if (this.options.tables) {
-        this.rules = block.tables;
-      } else {
-        this.rules = block.gfm;
-      }
+      this.rules = block.gfm;
     }
   }
 
@@ -9603,18 +9569,25 @@
 
       // code
       if (cap = this.rules.code.exec(src)) {
+        var lastToken = this.tokens[this.tokens.length - 1];
         src = src.substring(cap[0].length);
-        cap = cap[0].replace(/^ {4}/gm, '');
-        this.tokens.push({
-          type: 'code',
-          text: !this.options.pedantic
-            ? rtrim(cap, '\n')
-            : cap
-        });
+        // An indented code block cannot interrupt a paragraph.
+        if (lastToken && lastToken.type === 'paragraph') {
+          lastToken.text += '\n' + cap[0].trimRight();
+        } else {
+          cap = cap[0].replace(/^ {4}/gm, '');
+          this.tokens.push({
+            type: 'code',
+            codeBlockStyle: 'indented',
+            text: !this.options.pedantic
+              ? rtrim(cap, '\n')
+              : cap
+          });
+        }
         continue;
       }
 
-      // fences (gfm)
+      // fences
       if (cap = this.rules.fences.exec(src)) {
         src = src.substring(cap[0].length);
         this.tokens.push({
@@ -9815,7 +9788,7 @@
             : 'html',
           pre: !this.options.sanitizer
             && (cap[1] === 'pre' || cap[1] === 'script' || cap[1] === 'style'),
-          text: cap[0]
+          text: this.options.sanitize ? (this.options.sanitizer ? this.options.sanitizer(cap[0]) : escape(cap[0])) : cap[0]
         });
         continue;
       }
@@ -9875,7 +9848,7 @@
         src = src.substring(cap[0].length);
         this.tokens.push({
           type: 'heading',
-          depth: cap[2] === '=' ? 1 : 2,
+          depth: cap[2].charAt(0) === '=' ? 1 : 2,
           text: cap[1]
         });
         continue;
@@ -9926,11 +9899,11 @@
       + '|^<\\?[\\s\\S]*?\\?>' // processing instruction, e.g. <?php ?>
       + '|^<![a-zA-Z]+\\s[\\s\\S]*?>' // declaration, e.g. <!DOCTYPE html>
       + '|^<!\\[CDATA\\[[\\s\\S]*?\\]\\]>', // CDATA section
-    link: /^!?\[(label)\]\(href(?:\s+(title))?\s*\)/,
+    link: /^!?\[(label)\]\(\s*(href)(?:\s+(title))?\s*\)/,
     reflink: /^!?\[(label)\]\[(?!\s*\])((?:\\[\[\]]?|[^\[\]\\])+)\]/,
     nolink: /^!?\[(?!\s*\])((?:\[[^\[\]]*\]|\\[\[\]]|[^\[\]])*)\](?:\[\])?/,
     strong: /^__([^\s_])__(?!_)|^\*\*([^\s*])\*\*(?!\*)|^__([^\s][\s\S]*?[^\s])__(?!_)|^\*\*([^\s][\s\S]*?[^\s])\*\*(?!\*)/,
-    em: /^_([^\s_])_(?!_)|^\*([^\s*"<\[])\*(?!\*)|^_([^\s][\s\S]*?[^\s_])_(?!_|[^\spunctuation])|^_([^\s_][\s\S]*?[^\s])_(?!_|[^\spunctuation])|^\*([^\s"<\[][\s\S]*?[^\s*])\*(?!\*)|^\*([^\s*"<\[][\s\S]*?[^\s])\*(?!\*)/,
+    em: /^_([^\s_])_(?!_)|^\*([^\s*<\[])\*(?!\*)|^_([^\s<][\s\S]*?[^\s_])_(?!_|[^\spunctuation])|^_([^\s_<][\s\S]*?[^\s])_(?!_|[^\spunctuation])|^\*([^\s<"][\s\S]*?[^\s\*])\*(?!\*|[^\spunctuation])|^\*([^\s*"<\[][\s\S]*?[^\s])\*(?!\*)/,
     code: /^(`+)([^`]|[^`][\s\S]*?[^`])\1(?!`)/,
     br: /^( {2,}|\\)\n(?!\s*$)/,
     del: noop,
@@ -9958,8 +9931,8 @@
     .replace('attribute', inline._attribute)
     .getRegex();
 
-  inline._label = /(?:\[[^\[\]]*\]|\\[\[\]]?|`[^`]*`|`(?!`)|[^\[\]\\`])*?/;
-  inline._href = /\s*(<(?:\\[<>]?|[^\s<>\\])*>|[^\s\x00-\x1f]*)/;
+  inline._label = /(?:\[[^\[\]]*\]|\\.|`[^`]*`|[^\[\]\\`])*?/;
+  inline._href = /<(?:\\[<>]?|[^\s<>\\])*>|[^\s\x00-\x1f]*/;
   inline._title = /"(?:\\"?|[^"\\])*"|'(?:\\'?|[^'\\])*'|\((?:\\\)?|[^)\\])*\)/;
 
   inline.link = edit(inline.link)
@@ -10015,7 +9988,10 @@
 
   inline.breaks = merge({}, inline.gfm, {
     br: edit(inline.br).replace('{2,}', '*').getRegex(),
-    text: edit(inline.gfm.text).replace(/\{2,\}/g, '*').getRegex()
+    text: edit(inline.gfm.text)
+      .replace('\\b_', '\\b_| {2,}\\n')
+      .replace(/\{2,\}/g, '*')
+      .getRegex()
   });
 
   /**
@@ -10106,7 +10082,7 @@
       if (cap = this.rules.link.exec(src)) {
         var lastParenIndex = findClosingBracket(cap[2], '()');
         if (lastParenIndex > -1) {
-          var linkLen = cap[0].length - (cap[2].length - lastParenIndex) - (cap[3] || '').length;
+          var linkLen = 4 + cap[1].length + lastParenIndex;
           cap[2] = cap[2].substring(0, lastParenIndex);
           cap[0] = cap[0].substring(0, linkLen).trim();
           cap[3] = '';
@@ -10228,7 +10204,7 @@
       if (cap = this.rules.text.exec(src)) {
         src = src.substring(cap[0].length);
         if (this.inRawBlock) {
-          out += this.renderer.text(cap[0]);
+          out += this.renderer.text(this.options.sanitize ? (this.options.sanitizer ? this.options.sanitizer(cap[0]) : escape(cap[0])) : cap[0]);
         } else {
           out += this.renderer.text(escape(this.smartypants(cap[0])));
         }
@@ -10476,7 +10452,7 @@
   TextRenderer.prototype.em =
   TextRenderer.prototype.codespan =
   TextRenderer.prototype.del =
-  TextRenderer.prototype.text = function (text) {
+  TextRenderer.prototype.text = function(text) {
     return text;
   };
 
@@ -10521,7 +10497,7 @@
     // use an InlineLexer with a TextRenderer to extract pure text
     this.inlineText = new InlineLexer(
       src.links,
-      merge({}, this.options, {renderer: new TextRenderer()})
+      merge({}, this.options, { renderer: new TextRenderer() })
     );
     this.tokens = src.reverse();
 
@@ -10538,7 +10514,8 @@
    */
 
   Parser.prototype.next = function() {
-    return this.token = this.tokens.pop();
+    this.token = this.tokens.pop();
+    return this.token;
   };
 
   /**
@@ -10682,7 +10659,7 @@
    * Slugger generates header id
    */
 
-  function Slugger () {
+  function Slugger() {
     this.seen = {};
   }
 
@@ -10690,7 +10667,7 @@
    * Convert string to unique id
    */
 
-  Slugger.prototype.slug = function (value) {
+  Slugger.prototype.slug = function(value) {
     var slug = value
       .toLowerCase()
       .trim()
@@ -10716,11 +10693,11 @@
   function escape(html, encode) {
     if (encode) {
       if (escape.escapeTest.test(html)) {
-        return html.replace(escape.escapeReplace, function (ch) { return escape.replacements[ch]; });
+        return html.replace(escape.escapeReplace, function(ch) { return escape.replacements[ch]; });
       }
     } else {
       if (escape.escapeTestNoEncode.test(html)) {
-        return html.replace(escape.escapeReplaceNoEncode, function (ch) { return escape.replacements[ch]; });
+        return html.replace(escape.escapeReplaceNoEncode, function(ch) { return escape.replacements[ch]; });
       }
     }
 
@@ -10841,7 +10818,7 @@
   function splitCells(tableRow, count) {
     // ensure that every cell-delimiting pipe has a space
     // before it to distinguish it from an escaped pipe
-    var row = tableRow.replace(/\|/g, function (match, offset, str) {
+    var row = tableRow.replace(/\|/g, function(match, offset, str) {
           var escaped = false,
               curr = offset;
           while (--curr >= 0 && str[curr] === '\\') escaped = !escaped;
@@ -10916,6 +10893,12 @@
     return -1;
   }
 
+  function checkSanitizeDeprecation(opt) {
+    if (opt && opt.sanitize && !opt.silent) {
+      console.warn('marked(): sanitize and sanitizer parameters are deprecated since version 0.7.0, should not be used and will be removed in the future. Read more here: https://marked.js.org/#/USING_ADVANCED.md#options');
+    }
+  }
+
   /**
    * Marked
    */
@@ -10937,6 +10920,7 @@
       }
 
       opt = merge({}, marked.defaults, opt || {});
+      checkSanitizeDeprecation(opt);
 
       var highlight = opt.highlight,
           tokens,
@@ -11001,6 +10985,7 @@
     }
     try {
       if (opt) opt = merge({}, marked.defaults, opt);
+      checkSanitizeDeprecation(opt);
       return Parser.parse(Lexer.lex(src, opt), opt);
     } catch (e) {
       e.message += '\nPlease report this to https://github.com/markedjs/marked.';
@@ -11023,7 +11008,7 @@
     return marked;
   };
 
-  marked.getDefaults = function () {
+  marked.getDefaults = function() {
     return {
       baseUrl: null,
       breaks: false,
@@ -11040,7 +11025,6 @@
       silent: false,
       smartLists: false,
       smartypants: false,
-      tables: true,
       xhtml: false
     };
   };
@@ -12266,14 +12250,18 @@
 
   this.on('mount', function() {
       useCase.initialize( function( error ){
+          if (error != null){
+
+              throw Error("Initialize is failed");
+          }
+          useCase.setRoute();
+          useCase.routing();
       });
-      useCase.setRoute();
-      useCase.routing();
   });
   });
 
   // Import Polyfill
-  // Start Application
+  // Launch Application
   riot$1.mount("application");
 
 }());

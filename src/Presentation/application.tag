@@ -26,6 +26,6 @@ this.on('mount', function() {
 })
 </script>
 
-<div id="mainView"></div> <!-- To prevent it from being mounted automatically -->
+<div id="mainView"></div> <!-- div tag to prevent it from being mounted automatically -->
 
 </application>

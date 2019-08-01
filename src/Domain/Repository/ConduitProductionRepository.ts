@@ -4,7 +4,6 @@ import Article from "../Model/Article"
 import PostArticle from "../Model/PostArticle"
 import Comment from "../Model/Comment"
 import Profile from "../Model/Profile"
-import UserForm from "../Model/UserForm"
 import ServerError from "../Model/ServerError"
 import ArticleContainer from "../Model/ArticleContainer"
 import PostUser from "../Model/PostUser"
@@ -13,7 +12,6 @@ export default class ConduitProductionRepository implements ConduitRepository {
 
     // Auths
 
-    // login: (email: string, password: string ) => Promise<User>
     login = (email: string, password: string ) => {
         return new Promise<User>( async (resolve, reject) => {
             try {
@@ -42,7 +40,6 @@ export default class ConduitProductionRepository implements ConduitRepository {
         })
     }
 
-    // // register: (form: UserForm ) => Promise<User>
     register = (username: string, email: string, password: string ) => {
         return new Promise<User>( async (resolve, reject) => {
             try {
@@ -137,30 +134,25 @@ export default class ConduitProductionRepository implements ConduitRepository {
         return this.callArticleAPI( this.buildPath("articles", this.buildArticlesQuery(limit, offset)), "GET" )
     }
 
-    // /articles?author={ username }
     getArticlesOfAuthor = ( username: string, token?: string, limit?: number, offset?: number ) => {
         let header = null
         if (token !== null) { header = this.buildHeader( { "Authorization" : "Token " + token } ) }
         return this.callArticleAPI( this.buildPath("articles", this.buildArticlesQuery(limit, offset, null, null, username) ), "GET", header )
     }
 
-    // /articles?favorited={ username }
     getArticlesForFavoriteUser = ( username: string, limit?: number, offset?: number ) => {
         return this.callArticleAPI( this.buildPath("articles", this.buildArticlesQuery(limit, offset, null, username) ), "GET" )
     }
 
-    // /articles?tag={ tag }
     getArticlesOfTagged = ( tag: string, limit?: number, offset?: number ) => {
         return this.callArticleAPI( this.buildPath("articles", this.buildArticlesQuery(limit, offset, tag) ), "GET" )
     }
 
-    // /articles/feed
     getArticlesByFollowingUser = ( token: string, limit?: number, offset?: number ) => {
         return this.callArticleAPI( this.buildPath("articles/feed", this.buildArticlesQuery(limit, offset)),
                             "GET", this.buildHeader( { "Authorization" : "Token " + token } ) )
     }
 
-    // {{APIURL}}/articles/{{slug}}
     getArticle = ( slug: string ): Promise<Article> => {
         return new Promise<Article>( async (resolve, reject) => {
             try {
@@ -217,7 +209,6 @@ export default class ConduitProductionRepository implements ConduitRepository {
         })
     }
 
-    // DEL {{APIURL}}/articles/{{slug}}/comments/{{commentId}}
     deleteComment = ( token: string, slug: string, commentId: number ): Promise<void> => {
         return new Promise<void>( async (resolve, reject) => {
             try {
@@ -244,7 +235,6 @@ export default class ConduitProductionRepository implements ConduitRepository {
         })
     }
 
-    // PUT {{APIURL}}/articles/{{slug}}
     updateArticle = ( token: string, article: PostArticle, slug: string): Promise<Article> => {
         return new Promise<Article>( async (resolve, reject) => {
             try {
@@ -274,7 +264,6 @@ export default class ConduitProductionRepository implements ConduitRepository {
         })
     }
 
-    // DELETE {{APIURL}}/articles/{{slug}}
     deleteArticle = ( token: string, slug: string): Promise<void> => {
         return new Promise<void>( async (resolve, reject) => {
             try {
@@ -301,12 +290,10 @@ export default class ConduitProductionRepository implements ConduitRepository {
         })
     }
 
-    // POST {{APIURL}}/articles/{{slug}}/favorite
     favorite = ( token: string, slug: string ): Promise<Article> => {
         return this.callArticleFavoriteAPI( token, slug, "POST")
     }
 
-    // DEL {{APIURL}}/articles/{{slug}}/favorite
     unfavorite = ( token: string, slug: string ): Promise<Article> => {
         return this.callArticleFavoriteAPI( token, slug, "DELETE")
     }
@@ -338,7 +325,6 @@ export default class ConduitProductionRepository implements ConduitRepository {
         })
     }
 
-    // GET {{APIURL}}/profiles/{{USERNAME}}
     getProfile = ( username: string, token?: string ): Promise<Profile> => {
         let headers = {
             "Accept": "application/json",
@@ -375,7 +361,6 @@ export default class ConduitProductionRepository implements ConduitRepository {
         return this.callUserFollowAPI(token, username, "DELETE")
     }
 
-    // // Tags
     getTags = () => {
         return new Promise<string[]>( async (resolve, reject) => {
             try {
@@ -397,7 +382,6 @@ export default class ConduitProductionRepository implements ConduitRepository {
 
     // Comment
 
-    // POST {{APIURL}}/articles/{{slug}}/comments
     postComment = ( token: string, slug: string, comment: string ): Promise<Comment> => {
         return new Promise<Comment>( async (resolve, reject) => {
             try {
@@ -484,15 +468,7 @@ export default class ConduitProductionRepository implements ConduitRepository {
             }
         })
     }
-    // // getUser: (token: string ) => Promise<User>
-    // getUser = (token: string ) => {
-    //     return new Promise<User>( async () => {
-    //         return new User()
-    //     })
-    // }
-    // // <<要調査>>// putUser: (token: ) => Promise<User>
 
-    // // Articles
     private callArticleAPI = ( endpoint: string, method: string, headers?: {[key: string]: string }) => {
         return new Promise<ArticleContainer>( async (resolve, reject) => {
             try {

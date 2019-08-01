@@ -11,13 +11,14 @@ export default interface ConduitRepository {
     // Users
     login: (email: string, password: string ) => Promise<User>
     register: (username: string, email: string, password: string ) => Promise<User>
+
     // GET {{APIURL}}/user
     getUser: (token: string ) => Promise<User>
 
     // PUT {{APIURL}}/user
     updateUser: (token: string, user: PostUser) => Promise<User>
 
-    // // Articles
+    // Articles
     getArticles: (  limit?: number, offset?: number) => Promise<ArticleContainer>
     getArticlesOfAuthor: ( username: string, token?: string, limit?: number, offset?: number ) => Promise<ArticleContainer>
     getArticlesForFavoriteUser: ( username: string, limit?: number, offset?: number ) => Promise<ArticleContainer>
@@ -60,7 +61,7 @@ export default interface ConduitRepository {
     // DEL {{APIURL}}/profiles/{{FOLLOWEE}}/follow
     unfollow: ( token: string, username: string ) => Promise<Profile>
 
-    // Tags
+    // GET {{APIURL}}/tags
     getTags: () => Promise<string[]>
 }
 

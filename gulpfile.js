@@ -34,24 +34,6 @@ gulp.task('buildjs', function (cb) {
 })
 
 // ━━━━━━━━━━━━━━━━━━━━━━
-// Transepile Sassy CSS
-// ━━━━━━━━━━━━━━━━━━━━━━
-function exceptionLog (error) {
-  console.log(error.toString())
-  this.emit('end')
-}
-
-var sass = require('gulp-sass')
-gulp.task('styles', function () {
-  return gulp.src('./styles/styles.scss')
-    .pipe(sass.sync({
-            outputStyle: 'expanded'
-        }).on('error', sass.logError))
-    .pipe(gulp.dest('./docs/assets/styles/'))
-    .on('error', exceptionLog)
-})
-
-// ━━━━━━━━━━━━━━━━━━━━━━
 // Convert settings
 // ━━━━━━━━━━━━━━━━━━━━━━
 var Hjson = require('gulp-hjson')
@@ -62,53 +44,15 @@ gulp.task('convert-hjson-to-json', function() {
     .pipe(gulp.dest('./docs/assets/json/'))
 })
 
-// ━━━━━━━━━━━━━━━━━━━━━━
-// Make settings with env
-// ━━━━━━━━━━━━━━━━━━━━━━
-var replace = require('gulp-replace')
-var env = require('node-env-file')
-env('.env')
-
-gulp.task('make-settings', function() {
-  return gulp
-          .src(['./settings.hjson'])
-          // .pipe(replace('%%GOOGLE_MAP_API_KEY%%', process.env.GOOGLE_MAP_API_KEY))
-          // .pipe(replace('%%GOOGLE_ANALYTICS_ID%%', process.env.GOOGLE_ANALYTICS_ID))
-          .pipe(gulp.dest('./hjson/'))
-})
-
-// ━━━━━━━━━━━━━━━━━━━━━━
-// Copy font from node_module to docs
-// ━━━━━━━━━━━━━━━━━━━━━━
-gulp.task('copy-font', function() {
-  var paths = [
-    {
-      src: './node_modules/open-sans-fonts/open-sans/**/OpenSans-*.*',
-      dest: './docs/assets/fonts/open-sans/'
-    },
-    {
-      src: './node_modules/@fortawesome/fontawesome-free/webfonts/*',
-      dest: './docs/assets/fonts/fontawesome-free/'
-    }
-  ]
-  var stream
-  for(var path of paths){
-    stream = gulp.src(path.src)
-        .pipe(gulp.dest(path.dest))
-  }
-  return stream
-})
 
 // ━━━━━━━━━━━━━━━━━━━━━━
 // Default
 // ━━━━━━━━━━━━━━━━━━━━━━
 gulp.task("default",
   gulp.series(
-    'make-settings',
     "convert-hjson-to-json",
     "tslint",
-//    "copy-font",
-    gulp.parallel("buildjs", "styles")
+    gulp.parallel("buildjs")
   )
 )
 

@@ -7,5 +7,5 @@ import riot from "riot"
 // Import application with riot
 import "./Presentation/application.tag"
 
-// Start Application
+// Launch Application
 riot.mount("application")

@@ -61,14 +61,3 @@ export default class SPALocation {
         }
     }
 }
-
-
-// declare global {
-//     interface String {
-//         isEmpty(): boolean
-//     }
-// }
-
-// String.prototype.isEmpty = () => {
-//     return ( this === null || this.length === 0)
-// }
