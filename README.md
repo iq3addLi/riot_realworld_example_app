@@ -6,10 +6,6 @@
 
 This project is a realworld implementation of riot.js v3. <u>The major version of riot.js is v4</u>. Please refer to the following about [this](#why-did-you-implement-it-using-v3).
 
-```
-⚠️ This project is influenced by iOS development. Please be aware that it may be out of the context of web development.
-```
-
 
 
 ## The target of this example
