@@ -17,12 +17,12 @@ var useCase = new ApplicationUseCase()
 this.on('mount', function() {
     useCase.initialize( function( error ){
         if (error != null){
-            //riot.mount( "rootviewcontroller", "errorviewcontroller", { "error": error })
-            //return
+            // go to 404
+            throw Error("Initialize is failed");
         }
+        useCase.setRoute()
+        useCase.routing()
     })
-    useCase.setRoute()
-    useCase.routing()
 })
 </script>
 
