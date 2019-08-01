@@ -12,6 +12,15 @@ This project is a realworld implementation of riot.js v3. <u>The major version o
 
 
 
+## The target of this example
+
+- Web developer using riot.js
+- iOS Engineer Interested in Web Development
+- Someone who wants to develop a SPA or PWA.
+- Someone interested in layered architecture.
+
+
+
 ## Getting started
 
 ### Clone project
@@ -68,18 +77,9 @@ As I noticed later, TypeScript can be realized by taking out all the implementat
 
 
 
-## Target audience
-
-* Web developer using riot.js
-* iOS Engineer Interested in Web Development
-* Someone who wants to develop a SPA or PWA.
-* Someone interested in layered architecture.
-
-
-
 ## A careful as a latecomer
 
-### The state of the screen is expressed by URL as much as possible.
+### The state of the page is expressed by URL as much as possible.
 
 Senpai's projects are didn't express tab switching and pagination by URL. Since I'm a latecomer(say's Kouhai in Japan), I fixed that point slyly 😉.
 
@@ -93,7 +93,7 @@ Senpai's projects are didn't express tab switching and pagination by URL. Since 
 |          | Favorite Articles | `#/profile/favorite_articles`          |
 |          | pagenation        | `?page={{pagenumber}}`                 |
 
- I thought that even with SPA, the state of the screen should be represented by the URL as much as possible. You will notice. Even if it reloads, it will be displayed without any problem. Thanks to riot and riot-route😘. 
+ I thought that even with SPA, the state of the page should be represented by the URL as much as possible. You will notice. Even if it reloads, it will be displayed without any problem. Thanks to riot and riot-route😘. 
 
 However, there are concerns about this. It seems that URL is not supposed that get query is written after `#`. I'm not an expert in web development. So I judged this by looking at the behavior of [Location](https://developer.mozilla.org/en-US/docs/Web/API/Location) and [url-parse](https://github.com/unshiftio/url-parse).   After #, even if there was a query, it was ignored. So I wrote a simply parser for this project. I can't see if something bad happens because of this😰🚨🚓.
 
@@ -101,9 +101,9 @@ However, there are concerns about this. It seems that URL is not supposed that g
 
 ## Introspection
 
-### Screen updates are not minimal
+### Page updates are not minimal
 
-I simplified the flow of updating the screen by the process of routing according to the change of URL. Therefore, the UI has not been updated screen is updated😅. 
+I simplified the flow of updating the page by the process of routing according to the change of URL. Therefore, the UI has not been updated page is updated😅. 
 
 (For example, each time you click an article tab in a profile scene, Profile view is updated again.)
 
