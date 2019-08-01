@@ -1,13 +1,12 @@
 {
   "name": "riot_realworld_example_app",
   "version": "1.0.0",
-  "description": "",
+  "description": "Exemplary real world application built with Riot.js 💪",
   "main": "index.js",
   "scripts": {
     "build": "gulp",
     "rollup": "rollup -c",
-    "test": "mocha -r ts-node/register test/**/*.ts",
-    "local": "python -m SimpleHTTPServer"
+    "test": "mocha -r ts-node/register test/**/*.ts"
   },
   "repository": {
     "type": "git",
@@ -17,12 +16,12 @@
     "riotjs",
     "single-page-app"
   ],
-  "author": "+Li, Inc.",
-  "license": "ISC",
+  "author": "iq3 (+Li, Inc.)",
+  "license": "MIT",
   "bugs": {
-    "url": "https://github.com/iq3addLi/template_made_riotjs/issues"
+    "url": "https://github.com/iq3addLi/riot_realworld_example_app/issues"
   },
-  "homepage": "https://github.com/iq3addLi/template_made_riotjs#readme",
+  "homepage": "https://github.com/iq3addLi/riot_realworld_example_app",
   "dependencies": {
     "fetch-polyfill": "^0.8.2",
     "i18next": "^13.1.0",
