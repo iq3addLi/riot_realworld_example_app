@@ -61,7 +61,7 @@ This is also described [here](https://github.com/addli/motorhomes.addli.jp#appen
 
 ### Layerd Architecture
 
-I use layered architecture for iOS, server-side, and Web development. (When I first learned it, it was called [Onion Architecture](https://jeffreypalermo.com/2008/07/the-onion-architecture-part-1/).)  It is divided into three layers, Presentation, Domain and Infrastructure. The merits of that thing are omitted here.
+I use layered architecture for iOS, server-side, and Web development. (When I first learned it, it was called [Onion Architecture](https://jeffreypalermo.com/2008/07/the-onion-architecture-part-1/).)  It is divided into three layers, Presentation, Domain and Infrastructure. I will omit the description of this architecture here.
 
 The reason why I adopted this architecture is
 
@@ -69,7 +69,9 @@ The reason why I adopted this architecture is
 * Don't need to depend on special libraries for implementation.
 * Easy to understand, as the required classes can be minimized.
 
-That's it. At least at the RealWorld scale, I think that I could prove that this architecture works. Although it is written assuming that the implementation is switched by Dependency Infection, it does not actually use DI. It is thought that maintenancebility will increase enough just by assuming in advance.
+That's it. At least at the RealWorld scale, I think that I could prove that this architecture works. 
+
+Although it is written assuming that the implementation is switched by Dependency Infection, it does not actually use DI. It is thought that maintenancebility will increase enough just by assuming in advance.
 
 Also, the code of Domain, Infrastructure is **TypeScript**. I also intended to make the riot.js code in the presentation TypeScript. However, I gave up because I did not work on trying to do it with rollup.
 
@@ -113,7 +115,7 @@ By using pushState(), I think that it is possible to make the UI update only for
 
 ## Why did you implement it using v3?
 
-I'm an iOS developer. I needed to learn web development, and I learned about riot.js at v3. riot.js was the best answer for iOS Developer. I wanted to let other people know why I thought so, and developed realworld with v3 of riot.js.
+I'm an iOS developer. I needed to learn web development, and I learned about riot.js at v3. **I thought riot.js is very useful for iOS developers**.  I wanted to let other people know why I thought so, and developed realworld with v3 of riot.js.
 
 I haven't used v4 yet. However, it will probably meet my expectations. Next, I will fork this project to v4. By doing so, I will learn v4 😉.
 
