@@ -67,9 +67,9 @@ All `.tag` and `.ts` in this project are affected by iOS. Because my goal is "Ho
 
 This is also described [here](https://github.com/addli/motorhomes.addli.jp#appendix-web-technology-substitutable-to-ios-framework).
 
-### Layerd architecture
+### Layered architecture
 
-I use layered architecture for iOS, server-side, and Web development. (When I first learned it, it was called [Onion Architecture](https://jeffreypalermo.com/2008/07/the-onion-architecture-part-1/).)  It is divided into three layers, Presentation, Domain and Infrastructure. I will omit the description of this architecture here.
+I use layered architecture for iOS, server-side, and Web development. (When I first learned it, it was called [Onion Architecture](https://jeffreypalermo.com/2008/07/the-onion-architecture-part-1/).)  This project code is divided into three layers, Presentation, Domain and Infrastructure. I will omit the description of this architecture here.
 
 The reason why I adopted this architecture is
 
@@ -81,17 +81,17 @@ That's it. At least at the RealWorld scale, I think that I could prove that this
 
 Although it is written assuming that the implementation is switched by Dependency Injection, it does not actually use DI. It is thought that maintenancebility will increase enough just by assuming in advance.
 
-Also, the code of Domain, Infrastructure is **TypeScript**. I also intended to make the riot.js code in the presentation TypeScript. However, I gave up because I did not work on trying to do it with rollup.
+Also, the code of Domain, Infrastructure is **TypeScript**. I also intended to make the riot.js code in the presentation TypeScript. Unfortunately, I gave up because I didn't work on trying to do it with rollup.
 
-As I noticed later, TypeScript can be realized by taking out all the implementations in tags.  It will be more like relationship between the iOS storyboard and implementation code.
+I noticed later, TypeScript can be realized by taking out all the implementations in tags.  It will be more like relationship between iOS storyboard and implementation code.
 
 
 
 ## A careful as a latecomer
 
-### The state of the page is expressed by URL as much as possible.
+### The state of the page is represented by URL as much as possible.
 
-Senpai's projects are didn't express tab switching and pagination by URL. Since I'm a latecomer(say's Kouhai in Japan), I fixed that point slyly 😉.
+Senpai's projects are didn't represent tab switching and pagination by URL. Since I'm a latecomer(say's Kouhai in Japan), I fixed that point slyly 😉.
 
 | Scene    | Entity            | URL(path)                              |
 | -------- | ----------------- | -------------------------------------- |
@@ -121,7 +121,7 @@ By using pushState(), I think that I can minimize the page refresh with the chan
 
 ## Why did you implement it using v3?
 
-I'm an iOS developer. I needed to learn web development, and I learned about riot.js at v3. **I thought riot.js is very useful for iOS developers**.  I wanted to let other people know why I thought so, and developed realworld with v3 of riot.js.
+I'm iOS developer. I needed to learn web development, and I learned about riot.js v3. **I thought riot.js is awesome useful for iOS developers**.  I wanted to let other people know why I thought so, and developed realworld with riot.js v3.
 
 I haven't used v4 yet. However, it will probably meet my expectations. Next, I will fork this project to v4. By doing so, I will learn v4 😉.
 
