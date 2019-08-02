@@ -83,7 +83,7 @@ Although it is written assuming that the implementation is switched by Dependenc
 
 Also, the code of Domain, Infrastructure is **TypeScript**. I also intended to make the riot.js code in the presentation TypeScript. However, I gave up because I did not work on trying to do it with rollup.
 
-As I noticed later, TypeScript can be realized by taking out all the implementations in tags.  It will be more like the relationship between the iOS storyboard and the implementation code.
+As I noticed later, TypeScript can be realized by taking out all the implementations in tags.  It will be more like relationship between the iOS storyboard and implementation code.
 
 
 
@@ -113,7 +113,7 @@ However, there are concerns about this. It seems that URL is not supposed that g
 
 ### Page updates are not minimal
 
-I simplified the flow of updating the page by the process of routing according to the change of URL. Therefore, the UI has not been updated page is updated😅. (For example, each time you click an article tab in a profile scene, Profile view is updated again.)
+I simplified the flow of updating the page by the process of routing according to the change of URL. Therefore, unnecessary updates are happening😅. (For example, You click an article tab in a profile scene, Profile view is updated again.)
 
 By using pushState(), I think that it is possible to make the UI update only for the necessary UI while changing the URL. But this time I did not go there😅. I will try to remember as an improvement point. 
 
