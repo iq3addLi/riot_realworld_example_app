@@ -61,13 +61,13 @@ For details, please read [gulpfile](https://github.com/iq3addLi/riot_realworld_e
 
 ## Design policy
 
-### iOS Development Style
+### iOS Development style
 
 All `.tag` and `.ts` in this project are affected by iOS. Because my goal is "How can enjoyed iOS Developer be coverted into web development?". I used camelCase as much as possible. I named the classes that came from iOS development. By doing so I was able to develop RealWorld smoothly. It can not be predicted how experienced web developers will feel it. However, I expect that there is something to discover.
 
 This is also described [here](https://github.com/addli/motorhomes.addli.jp#appendix-web-technology-substitutable-to-ios-framework).
 
-### Layerd Architecture
+### Layerd architecture
 
 I use layered architecture for iOS, server-side, and Web development. (When I first learned it, it was called [Onion Architecture](https://jeffreypalermo.com/2008/07/the-onion-architecture-part-1/).)  It is divided into three layers, Presentation, Domain and Infrastructure. I will omit the description of this architecture here.
 
@@ -115,7 +115,7 @@ However, there are concerns about this. It seems that URL is not supposed that g
 
 I simplified the flow of updating the page by the process of routing according to the change of URL. Therefore, unnecessary updates are happening😅. (For example, You click an article tab in a profile scene, Profile view is updated again.)
 
-By using pushState(), I think that it is possible to make the UI update only for the necessary UI while changing the URL. But this time I did not go there😅. I will try to remember as an improvement point. 
+By using pushState(), I think that I can minimize the page refresh with the change of URL. But this time I did not go there😅. I will try to remember as an improvement point. 
 
 
 
