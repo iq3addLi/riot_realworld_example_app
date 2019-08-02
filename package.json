@@ -2,7 +2,6 @@
   "name": "riot_realworld_example_app",
   "version": "1.0.0",
   "description": "Exemplary real world application built with Riot.js 💪",
-  "main": "index.js",
   "scripts": {
     "build": "gulp",
     "rollup": "rollup -c",
@@ -13,8 +12,11 @@
     "url": "git+https://github.com/iq3addLi/template_made_riotjs.git"
   },
   "keywords": [
+    "riot",
     "riotjs",
-    "single-page-app"
+    "realworld",
+    "single-page-app",
+    "example"
   ],
   "author": "iq3 (+Li, Inc.)",
   "license": "MIT",
