@@ -1,0 +1,39 @@
+version: 2
+jobs:
+  build_and_test:
+    working_directory: ~/repo
+    docker: # requires
+      - image: circleci/node:7.10
+    steps:
+      - checkout
+      - restore_cache:
+          name: Restoring Cache node_modules
+          keys:
+            - node-{{ checksum "package.json" }}
+            - node-
+      - run:
+          name: Setup npm
+          command: |
+            npm install
+            sudo npm install -g gulp
+      - run:
+          name: Build project
+          command: |
+            gulp
+      - run:
+          name: Unit test
+          command: |
+            npm run test
+      - save_cache:
+          name: Saving Cache node_modules
+          key: node-{{ checksum "package.json" }}
+          paths:
+            - "./node_modules"
+workflows:
+  version: 2
+  build_and_deploy:
+    jobs:
+      - build_and_test:
+          filters:
+            branches:
+              only: master
