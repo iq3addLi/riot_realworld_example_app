@@ -3432,7 +3432,7 @@
 
   });
 
-  riot$1.tag2('articles_table_view', '<div class="article-preview" each="{article in articles}"> <div class="article-meta"> <a onclick="{actionOfClickProfile}"><img riot-src="{article.author.image}"></a> <div class="info"> <a class="author author-link" onclick="{actionOfClickProfile}">{article.author.username}</a> <span class="date">January 20th</span> </div> <button class="btn btn-outline-primary btn-sm pull-xs-right"> <i class="ion-heart"></i> {article.favoritesCount} </button> </div> <a class="preview-link" onclick="{actionOfClickArticle}"> <h1>{article.title} </h1> <p>{article.description}</p> <span>Read more...</span> </a> </div>', 'articles_table_view .author-link,[data-is="articles_table_view"] .author-link{ color: #5cb85c; cursor : pointer; text-decoration: none; } articles_table_view .author-link:hover,[data-is="articles_table_view"] .author-link:hover{ color: #5cb85c; text-decoration: underline; }', '', function(opts) {
+  riot$1.tag2('articles_table_view', '<div class="article-preview" each="{article in articles}"> <div class="article-meta"> <a onclick="{actionOfClickProfile}"><img riot-src="{article.author.image}"></a> <div class="info"> <a class="author author-link" onclick="{actionOfClickProfile}">{article.author.username}</a> <span class="date">January 20th</span> </div> <button class="{btn: true, btn-sm: true, pull-xs-right: true, btn-primary: article.favorited, btn-outline-primary: !article.favorited}"> <i class="ion-heart"></i> {article.favoritesCount} </button> </div> <a class="preview-link" onclick="{actionOfClickArticle}"> <h1>{article.title} </h1> <p>{article.description}</p> <span>Read more...</span> </a> </div>', 'articles_table_view .author-link,[data-is="articles_table_view"] .author-link{ color: #5cb85c; cursor : pointer; text-decoration: none; } articles_table_view .author-link:hover,[data-is="articles_table_view"] .author-link:hover{ color: #5cb85c; text-decoration: underline; }', '', function(opts) {
 
   var self = this;
 
@@ -3639,10 +3639,7 @@
               return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
                   try {
                       const response = yield fetch("https://conduit.productionready.io/api/users/login", {
-                          headers: {
-                              "Accept": "application/json",
-                              "Content-Type": "application/json"
-                          },
+                          headers: this.buildHeader(),
                           method: "POST",
                           body: JSON.stringify({ "user": { "email": email, "password": password } })
                       });
@@ -3669,10 +3666,7 @@
               return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
                   try {
                       const response = yield fetch("https://conduit.productionready.io/api/users", {
-                          headers: {
-                              "Accept": "application/json",
-                              "Content-Type": "application/json"
-                          },
+                          headers: this.buildHeader(),
                           method: "POST",
                           body: JSON.stringify({ "user": { "username": username, "email": email, "password": password } })
                       });
@@ -3700,11 +3694,7 @@
               return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
                   try {
                       const response = yield fetch("https://conduit.productionready.io/api/user", {
-                          headers: {
-                              "Accept": "application/json",
-                              "Content-Type": "application/json",
-                              "Authorization": "Token " + token
-                          },
+                          headers: this.buildHeader(token),
                           method: "GET"
                       });
                       if (response.status === 200) {
@@ -3731,11 +3721,7 @@
               return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
                   try {
                       const response = yield fetch("https://conduit.productionready.io/api/user", {
-                          headers: {
-                              "Accept": "application/json",
-                              "Content-Type": "application/json",
-                              "Authorization": "Token " + token
-                          },
+                          headers: this.buildHeader(token),
                           method: "PUT",
                           body: JSON.stringify({ "user": user.trimmed() })
                       });
@@ -3759,33 +3745,26 @@
               }));
           };
           // articles
-          this.getArticles = (limit, offset) => {
-              return this.callArticleAPI(this.buildPath("articles", this.buildArticlesQuery(limit, offset)), "GET");
+          this.getArticles = (token, limit, offset) => {
+              return this.callArticleAPI(this.buildPath("articles", this.buildArticlesQuery(limit, offset)), "GET", this.buildHeader(token));
           };
           this.getArticlesOfAuthor = (username, token, limit, offset) => {
-              let header = null;
-              if (token !== null) {
-                  header = this.buildHeader({ "Authorization": "Token " + token });
-              }
-              return this.callArticleAPI(this.buildPath("articles", this.buildArticlesQuery(limit, offset, null, null, username)), "GET", header);
+              return this.callArticleAPI(this.buildPath("articles", this.buildArticlesQuery(limit, offset, null, null, username)), "GET", this.buildHeader(token));
           };
-          this.getArticlesForFavoriteUser = (username, limit, offset) => {
-              return this.callArticleAPI(this.buildPath("articles", this.buildArticlesQuery(limit, offset, null, username)), "GET");
+          this.getArticlesForFavoriteUser = (username, token, limit, offset) => {
+              return this.callArticleAPI(this.buildPath("articles", this.buildArticlesQuery(limit, offset, null, username)), "GET", this.buildHeader(token));
           };
-          this.getArticlesOfTagged = (tag, limit, offset) => {
-              return this.callArticleAPI(this.buildPath("articles", this.buildArticlesQuery(limit, offset, tag)), "GET");
+          this.getArticlesOfTagged = (tag, token, limit, offset) => {
+              return this.callArticleAPI(this.buildPath("articles", this.buildArticlesQuery(limit, offset, tag)), "GET", this.buildHeader(token));
           };
           this.getArticlesByFollowingUser = (token, limit, offset) => {
-              return this.callArticleAPI(this.buildPath("articles/feed", this.buildArticlesQuery(limit, offset)), "GET", this.buildHeader({ "Authorization": "Token " + token }));
+              return this.callArticleAPI(this.buildPath("articles/feed", this.buildArticlesQuery(limit, offset)), "GET", this.buildHeader(token));
           };
           this.getArticle = (slug) => {
               return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
                   try {
                       const response = yield fetch("https://conduit.productionready.io/api/articles/" + slug, {
-                          headers: {
-                              "Accept": "application/json",
-                              "Content-Type": "application/json"
-                          },
+                          headers: this.buildHeader(),
                           method: "GET"
                       });
                       if (response.status === 200) {
@@ -3811,11 +3790,7 @@
               return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
                   try {
                       const response = yield fetch("https://conduit.productionready.io/api/articles", {
-                          headers: {
-                              "Accept": "application/json",
-                              "Content-Type": "application/json",
-                              "Authorization": "Token " + token
-                          },
+                          headers: this.buildHeader(token),
                           method: "POST",
                           body: JSON.stringify({ "article": article })
                       });
@@ -3842,11 +3817,7 @@
               return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
                   try {
                       const response = yield fetch("https://conduit.productionready.io/api/articles/" + slug + "/comments/" + commentId, {
-                          headers: {
-                              "Accept": "application/json",
-                              "Content-Type": "application/json",
-                              "Authorization": "Token " + token
-                          },
+                          headers: this.buildHeader(token),
                           method: "DELETE"
                       });
                       if (response.status === 200) {
@@ -3870,11 +3841,7 @@
               return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
                   try {
                       const response = yield fetch("https://conduit.productionready.io/api/articles/" + slug, {
-                          headers: {
-                              "Accept": "application/json",
-                              "Content-Type": "application/json",
-                              "Authorization": "Token " + token
-                          },
+                          headers: this.buildHeader(token),
                           method: "PUT",
                           body: JSON.stringify({ "article": article })
                       });
@@ -3901,11 +3868,7 @@
               return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
                   try {
                       const response = yield fetch("https://conduit.productionready.io/api/articles/" + slug, {
-                          headers: {
-                              "Accept": "application/json",
-                              "Content-Type": "application/json",
-                              "Authorization": "Token " + token
-                          },
+                          headers: this.buildHeader(token),
                           method: "DELETE"
                       });
                       if (response.status === 200) {
@@ -3935,10 +3898,7 @@
               return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
                   try {
                       const response = yield fetch("https://conduit.productionready.io/api/articles/" + slug + "/comments", {
-                          headers: {
-                              "Accept": "application/json",
-                              "Content-Type": "application/json"
-                          },
+                          headers: this.buildHeader(),
                           method: "GET"
                       });
                       if (response.status === 200) {
@@ -3961,17 +3921,10 @@
               }));
           };
           this.getProfile = (username, token) => {
-              let headers = {
-                  "Accept": "application/json",
-                  "Content-Type": "application/json"
-              };
-              if (token !== null) {
-                  headers["Authorization"] = "Token " + token;
-              }
               return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
                   try {
                       const response = yield fetch("https://conduit.productionready.io/api/profiles/" + username, {
-                          headers: headers
+                          headers: this.buildHeader(token)
                       });
                       if (response.status === 200) {
                           const json = yield response.json();
@@ -4002,10 +3955,7 @@
               return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
                   try {
                       const response = yield fetch("https://conduit.productionready.io/api/tags", {
-                          headers: {
-                              "Accept": "application/json",
-                              "Content-Type": "application/json"
-                          },
+                          headers: this.buildHeader(),
                           method: "GET"
                       });
                       const json = yield response.json();
@@ -4021,11 +3971,7 @@
               return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
                   try {
                       const response = yield fetch("https://conduit.productionready.io/api/articles/" + slug + "/comments", {
-                          headers: {
-                              "Accept": "application/json",
-                              "Content-Type": "application/json",
-                              "Authorization": "Token " + token
-                          },
+                          headers: this.buildHeader(token),
                           method: "POST",
                           body: JSON.stringify({ "comment": { "body": comment } })
                       });
@@ -4053,11 +3999,7 @@
               return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
                   try {
                       const response = yield fetch("https://conduit.productionready.io/api/profiles/" + username + "/follow", {
-                          headers: {
-                              "Accept": "application/json",
-                              "Content-Type": "application/json",
-                              "Authorization": "Token " + token
-                          },
+                          headers: this.buildHeader(token),
                           method: method
                       });
                       if (response.status === 200) {
@@ -4083,11 +4025,7 @@
               return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
                   try {
                       const response = yield fetch("https://conduit.productionready.io/api/articles/" + slug + "/favorite", {
-                          headers: {
-                              "Accept": "application/json",
-                              "Content-Type": "application/json",
-                              "Authorization": "Token " + token
-                          },
+                          headers: this.buildHeader(token),
                           method: method
                       });
                       if (response.status === 200) {
@@ -4109,10 +4047,10 @@
                   }
               }));
           };
-          this.callArticleAPI = (endpoint, method, headers) => {
+          this.callArticleAPI = (path, method, headers) => {
               return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
                   try {
-                      const response = yield fetch("https://conduit.productionready.io/api/" + endpoint, {
+                      const response = yield fetch("https://conduit.productionready.io/api/" + path, {
                           headers: headers,
                           method: method
                       });
@@ -4125,18 +4063,18 @@
                   }
               }));
           };
-          this.buildHeader = (addtionalHeaders) => {
+          this.buildHeader = (token) => {
               let headers = {
                   "Accept": "application/json",
                   "Content-Type": "application/json"
               };
-              if (addtionalHeaders == null) {
+              if (token == null) {
                   return headers;
               }
-              return Object.assign(headers, addtionalHeaders);
+              return Object.assign(headers, { "Authorization": "Token " + token });
           };
-          this.buildPath = (application, queries) => {
-              let path = application;
+          this.buildPath = (scene, queries) => {
+              let path = scene;
               if (queries != null) {
                   let concated = "?";
                   Object.keys(queries).forEach((key, index, keys) => {
@@ -4301,7 +4239,7 @@
               }
           };
           this.isLoggedIn = () => {
-              return this.user() != null; // todo: need check for expire
+              return this.user() != null;
           };
       }
   }
@@ -4640,22 +4578,16 @@
           this.requestArticles = () => {
               let limit = Settings.shared().valueForKey("countOfArticleInView");
               let offset = this.state.page == null ? null : (this.state.page - 1) * limit;
-              let pastProcess = (c) => { this.currentArticle = c; return c; };
+              let nextProcess = (c) => { this.currentArticle = c; return c; };
+              let token = this.storage.user() === null ? null : this.storage.user().token;
               switch (this.state.kind) {
                   case "your":
-                      let user = this.storage.user();
-                      if (user != null) {
-                          return this.conduit.getArticlesByFollowingUser(user.token, limit, offset).then(pastProcess);
-                      }
-                      else {
-                          console.log("Unexpected page call.");
-                      }
-                      break;
+                      return this.conduit.getArticlesByFollowingUser(token, limit, offset).then(nextProcess);
                   case "tag":
-                      return this.conduit.getArticlesOfTagged(this.state.tag, limit, offset).then(pastProcess);
+                      return this.conduit.getArticlesOfTagged(this.state.tag, token, limit, offset).then(nextProcess);
                   case "global":
                   default:
-                      return this.conduit.getArticles(limit, offset).then(pastProcess);
+                      return this.conduit.getArticles(token, limit, offset).then(nextProcess);
               }
           };
           this.requestTags = () => {
@@ -11691,14 +11623,14 @@
               let offset = page == null ? null : (page - 1) * limit;
               // prepare request
               let token = this.storage.user().token;
-              let pastProcess = (c) => { this.currentArticle = c; return c; };
+              let nextProcess = (c) => { this.currentArticle = c; return c; };
               // request
               switch (this.state.articleKind) {
                   case "favorite_articles":
-                      return this.conduit.getArticlesForFavoriteUser(this.state.username, limit, offset).then(pastProcess);
+                      return this.conduit.getArticlesForFavoriteUser(this.state.username, token, limit, offset).then(nextProcess);
                       break;
                   default:
-                      return this.conduit.getArticlesOfAuthor(this.state.username, token, limit, offset).then(pastProcess);
+                      return this.conduit.getArticlesOfAuthor(this.state.username, token, limit, offset).then(nextProcess);
                       break;
               }
           };

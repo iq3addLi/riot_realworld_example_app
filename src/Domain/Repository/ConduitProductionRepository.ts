@@ -16,10 +16,7 @@ export default class ConduitProductionRepository implements ConduitRepository {
         return new Promise<User>( async (resolve, reject) => {
             try {
                 const response = await fetch("https://conduit.productionready.io/api/users/login", {
-                    headers: {
-                    "Accept": "application/json",
-                    "Content-Type": "application/json"
-                    },
+                    headers: this.buildHeader(),
                     method: "POST",
                     body: JSON.stringify({"user": {"email": email, "password": password}})
                 })
@@ -44,10 +41,7 @@ export default class ConduitProductionRepository implements ConduitRepository {
         return new Promise<User>( async (resolve, reject) => {
             try {
                 const response = await fetch("https://conduit.productionready.io/api/users", {
-                    headers: {
-                    "Accept": "application/json",
-                    "Content-Type": "application/json"
-                    },
+                    headers: this.buildHeader(),
                     method: "POST",
                     body: JSON.stringify({"user": {"username": username, "email": email, "password": password}})
                 })
@@ -73,11 +67,7 @@ export default class ConduitProductionRepository implements ConduitRepository {
         return new Promise<User>( async (resolve, reject) => {
             try {
                 const response = await fetch("https://conduit.productionready.io/api/user", {
-                    headers: {
-                    "Accept": "application/json",
-                    "Content-Type": "application/json",
-                    "Authorization" : "Token " + token
-                    },
+                    headers: this.buildHeader( token ),
                     method: "GET"
                 })
                 if ( response.status === 200 ) {
@@ -102,11 +92,7 @@ export default class ConduitProductionRepository implements ConduitRepository {
         return new Promise<User>( async (resolve, reject) => {
             try {
                 const response = await fetch("https://conduit.productionready.io/api/user", {
-                    headers: {
-                    "Accept": "application/json",
-                    "Content-Type": "application/json",
-                    "Authorization" : "Token " + token
-                    },
+                    headers: this.buildHeader( token ),
                     method: "PUT",
                     body: JSON.stringify({"user": user.trimmed() })
                 })
@@ -130,37 +116,31 @@ export default class ConduitProductionRepository implements ConduitRepository {
 
     // articles
 
-    getArticles = ( limit?: number, offset?: number ) => {
-        return this.callArticleAPI( this.buildPath("articles", this.buildArticlesQuery(limit, offset)), "GET" )
+    getArticles = ( token?: string, limit?: number, offset?: number ) => {
+        return this.callArticleAPI( this.buildPath("articles", this.buildArticlesQuery(limit, offset)), "GET", this.buildHeader( token ) )
     }
 
     getArticlesOfAuthor = ( username: string, token?: string, limit?: number, offset?: number ) => {
-        let header = null
-        if (token !== null) { header = this.buildHeader( { "Authorization" : "Token " + token } ) }
-        return this.callArticleAPI( this.buildPath("articles", this.buildArticlesQuery(limit, offset, null, null, username) ), "GET", header )
+        return this.callArticleAPI( this.buildPath("articles", this.buildArticlesQuery(limit, offset, null, null, username) ), "GET", this.buildHeader( token ) )
     }
 
-    getArticlesForFavoriteUser = ( username: string, limit?: number, offset?: number ) => {
-        return this.callArticleAPI( this.buildPath("articles", this.buildArticlesQuery(limit, offset, null, username) ), "GET" )
+    getArticlesForFavoriteUser = ( username: string, token?: string, limit?: number, offset?: number ) => {
+        return this.callArticleAPI( this.buildPath("articles", this.buildArticlesQuery(limit, offset, null, username) ), "GET", this.buildHeader( token ) )
     }
 
-    getArticlesOfTagged = ( tag: string, limit?: number, offset?: number ) => {
-        return this.callArticleAPI( this.buildPath("articles", this.buildArticlesQuery(limit, offset, tag) ), "GET" )
+    getArticlesOfTagged = ( tag: string, token?: string, limit?: number, offset?: number ) => {
+        return this.callArticleAPI( this.buildPath("articles", this.buildArticlesQuery(limit, offset, tag) ), "GET", this.buildHeader( token ) )
     }
 
     getArticlesByFollowingUser = ( token: string, limit?: number, offset?: number ) => {
-        return this.callArticleAPI( this.buildPath("articles/feed", this.buildArticlesQuery(limit, offset)),
-                            "GET", this.buildHeader( { "Authorization" : "Token " + token } ) )
+        return this.callArticleAPI( this.buildPath("articles/feed", this.buildArticlesQuery(limit, offset)), "GET", this.buildHeader( token ) )
     }
 
     getArticle = ( slug: string ): Promise<Article> => {
         return new Promise<Article>( async (resolve, reject) => {
             try {
                 const response = await fetch("https://conduit.productionready.io/api/articles/" + slug , {
-                    headers: {
-                    "Accept": "application/json",
-                    "Content-Type": "application/json"
-                    },
+                    headers: this.buildHeader(),
                     method: "GET"
                 })
                 if ( response.status === 200 ) {
@@ -180,15 +160,11 @@ export default class ConduitProductionRepository implements ConduitRepository {
         })
     }
 
-    postArticle = ( token: String, article: PostArticle ): Promise<Article> => {
+    postArticle = ( token: string, article: PostArticle ): Promise<Article> => {
         return new Promise<Article>( async (resolve, reject) => {
             try {
                 const response = await fetch("https://conduit.productionready.io/api/articles", {
-                    headers: {
-                    "Accept": "application/json",
-                    "Content-Type": "application/json",
-                    "Authorization" : "Token " + token
-                    },
+                    headers: this.buildHeader( token ),
                     method: "POST",
                     body: JSON.stringify({ "article": article })
                 })
@@ -213,11 +189,7 @@ export default class ConduitProductionRepository implements ConduitRepository {
         return new Promise<void>( async (resolve, reject) => {
             try {
                 const response = await fetch("https://conduit.productionready.io/api/articles/" + slug + "/comments/" + commentId, {
-                    headers: {
-                    "Accept": "application/json",
-                    "Content-Type": "application/json",
-                    "Authorization" : "Token " + token
-                    },
+                    headers: this.buildHeader( token ),
                     method: "DELETE"
                 })
                 if ( response.status === 200 ) {
@@ -239,11 +211,7 @@ export default class ConduitProductionRepository implements ConduitRepository {
         return new Promise<Article>( async (resolve, reject) => {
             try {
                 const response = await fetch("https://conduit.productionready.io/api/articles/" + slug, {
-                    headers: {
-                    "Accept": "application/json",
-                    "Content-Type": "application/json",
-                    "Authorization" : "Token " + token
-                    },
+                    headers: this.buildHeader( token ),
                     method: "PUT",
                     body: JSON.stringify({ "article": article })
                 })
@@ -268,11 +236,7 @@ export default class ConduitProductionRepository implements ConduitRepository {
         return new Promise<void>( async (resolve, reject) => {
             try {
                 const response = await fetch("https://conduit.productionready.io/api/articles/" + slug, {
-                    headers: {
-                    "Accept": "application/json",
-                    "Content-Type": "application/json",
-                    "Authorization" : "Token " + token
-                    },
+                    headers: this.buildHeader( token ),
                     method: "DELETE"
                 })
                 if ( response.status === 200 ) {
@@ -302,10 +266,7 @@ export default class ConduitProductionRepository implements ConduitRepository {
         return new Promise<Comment[]>( async (resolve, reject) => {
             try {
                 const response = await fetch("https://conduit.productionready.io/api/articles/" + slug + "/comments", {
-                    headers: {
-                    "Accept": "application/json",
-                    "Content-Type": "application/json"
-                    },
+                    headers: this.buildHeader(),
                     method: "GET"
                 })
                 if ( response.status === 200 ) {
@@ -326,15 +287,10 @@ export default class ConduitProductionRepository implements ConduitRepository {
     }
 
     getProfile = ( username: string, token?: string ): Promise<Profile> => {
-        let headers = {
-            "Accept": "application/json",
-            "Content-Type": "application/json"
-            }
-        if (token !== null ) { headers["Authorization"] = "Token " + token }
         return new Promise<Profile>( async (resolve, reject) => {
             try {
                 const response = await fetch("https://conduit.productionready.io/api/profiles/" + username, {
-                    headers: headers
+                    headers: this.buildHeader( token )
                 })
                 if ( response.status === 200 ) {
                     const json = await response.json()
@@ -365,10 +321,7 @@ export default class ConduitProductionRepository implements ConduitRepository {
         return new Promise<string[]>( async (resolve, reject) => {
             try {
                 const response = await fetch("https://conduit.productionready.io/api/tags", {
-                    headers: {
-                    "Accept": "application/json",
-                    "Content-Type": "application/json"
-                    },
+                    headers:  this.buildHeader(),
                     method: "GET"
                 })
 
@@ -386,11 +339,7 @@ export default class ConduitProductionRepository implements ConduitRepository {
         return new Promise<Comment>( async (resolve, reject) => {
             try {
                 const response = await fetch("https://conduit.productionready.io/api/articles/" + slug + "/comments" , {
-                    headers: {
-                    "Accept": "application/json",
-                    "Content-Type": "application/json",
-                    "Authorization" : "Token " + token
-                    },
+                    headers: this.buildHeader( token ),
                     method: "POST",
                     body: JSON.stringify({ "comment": { "body": comment } })
                 })
@@ -417,11 +366,7 @@ export default class ConduitProductionRepository implements ConduitRepository {
         return new Promise<Profile>( async (resolve, reject) => {
             try {
                 const response = await fetch("https://conduit.productionready.io/api/profiles/" + username + "/follow", {
-                    headers: {
-                    "Accept": "application/json",
-                    "Content-Type": "application/json",
-                    "Authorization" : "Token " + token
-                    },
+                    headers: this.buildHeader( token ),
                     method: method
                 })
                 if ( response.status === 200 ) {
@@ -445,11 +390,7 @@ export default class ConduitProductionRepository implements ConduitRepository {
         return new Promise<Article>( async (resolve, reject) => {
             try {
                 const response = await fetch("https://conduit.productionready.io/api/articles/" + slug + "/favorite", {
-                    headers: {
-                    "Accept": "application/json",
-                    "Content-Type": "application/json",
-                    "Authorization" : "Token " + token
-                    },
+                    headers: this.buildHeader( token ),
                     method: method
                 })
                 if ( response.status === 200 ) {
@@ -469,10 +410,10 @@ export default class ConduitProductionRepository implements ConduitRepository {
         })
     }
 
-    private callArticleAPI = ( endpoint: string, method: string, headers?: {[key: string]: string }) => {
+    private callArticleAPI = ( path: string, method: string, headers?: {[key: string]: string }) => {
         return new Promise<ArticleContainer>( async (resolve, reject) => {
             try {
-                const response = await fetch("https://conduit.productionready.io/api/" + endpoint, {
+                const response = await fetch("https://conduit.productionready.io/api/" + path, {
                     headers: headers,
                     method: method
                 })
@@ -486,17 +427,17 @@ export default class ConduitProductionRepository implements ConduitRepository {
         })
     }
 
-    private buildHeader = ( addtionalHeaders?:  {[key: string]: string } ) => {
+    private buildHeader = ( token?: string ) => {
         let headers = {
             "Accept": "application/json",
             "Content-Type": "application/json"
         }
-        if ( addtionalHeaders == null ) { return headers }
-        return Object.assign(headers, addtionalHeaders)
+        if ( token == null ) { return headers }
+        return Object.assign(headers, { "Authorization" : "Token " + token } )
     }
 
-    private buildPath = ( application: string, queries?:  {[key: string]: string } ) => {
-        let path = application
+    private buildPath = ( scene: string, queries?:  {[key: string]: string } ) => {
+        let path = scene
         if ( queries != null ) {
             let concated = "?"
             Object.keys(queries).forEach((key, index, keys) => {

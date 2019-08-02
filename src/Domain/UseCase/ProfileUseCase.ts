@@ -51,12 +51,12 @@ export default class ProfileUseCase {
 
         // prepare request
         let token = this.storage.user().token
-        let pastProcess = ( c ) => { this.currentArticle = c; return c }
+        let nextProcess = ( c ) => { this.currentArticle = c; return c }
 
         // request
         switch (this.state.articleKind) {
-        case "favorite_articles": return this.conduit.getArticlesForFavoriteUser(this.state.username, limit, offset).then( pastProcess ); break
-        default: return this.conduit.getArticlesOfAuthor(this.state.username, token, limit, offset).then( pastProcess ); break
+        case "favorite_articles": return this.conduit.getArticlesForFavoriteUser(this.state.username, token, limit, offset).then( nextProcess ); break
+        default: return this.conduit.getArticlesOfAuthor(this.state.username, token, limit, offset).then( nextProcess ); break
         }
     }
 

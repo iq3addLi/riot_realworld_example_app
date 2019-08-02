@@ -25,22 +25,17 @@ export default class ArticlesUseCase {
     requestArticles = () => {
         let limit: number = Settings.shared().valueForKey("countOfArticleInView")
         let offset = this.state.page == null ? null : (this.state.page - 1) * limit
-        let pastProcess = (c) => { this.currentArticle = c; return c }
+        let nextProcess = (c) => { this.currentArticle = c; return c }
+        let token = this.storage.user() === null ? null : this.storage.user().token
 
         switch (this.state.kind) {
         case "your":
-            let user = this.storage.user()
-            if ( user != null ) {
-                return this.conduit.getArticlesByFollowingUser( user.token, limit, offset).then( pastProcess )
-            } else {
-                console.log("Unexpected page call.")
-            }
-            break
+            return this.conduit.getArticlesByFollowingUser( token, limit, offset).then( nextProcess )
         case "tag":
-            return this.conduit.getArticlesOfTagged( this.state.tag, limit, offset).then( pastProcess )
+            return this.conduit.getArticlesOfTagged( this.state.tag, token, limit, offset).then( nextProcess )
         case "global":
         default:
-            return this.conduit.getArticles(limit, offset).then( pastProcess )
+            return this.conduit.getArticles(token, limit, offset).then( nextProcess )
         }
     }
 
