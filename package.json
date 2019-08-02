@@ -27,6 +27,7 @@
   "dependencies": {
     "fetch-polyfill": "^0.8.2",
     "i18next": "^13.1.0",
+    "jwt-decode": "^2.2.0",
     "marked": "^0.7.0",
     "moment": "^2.23.0",
     "natives": "^1.1.6",
