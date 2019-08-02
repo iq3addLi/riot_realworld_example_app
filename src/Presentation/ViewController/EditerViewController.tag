@@ -33,7 +33,7 @@ self.actionOfSubmitButton = () => {
 
     useCase.post(title, description, body, tagList).then( (article) => {
         // success
-        useCase.jumpPageByArticle(article)
+        useCase.jumpToArticleScene(article)
     }).catch( (error) => {
         // failure
         if (error instanceof Array ) {

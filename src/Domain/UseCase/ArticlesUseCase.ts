@@ -15,7 +15,7 @@ export default class ArticlesUseCase {
     private conduit = new ConduitProductionRepository()
     private storage = new UserLocalStorageRepository()
 
-    private currentArticle?: ArticleContainer = null
+    private container?: ArticleContainer = null
     private state: ArticlesState
 
     constructor() {
@@ -25,7 +25,7 @@ export default class ArticlesUseCase {
     requestArticles = () => {
         let limit: number = Settings.shared().valueForKey("countOfArticleInView")
         let offset = this.state.page == null ? null : (this.state.page - 1) * limit
-        let nextProcess = (c) => { this.currentArticle = c; return c }
+        let nextProcess = (c) => { this.container = c; return c }
         let token = this.storage.user() === null ? null : this.storage.user().token
 
         switch (this.state.kind) {
@@ -52,11 +52,11 @@ export default class ArticlesUseCase {
     }
 
     pageCount = () => {
-        if (this.currentArticle == null || this.currentArticle.count === 0) {
+        if (this.container == null || this.container.count === 0) {
             return 0
         }
         let limit: number = Settings.shared().valueForKey("countOfArticleInView")
-        return Math.floor(this.currentArticle.count / limit)
+        return Math.floor(this.container.count / limit)
     }
 
     currentPage = () => {
@@ -89,25 +89,38 @@ export default class ArticlesUseCase {
 
     jumpPage = (page: number) => {
         let path = new SPAPathBuilder( this.state.scene, SPALocation.shared().paths(), { "page" : String(page) } ).fullPath()
-        // page transition
         location.href = path
     }
 
-
-    jumpPageBySubPath = (path: string) => {
+    jumpToSubPath = (path: string) => {
         let full = new SPAPathBuilder( this.state.scene, [path]).fullPath()
-        // page transition
         location.href = full
     }
 
-    jumpPageByProfile  = (profile: Profile ) => {
-        // page transition
+    jumpToProfileScene  = (profile: Profile ) => {
         location.href = new SPAPathBuilder("profile", [profile.username]).fullPath()
     }
 
-    jumpPageByArticle = (article: Article) => {
-        // page transition
+    jumpToArticleScene = (article: Article) => {
         location.href = new SPAPathBuilder("article", [article.slug]).fullPath()
+    }
+
+    toggleFavorite = ( article: Article ): Promise<Article[]> => {
+        if ( article === null ) { throw Error("Article is empty.")  }
+        let user = this.storage.user()
+        if ( user === null ) {
+            return new Promise<Article[]>( async (resolve, _) => { resolve(null) } )
+        }
+        let process = ( article ) => {
+            let filtered = this.container.articles.filter( a => a.slug === article.slug )[0]
+            let index = this.container.articles.indexOf( filtered )
+            this.container.articles.splice(index, 1, article)
+            return this.container.articles
+        }
+        switch (article.favorited) {
+        case true:  return this.conduit.unfavorite( user.token, article.slug ).then( process )
+        case false: return this.conduit.favorite( user.token, article.slug ).then( process )
+        }
     }
 }
 

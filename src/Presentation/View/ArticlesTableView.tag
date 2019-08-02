@@ -20,6 +20,11 @@ self.actionOfClickArticle = (event) => {
     self.didSelectArticle( event.item.article )
 }
 
+self.didFavorite = () => {}
+self.actionOfFavoriteButton = (event) => {
+    self.didFavorite( event.item.article )
+}
+
 </script>
 
 <style>
@@ -41,7 +46,7 @@ self.actionOfClickArticle = (event) => {
             <a class="author author-link" onclick={ actionOfClickProfile  }>{ article.author.username }</a>
             <span class="date">January 20th</span>
         </div>
-        <button class={ btn: true, btn-sm: true, pull-xs-right: true, btn-primary: article.favorited, btn-outline-primary: !article.favorited}>
+        <button onclick={ actionOfFavoriteButton } class={ btn: true, btn-sm: true, pull-xs-right: true, btn-primary: article.favorited, btn-outline-primary: !article.favorited}>
         <i class="ion-heart"></i> { article.favoritesCount }
         </button>
     </div>

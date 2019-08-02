@@ -1,7 +1,8 @@
 {
     // document.title
-    "title" : "Conduit",
+    "title" : "Conduit made with riot",
 
-    // countOfArticleInView
-    "countOfArticleInView" : 5
+    // display article count in articles and profile scene
+    "countOfArticleInView" : 10
+
 }

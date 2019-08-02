@@ -90,7 +90,6 @@ export default class ApplicationUseCase {
     routing = () => {
 
         let loc = SPALocation.shared()
-        console.log( loc )
 
         // in launch
         if ( loc.scene() ) {

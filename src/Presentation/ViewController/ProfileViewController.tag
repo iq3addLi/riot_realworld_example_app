@@ -40,7 +40,7 @@ this.on('mount', () => {
 
     // setup view action handler
     self.tags.article_tab_view.didSelectTab = (item) => {
-        useCase.jumpPageBySubPath(item.identifier)
+        useCase.jumpToSubPath(item.identifier)
     }
     self.tags.profile_view.didClickButtonHandler = (isOwned) => {
         if (isOwned){
@@ -55,10 +55,16 @@ this.on('mount', () => {
         useCase.jumpPage(page)
     }
     self.tags.articles_table_view.didSelectArticle = (article) => {
-        useCase.jumpPageByArticle(article)
+        useCase.jumpToArticleScene(article)
     }
     self.tags.articles_table_view.didSelectProfile  = (profile) => {
-        useCase.jumpPageByProfile(profile)
+        useCase.jumpToProfileScene(profile)
+    }
+    self.tags.articles_table_view.didFavorite = (article) => {
+        useCase.toggleFavorite(article).then( articles => {
+            if ( articles === null ) return
+            self.tags.articles_table_view.setArticles( articles )
+        }) 
     }
 })
 

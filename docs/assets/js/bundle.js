@@ -3432,7 +3432,7 @@
 
   });
 
-  riot$1.tag2('articles_table_view', '<div class="article-preview" each="{article in articles}"> <div class="article-meta"> <a onclick="{actionOfClickProfile}"><img riot-src="{article.author.image}"></a> <div class="info"> <a class="author author-link" onclick="{actionOfClickProfile}">{article.author.username}</a> <span class="date">January 20th</span> </div> <button class="{btn: true, btn-sm: true, pull-xs-right: true, btn-primary: article.favorited, btn-outline-primary: !article.favorited}"> <i class="ion-heart"></i> {article.favoritesCount} </button> </div> <a class="preview-link" onclick="{actionOfClickArticle}"> <h1>{article.title} </h1> <p>{article.description}</p> <span>Read more...</span> </a> </div>', 'articles_table_view .author-link,[data-is="articles_table_view"] .author-link{ color: #5cb85c; cursor : pointer; text-decoration: none; } articles_table_view .author-link:hover,[data-is="articles_table_view"] .author-link:hover{ color: #5cb85c; text-decoration: underline; }', '', function(opts) {
+  riot$1.tag2('articles_table_view', '<div class="article-preview" each="{article in articles}"> <div class="article-meta"> <a onclick="{actionOfClickProfile}"><img riot-src="{article.author.image}"></a> <div class="info"> <a class="author author-link" onclick="{actionOfClickProfile}">{article.author.username}</a> <span class="date">January 20th</span> </div> <button onclick="{actionOfFavoriteButton}" class="{btn: true, btn-sm: true, pull-xs-right: true, btn-primary: article.favorited, btn-outline-primary: !article.favorited}"> <i class="ion-heart"></i> {article.favoritesCount} </button> </div> <a class="preview-link" onclick="{actionOfClickArticle}"> <h1>{article.title} </h1> <p>{article.description}</p> <span>Read more...</span> </a> </div>', 'articles_table_view .author-link,[data-is="articles_table_view"] .author-link{ color: #5cb85c; cursor : pointer; text-decoration: none; } articles_table_view .author-link:hover,[data-is="articles_table_view"] .author-link:hover{ color: #5cb85c; text-decoration: underline; }', '', function(opts) {
 
   var self = this;
 
@@ -3450,6 +3450,11 @@
   self.didSelectArticle = () => {};
   self.actionOfClickArticle = (event) => {
       self.didSelectArticle( event.item.article );
+  };
+
+  self.didFavorite = () => {};
+  self.actionOfFavoriteButton = (event) => {
+      self.didFavorite( event.item.article );
   };
 
   });
@@ -4574,11 +4579,11 @@
       constructor() {
           this.conduit = new ConduitProductionRepository();
           this.storage = new UserLocalStorageRepository();
-          this.currentArticle = null;
+          this.container = null;
           this.requestArticles = () => {
               let limit = Settings.shared().valueForKey("countOfArticleInView");
               let offset = this.state.page == null ? null : (this.state.page - 1) * limit;
-              let nextProcess = (c) => { this.currentArticle = c; return c; };
+              let nextProcess = (c) => { this.container = c; return c; };
               let token = this.storage.user() === null ? null : this.storage.user().token;
               switch (this.state.kind) {
                   case "your":
@@ -4600,11 +4605,11 @@
               return this.storage.user();
           };
           this.pageCount = () => {
-              if (this.currentArticle == null || this.currentArticle.count === 0) {
+              if (this.container == null || this.container.count === 0) {
                   return 0;
               }
               let limit = Settings.shared().valueForKey("countOfArticleInView");
-              return Math.floor(this.currentArticle.count / limit);
+              return Math.floor(this.container.count / limit);
           };
           this.currentPage = () => {
               return this.state.page;
@@ -4631,21 +4636,36 @@
           };
           this.jumpPage = (page) => {
               let path = new SPAPathBuilder(this.state.scene, SPALocation.shared().paths(), { "page": String(page) }).fullPath();
-              // page transition
               location.href = path;
           };
-          this.jumpPageBySubPath = (path) => {
+          this.jumpToSubPath = (path) => {
               let full = new SPAPathBuilder(this.state.scene, [path]).fullPath();
-              // page transition
               location.href = full;
           };
-          this.jumpPageByProfile = (profile) => {
-              // page transition
+          this.jumpToProfileScene = (profile) => {
               location.href = new SPAPathBuilder("profile", [profile.username]).fullPath();
           };
-          this.jumpPageByArticle = (article) => {
-              // page transition
+          this.jumpToArticleScene = (article) => {
               location.href = new SPAPathBuilder("article", [article.slug]).fullPath();
+          };
+          this.toggleFavorite = (article) => {
+              if (article === null) {
+                  throw Error("Article is empty.");
+              }
+              let user = this.storage.user();
+              if (user === null) {
+                  return new Promise((resolve, _) => __awaiter(this, void 0, void 0, function* () { resolve(null); }));
+              }
+              let process = (article) => {
+                  let filtered = this.container.articles.filter(a => a.slug === article.slug)[0];
+                  let index = this.container.articles.indexOf(filtered);
+                  this.container.articles.splice(index, 1, article);
+                  return this.container.articles;
+              };
+              switch (article.favorited) {
+                  case true: return this.conduit.unfavorite(user.token, article.slug).then(process);
+                  case false: return this.conduit.favorite(user.token, article.slug).then(process);
+              }
           };
           this.state = new ArticlesState(SPALocation.shared());
       }
@@ -4707,13 +4727,19 @@
           useCase.jumpPage(page);
       };
       self.tags.article_tab_view.didSelectTab = (item) => {
-          useCase.jumpPageBySubPath(item.identifier);
+          useCase.jumpToSubPath(item.identifier);
       };
       self.tags.articles_table_view.didSelectArticle = (article) => {
-          useCase.jumpPageByArticle(article);
+          useCase.jumpToArticleScene(article);
       };
-      self.tags.articles_table_view.didSelectProfile  = (profile) => {
-          useCase.jumpPageByProfile (profile);
+      self.tags.articles_table_view.didSelectProfile = (profile) => {
+          useCase.jumpToProfileScene (profile);
+      };
+      self.tags.articles_table_view.didFavorite = (article) => {
+          useCase.toggleFavorite(article).then( articles => {
+              if ( articles === null ) return
+              self.tags.articles_table_view.setArticles( articles );
+          });
       };
   });
 
@@ -11398,8 +11424,7 @@
                   return this.conduit.updateArticle(this.storage.user().token, new PostArticle(title, description, body, tags), this.state.slug);
               }
           };
-          this.jumpPageByArticle = (article) => {
-              // page transition
+          this.jumpToArticleScene = (article) => {
               location.href = new SPAPathBuilder("article", [article.slug]).fullPath();
           };
           this.state = new EditerState(SPALocation.shared());
@@ -11443,7 +11468,7 @@
 
       useCase.post(title, description, body, tagList).then( (article) => {
 
-          useCase.jumpPageByArticle(article);
+          useCase.jumpToArticleScene(article);
       }).catch( (error) => {
 
           if (error instanceof Array ) {
@@ -11599,7 +11624,7 @@
       constructor() {
           this.conduit = new ConduitProductionRepository();
           this.storage = new UserLocalStorageRepository();
-          this.currentArticle = null;
+          this.container = null;
           this.isLoggedIn = () => {
               return this.storage.isLoggedIn();
           };
@@ -11623,7 +11648,7 @@
               let offset = page == null ? null : (page - 1) * limit;
               // prepare request
               let token = this.storage.user().token;
-              let nextProcess = (c) => { this.currentArticle = c; return c; };
+              let nextProcess = (c) => { this.container = c; return c; };
               // request
               switch (this.state.articleKind) {
                   case "favorite_articles":
@@ -11635,11 +11660,11 @@
               }
           };
           this.pageCount = () => {
-              if (this.currentArticle == null || this.currentArticle.count === 0) {
+              if (this.container == null || this.container.count === 0) {
                   return 0;
               }
               let limit = Settings.shared().valueForKey("countOfArticleInView");
-              return Math.floor(this.currentArticle.count / limit);
+              return Math.floor(this.container.count / limit);
           };
           this.currentPage = () => {
               return this.state.page;
@@ -11667,25 +11692,39 @@
           };
           this.jumpPage = (page) => {
               let pathBuilder = new SPAPathBuilder(this.state.scene, [this.state.username, this.state.articleKind], { "page": String(page) });
-              // page transition
               location.href = pathBuilder.fullPath();
           };
-          this.jumpPageBySubPath = (path) => {
+          this.jumpToSubPath = (path) => {
               let pathBuilder = new SPAPathBuilder(this.state.scene, [this.state.username, path]);
-              // page transition
               location.href = pathBuilder.fullPath();
           };
           this.jumpToSettingScene = () => {
-              // page transition
               location.href = new SPAPathBuilder("settings").fullPath();
           };
-          this.jumpPageByProfile = (profile) => {
-              // page transition
+          this.jumpToProfileScene = (profile) => {
               location.href = new SPAPathBuilder("profile", [profile.username]).fullPath();
           };
-          this.jumpPageByArticle = (article) => {
-              // page transition
+          this.jumpToArticleScene = (article) => {
               location.href = new SPAPathBuilder("article", [article.slug]).fullPath();
+          };
+          this.toggleFavorite = (article) => {
+              if (article === null) {
+                  throw Error("Article is empty.");
+              }
+              let user = this.storage.user();
+              if (user === null) {
+                  return new Promise((resolve, _) => __awaiter(this, void 0, void 0, function* () { resolve(null); }));
+              }
+              let process = (article) => {
+                  let filtered = this.container.articles.filter(a => a.slug === article.slug)[0];
+                  let index = this.container.articles.indexOf(filtered);
+                  this.container.articles.splice(index, 1, article);
+                  return this.container.articles;
+              };
+              switch (article.favorited) {
+                  case true: return this.conduit.unfavorite(user.token, article.slug).then(process);
+                  case false: return this.conduit.favorite(user.token, article.slug).then(process);
+              }
           };
           this.state = new ProfileState(SPALocation.shared());
       }
@@ -11750,7 +11789,7 @@
       self.tags.article_tab_view.setItems( useCase.tabItems() );
 
       self.tags.article_tab_view.didSelectTab = (item) => {
-          useCase.jumpPageBySubPath(item.identifier);
+          useCase.jumpToSubPath(item.identifier);
       };
       self.tags.profile_view.didClickButtonHandler = (isOwned) => {
           if (isOwned){
@@ -11765,10 +11804,16 @@
           useCase.jumpPage(page);
       };
       self.tags.articles_table_view.didSelectArticle = (article) => {
-          useCase.jumpPageByArticle(article);
+          useCase.jumpToArticleScene(article);
       };
       self.tags.articles_table_view.didSelectProfile  = (profile) => {
-          useCase.jumpPageByProfile(profile);
+          useCase.jumpToProfileScene(profile);
+      };
+      self.tags.articles_table_view.didFavorite = (article) => {
+          useCase.toggleFavorite(article).then( articles => {
+              if ( articles === null ) return
+              self.tags.articles_table_view.setArticles( articles );
+          });
       };
   });
 
@@ -12258,7 +12303,6 @@
           };
           this.routing = () => {
               let loc = SPALocation.shared();
-              console.log(loc);
               // in launch
               if (loc.scene()) {
                   let filterd = this.menus.filter((menu) => {

@@ -52,8 +52,7 @@ export default class EditerUseCase {
         }
     }
 
-    jumpPageByArticle = (article: Article) => {
-        // page transition
+    jumpToArticleScene = (article: Article) => {
         location.href = new SPAPathBuilder("article", [article.slug]).fullPath()
     }
 }
