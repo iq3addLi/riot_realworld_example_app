@@ -67,7 +67,7 @@ The reason why I adopted this architecture is
 
 That's it. At least at the RealWorld scale, I think that I could prove that this architecture works. 
 
-Although it is written assuming that the implementation is switched by Dependency Infection, it does not actually use DI. It is thought that maintenancebility will increase enough just by assuming in advance.
+Although it is written assuming that the implementation is switched by Dependency Injection, it does not actually use DI. It is thought that maintenancebility will increase enough just by assuming in advance.
 
 Also, the code of Domain, Infrastructure is **TypeScript**. I also intended to make the riot.js code in the presentation TypeScript. However, I gave up because I did not work on trying to do it with rollup.
 
