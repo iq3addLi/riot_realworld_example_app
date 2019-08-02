@@ -63,7 +63,7 @@ For details, please read [gulpfile](https://github.com/iq3addLi/riot_realworld_e
 
 ### iOS Development Style
 
-All `.tag` and `.ts` in this project are written with iOS in mind. Because my goal is "How can enjoyed iOS Developer be coverted into web development?". I used camelCase as much as possible. I named the classes that came from iOS development. By doing so I was able to develop RealWorld smoothly. It can not be predicted how experienced web developers will feel it. However, I expect that there is something to discover.
+All `.tag` and `.ts` in this project are affected by iOS. Because my goal is "How can enjoyed iOS Developer be coverted into web development?". I used camelCase as much as possible. I named the classes that came from iOS development. By doing so I was able to develop RealWorld smoothly. It can not be predicted how experienced web developers will feel it. However, I expect that there is something to discover.
 
 This is also described [here](https://github.com/addli/motorhomes.addli.jp#appendix-web-technology-substitutable-to-ios-framework).
 
