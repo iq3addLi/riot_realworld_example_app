@@ -4,14 +4,14 @@
 
 > **Riot.js codebase containing real world examples (CRUD, auth, advanced patterns, etc) that adheres to the RealWorld spec and API.**
 
-This project is a realworld implementation of riot.js v3. <u>The major version of riot.js is v4</u>. Please refer to the following about [this](#why-did-you-implement-it-using-v3).
+This project is a realworld implementation of riot.js v3. *The major version of riot.js is v4*. Please refer to the following about [this](#why-did-you-implement-it-using-v3).
 
 
 
 ## The target of this example
 
 - Web developer using riot.js
-- iOS Engineer Interested in Web Development
+- iOS Engineer Interested in Web Development. Or opposite position.
 - Someone who wants to develop a SPA or PWA.
 - Someone interested in layered architecture.
 
