@@ -1,4 +1,4 @@
-[![RealWorld Frontend](https://img.shields.io/badge/realworld-frontend-%23783578.svg)](http://realworld.io) <img title="Riot v3" src="https://img.shields.io/badge/RIOT-v3-red"> <img title="Riot v4 on progress" src="https://img.shields.io/badge/RIOT-v4%20on%20progress-red">
+[![RealWorld Frontend](https://img.shields.io/badge/realworld-frontend-%23783578.svg)](http://realworld.io) [<img title="Riot v3" src="https://img.shields.io/badge/RIOT-v3-red">](https://v3.riotjs.now.sh) [<img title="Riot v4 on progress" src="https://img.shields.io/badge/RIOT-v4%20on%20progress-red">](https://riot.js.org)
 
 # ![RealWorld Example App](./img/realworld_example_apps.png)
 
@@ -44,6 +44,18 @@ $ gulp connect
 ```bash
 $ open http://localhost:8080
 ```
+
+
+
+## How to build
+
+### Build with gulp and rollup
+
+```bash
+$ gulp
+```
+
+For details, please read [gulpfile](https://github.com/iq3addLi/riot_realworld_example_app/blob/master/gulpfile.js).
 
 
 
