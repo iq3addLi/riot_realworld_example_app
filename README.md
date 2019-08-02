@@ -1,4 +1,4 @@
-[![RealWorld Frontend](https://img.shields.io/badge/realworld-frontend-%23783578.svg)](http://realworld.io) [<img title="Riot v3" src="https://img.shields.io/badge/RIOT-v3-red">](https://v3.riotjs.now.sh) [<img title="Riot v4 on progress" src="https://img.shields.io/badge/RIOT-v4%20on%20progress-red">](https://riot.js.org)
+[![RealWorld Frontend](https://img.shields.io/badge/realworld-frontend-%23783578.svg)](http://realworld.io) [<img title="Riot v3" src="https://img.shields.io/badge/RIOT-v3-red">](https://v3.riotjs.now.sh) [<img title="Riot v4 on progress" src="https://img.shields.io/badge/RIOT-v4%20on%20progress-red">](https://riot.js.org)[![CircleCI](https://circleci.com/gh/iq3addLi/riot_realworld_example_app.svg?style=shield)](https://circleci.com/gh/iq3addLi/riot_realworld_example_app)
 
 # ![RealWorld Example App](./logo.png)
 
