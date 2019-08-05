@@ -92,11 +92,11 @@ export default class ConduitProductionRepository implements ConduitRepository {
     }
 
     follow = ( token: string, username: string ): Promise<Profile> => {
-        return this.fetchingPromise( "/profiles/" + username + "/follow", "POST", this.headers(token)).then( json => json.tags ).then( json => Profile.init(json.profile))
+        return this.fetchingPromise( "/profiles/" + username + "/follow", "POST", this.headers(token)).then( json => Profile.init(json.profile))
     }
 
     unfollow = ( token: string, username: string ): Promise<Profile> => {
-        return this.fetchingPromise( "/profiles/" + username + "/follow", "DELETE", this.headers(token)).then( json => json.tags ).then( json => Profile.init(json.profile))
+        return this.fetchingPromise( "/profiles/" + username + "/follow", "DELETE", this.headers(token)).then( json => Profile.init(json.profile))
     }
 
     getTags = () => {

@@ -3744,10 +3744,10 @@
               return this.fetchingPromise("/profiles/" + username, "GET", this.headers(token)).then(json => Profile.init(json.profile));
           };
           this.follow = (token, username) => {
-              return this.fetchingPromise("/profiles/" + username + "/follow", "POST", this.headers(token)).then(json => json.tags).then(json => Profile.init(json.profile));
+              return this.fetchingPromise("/profiles/" + username + "/follow", "POST", this.headers(token)).then(json => Profile.init(json.profile));
           };
           this.unfollow = (token, username) => {
-              return this.fetchingPromise("/profiles/" + username + "/follow", "DELETE", this.headers(token)).then(json => json.tags).then(json => Profile.init(json.profile));
+              return this.fetchingPromise("/profiles/" + username + "/follow", "DELETE", this.headers(token)).then(json => Profile.init(json.profile));
           };
           this.getTags = () => {
               return this.fetchingPromise("/tags", "GET", this.headers()).then(json => json.tags);
