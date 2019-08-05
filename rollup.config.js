@@ -20,7 +20,7 @@ export default {
             }
         }
     }),
-    nodeResolve({ jsnext: true }),
+    nodeResolve({ mainFields: ['module', 'main'] }),
     typescript(),
     commonjs()
   ]
