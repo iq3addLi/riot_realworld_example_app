@@ -26,7 +26,7 @@ export default interface ConduitRepository {
     getArticlesByFollowingUser: ( token: string, limit?: number, offset?: number ) => Promise<ArticleContainer>
 
     // {{APIURL}}/articles/{{slug}}
-    getArticle: (slug: string) => Promise<Article>
+    getArticle: (slug: string, token?: string) => Promise<Article>
 
     // POST {{APIURL}}/articles
     postArticle: ( token: string, article: PostArticle ) => Promise<Article>

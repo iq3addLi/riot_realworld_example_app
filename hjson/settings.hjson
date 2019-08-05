@@ -1,15 +1,10 @@
-//
-//  settings.json
-//  __PROJECT_NAME__
-//
-//  Created by +Li, Inc. on 2019/01/03.
-//  Copyright (c) 2019年 +Li, Inc. All rights reserved.
-//
-
 {
     // document.title
     "title" : "Conduit",
 
-    // countOfArticleInView
-    "countOfArticleInView" : 5
+    // display article count in articles and profile scene
+    "countOfArticleInView" : 10,
+
+    // endpoint of Conduit API ( '/' suffix is unneed )
+    "endpoint": "https://conduit.productionready.io/api"
 }

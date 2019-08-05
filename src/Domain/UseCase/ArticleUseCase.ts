@@ -37,8 +37,9 @@ export default class ArticleUseCase {
 
     requestArticle = () => {
         let slug = SPALocation.shared().paths()[0]
+        let token = this.storage.user() == null ? null : this.storage.user().token
         if (slug !== null) {
-            return this.conduit.getArticle(slug).then( (article) => {
+            return this.conduit.getArticle(slug, token).then( (article) => {
                 this._article = article
                 return article
             })

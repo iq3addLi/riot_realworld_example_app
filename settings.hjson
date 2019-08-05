@@ -1,8 +1,0 @@
-{
-    // document.title
-    "title" : "Conduit made with riot",
-
-    // display article count in articles and profile scene
-    "countOfArticleInView" : 10
-
-}
