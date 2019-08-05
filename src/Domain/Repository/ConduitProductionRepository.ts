@@ -62,23 +62,23 @@ export default class ConduitProductionRepository implements ConduitRepository {
     }
 
     getArticles = ( token?: string, limit?: number, offset?: number ) => {
-        return this.callArticleAPI( this.buildArticlePath("articles", this.buildArticlesQuery(limit, offset)), "GET", this.buildHeader( token ) )
+        return this.callArticleAPI( this.buildPath("articles", this.buildArticlesQuery(limit, offset)), "GET", this.buildHeader( token ) )
     }
 
     getArticlesOfAuthor = ( username: string, token?: string, limit?: number, offset?: number ) => {
-        return this.callArticleAPI( this.buildArticlePath("articles", this.buildArticlesQuery(limit, offset, null, null, username) ), "GET", this.buildHeader( token ) )
+        return this.callArticleAPI( this.buildPath("articles", this.buildArticlesQuery(limit, offset, null, null, username) ), "GET", this.buildHeader( token ) )
     }
 
     getArticlesForFavoriteUser = ( username: string, token?: string, limit?: number, offset?: number ) => {
-        return this.callArticleAPI( this.buildArticlePath("articles", this.buildArticlesQuery(limit, offset, null, username) ), "GET", this.buildHeader( token ) )
+        return this.callArticleAPI( this.buildPath("articles", this.buildArticlesQuery(limit, offset, null, username) ), "GET", this.buildHeader( token ) )
     }
 
     getArticlesOfTagged = ( tag: string, token?: string, limit?: number, offset?: number ) => {
-        return this.callArticleAPI( this.buildArticlePath("articles", this.buildArticlesQuery(limit, offset, tag) ), "GET", this.buildHeader( token ) )
+        return this.callArticleAPI( this.buildPath("articles", this.buildArticlesQuery(limit, offset, tag) ), "GET", this.buildHeader( token ) )
     }
 
     getArticlesByFollowingUser = ( token: string, limit?: number, offset?: number ) => {
-        return this.callArticleAPI( this.buildArticlePath("articles/feed", this.buildArticlesQuery(limit, offset)), "GET", this.buildHeader( token ) )
+        return this.callArticleAPI( this.buildPath("articles/feed", this.buildArticlesQuery(limit, offset)), "GET", this.buildHeader( token ) )
     }
 
     getArticle = ( slug: string, token?: string ): Promise<Article> => {
@@ -242,7 +242,7 @@ export default class ConduitProductionRepository implements ConduitRepository {
         return Object.assign(headers, { "Authorization" : "Token " + token } )
     }
 
-    private buildArticlePath = ( scene: string, queries?:  {[key: string]: string } ) => {
+    private buildPath = ( scene: string, queries?:  {[key: string]: string } ) => {
         let path = scene
         if ( queries != null ) {
             let concated = "?"

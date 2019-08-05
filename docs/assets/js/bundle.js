@@ -3729,19 +3729,19 @@
               }));
           };
           this.getArticles = (token, limit, offset) => {
-              return this.callArticleAPI(this.buildArticlePath("articles", this.buildArticlesQuery(limit, offset)), "GET", this.buildHeader(token));
+              return this.callArticleAPI(this.buildPath("articles", this.buildArticlesQuery(limit, offset)), "GET", this.buildHeader(token));
           };
           this.getArticlesOfAuthor = (username, token, limit, offset) => {
-              return this.callArticleAPI(this.buildArticlePath("articles", this.buildArticlesQuery(limit, offset, null, null, username)), "GET", this.buildHeader(token));
+              return this.callArticleAPI(this.buildPath("articles", this.buildArticlesQuery(limit, offset, null, null, username)), "GET", this.buildHeader(token));
           };
           this.getArticlesForFavoriteUser = (username, token, limit, offset) => {
-              return this.callArticleAPI(this.buildArticlePath("articles", this.buildArticlesQuery(limit, offset, null, username)), "GET", this.buildHeader(token));
+              return this.callArticleAPI(this.buildPath("articles", this.buildArticlesQuery(limit, offset, null, username)), "GET", this.buildHeader(token));
           };
           this.getArticlesOfTagged = (tag, token, limit, offset) => {
-              return this.callArticleAPI(this.buildArticlePath("articles", this.buildArticlesQuery(limit, offset, tag)), "GET", this.buildHeader(token));
+              return this.callArticleAPI(this.buildPath("articles", this.buildArticlesQuery(limit, offset, tag)), "GET", this.buildHeader(token));
           };
           this.getArticlesByFollowingUser = (token, limit, offset) => {
-              return this.callArticleAPI(this.buildArticlePath("articles/feed", this.buildArticlesQuery(limit, offset)), "GET", this.buildHeader(token));
+              return this.callArticleAPI(this.buildPath("articles/feed", this.buildArticlesQuery(limit, offset)), "GET", this.buildHeader(token));
           };
           this.getArticle = (slug, token) => {
               return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
@@ -3891,7 +3891,7 @@
               }
               return Object.assign(headers, { "Authorization": "Token " + token });
           };
-          this.buildArticlePath = (scene, queries) => {
+          this.buildPath = (scene, queries) => {
               let path = scene;
               if (queries != null) {
                   let concated = "?";
