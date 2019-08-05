@@ -161,9 +161,10 @@ export default class ConduitProductionRepository implements ConduitRepository {
         if ( body != null ) { init["body"] = JSON.stringify(body) }
         return new Promise<any>( async (resolve, reject) => {
             const response = await fetch( this.endpoint + "/" + path, init)
-            this.evaluateResponse(response,
-            json => { resolve( json ) },
-            error => { reject( error ) } )
+            this.evaluateResponse( response,
+                json  => { resolve( json ) },
+                error => { reject( error ) }
+            )
         })
     }
 }
