@@ -3730,9 +3730,7 @@
               return this.fetchingPromise("/articles/" + slug + "/favorite", "DELETE", this.headers(token)).then(json => Article.init(json.article));
           };
           this.getComments = (slug) => {
-              return this.fetchingPromise("/articles/" + slug + "/comments", "GET", this.headers()).then(json => {
-                  return json.comments.map((comment) => { return Comment.init(comment); });
-              });
+              return this.fetchingPromise("/articles/" + slug + "/comments", "GET", this.headers()).then(json => json.comments.map(comment => Comment.init(comment)));
           };
           this.postComment = (token, slug, comment) => {
               return this.fetchingPromise("/articles/" + slug + "/comments", "POST", this.headers(token), { "comment": { "body": comment } }).then(json => Comment.init(json.comment));

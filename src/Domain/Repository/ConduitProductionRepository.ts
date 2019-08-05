@@ -74,9 +74,7 @@ export default class ConduitProductionRepository implements ConduitRepository {
     }
 
     getComments = ( slug: string ): Promise<Comment[]> => {
-        return this.fetchingPromise( "/articles/" + slug + "/comments", "GET", this.headers()).then( json => {
-            return json.comments.map((comment) => { return Comment.init(comment) })
-        })
+        return this.fetchingPromise( "/articles/" + slug + "/comments", "GET", this.headers()).then( json => json.comments.map( comment => Comment.init(comment) ))
     }
 
     postComment = ( token: string, slug: string, comment: string ): Promise<Comment> => {
