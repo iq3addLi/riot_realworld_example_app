@@ -1,11 +1,11 @@
 "use strict"
 
-var gulp   = require("gulp")
+var gulp = require("gulp")
 
 // ━━━━━━━━━━━━━━━━━━━━━━
 // Linting for TypeScript
 // ━━━━━━━━━━━━━━━━━━━━━━
-var tslint   = require("gulp-tslint")
+var tslint = require("gulp-tslint")
 gulp.task("tslint", function() {
   return gulp.src([
       "./src/**/*.ts",
@@ -21,12 +21,30 @@ gulp.task("tslint", function() {
 })
 
 // ━━━━━━━━━━━━━━━━━━━━━━
+// Minify
+// ━━━━━━━━━━━━━━━━━━━━━━
+// var uglifyes = require("uglify-es")
+// var composer = require("gulp-uglify/composer")
+// var pump = require("pump")
+// var minify = composer(uglifyes, console)
+// gulp.task("compress", function (cb) {
+//   var options = {}
+//   pump([
+//       gulp.src("./docs/assets/js/bundle.js"),
+//       minify(options),
+//       gulp.dest("./docs/assets/js/")
+//     ],
+//     cb
+//   )
+// })
+
+// ━━━━━━━━━━━━━━━━━━━━━━
 // Build JS/TS
 // ━━━━━━━━━━━━━━━━━━━━━━
-var exec = require('child_process').exec
+var exec = require("child_process").exec
 
-gulp.task('buildjs', function (cb) {
-  exec('npm run rollup', function (err, stdout, stderr) {
+gulp.task("buildjs", function (cb) {
+  exec("npm run rollup", function (err, stdout, stderr) {
     console.log(stdout)
     console.log(stderr)
     cb(err)
@@ -36,12 +54,12 @@ gulp.task('buildjs', function (cb) {
 // ━━━━━━━━━━━━━━━━━━━━━━
 // Convert settings
 // ━━━━━━━━━━━━━━━━━━━━━━
-var Hjson = require('gulp-hjson')
+var Hjson = require("gulp-hjson")
  
-gulp.task('convert-hjson-to-json', function() {
-  return gulp.src(['./hjson/**/*'])
-    .pipe(Hjson({ to: 'json' }))
-    .pipe(gulp.dest('./docs/assets/json/'))
+gulp.task("convert-hjson-to-json", function() {
+  return gulp.src(["./hjson/**/*"])
+    .pipe(Hjson({ to: "json" }))
+    .pipe(gulp.dest("./docs/assets/json/"))
 })
 
 
@@ -52,17 +70,18 @@ gulp.task("default",
   gulp.series(
     "convert-hjson-to-json",
     "tslint",
-    gulp.parallel("buildjs")
-  )
+    "buildjs"
+    //,"compress"
+    )
 )
 
 // ━━━━━━━━━━━━━━━━━━━━━━
-// Launch test server
+// Launch local server
 // ━━━━━━━━━━━━━━━━━━━━━━
-var connect = require('gulp-connect')
-gulp.task('connect', function() {
+var connect = require("gulp-connect")
+gulp.task("connect", function() {
   connect.server({
-    root: './docs',
+    root: "./docs",
     livereload: true
   })
 })
