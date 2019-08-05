@@ -3685,211 +3685,86 @@
       constructor() {
           this.endpoint = Settings.shared().valueForKey("endpoint");
           this.login = (email, password) => {
-              return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
-                  const response = yield fetch(this.endpoint + "/users/login", {
-                      method: "POST",
-                      headers: this.buildHeader(),
-                      body: JSON.stringify({ "user": { "email": email, "password": password } })
-                  });
-                  this.evaluateResponse(response, (json) => {
-                      resolve(User.init(json.user));
-                  }, error => { reject(error); });
-              }));
+              return this.fetchingPromise("/users/login", "POST", this.headers(), { "user": { "email": email, "password": password } }).then(json => User.init(json.user));
           };
           this.register = (username, email, password) => {
-              return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
-                  const response = yield fetch(this.endpoint + "/users", {
-                      method: "POST",
-                      headers: this.buildHeader(),
-                      body: JSON.stringify({ "user": { "username": username, "email": email, "password": password } })
-                  });
-                  this.evaluateResponse(response, (json) => {
-                      resolve(User.init(json.user));
-                  }, error => { reject(error); });
-              }));
+              return this.fetchingPromise("/users", "POST", this.headers(), { "user": { "username": username, "email": email, "password": password } }).then(json => User.init(json.user));
           };
           this.getUser = (token) => {
-              return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
-                  const response = yield fetch(this.endpoint + "/user", { headers: this.buildHeader(token) });
-                  this.evaluateResponse(response, (json) => {
-                      resolve(User.init(json.user));
-                  }, error => { reject(error); });
-              }));
+              return this.fetchingPromise("/user", "GET", this.headers(token), null).then(json => User.init(json.user));
           };
           this.updateUser = (token, user) => {
-              return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
-                  const response = yield fetch(this.endpoint + "/user", {
-                      method: "PUT",
-                      headers: this.buildHeader(token),
-                      body: JSON.stringify({ "user": user.trimmed() })
-                  });
-                  this.evaluateResponse(response, (json) => {
-                      resolve(User.init(json.user));
-                  }, error => { reject(error); });
-              }));
+              return this.fetchingPromise("/user", "PUT", this.headers(token), { "user": user.trimmed() }).then(json => User.init(json.user));
           };
           this.getArticles = (token, limit, offset) => {
-              return this.callArticleAPI(this.buildPath("articles", this.buildArticlesQuery(limit, offset)), "GET", this.buildHeader(token));
+              return this.getArticleContainer(this.buildPath("articles", this.buildArticlesQuery(limit, offset)), "GET", this.headers(token));
           };
           this.getArticlesOfAuthor = (username, token, limit, offset) => {
-              return this.callArticleAPI(this.buildPath("articles", this.buildArticlesQuery(limit, offset, null, null, username)), "GET", this.buildHeader(token));
+              return this.getArticleContainer(this.buildPath("articles", this.buildArticlesQuery(limit, offset, null, null, username)), "GET", this.headers(token));
           };
           this.getArticlesForFavoriteUser = (username, token, limit, offset) => {
-              return this.callArticleAPI(this.buildPath("articles", this.buildArticlesQuery(limit, offset, null, username)), "GET", this.buildHeader(token));
+              return this.getArticleContainer(this.buildPath("articles", this.buildArticlesQuery(limit, offset, null, username)), "GET", this.headers(token));
           };
           this.getArticlesOfTagged = (tag, token, limit, offset) => {
-              return this.callArticleAPI(this.buildPath("articles", this.buildArticlesQuery(limit, offset, tag)), "GET", this.buildHeader(token));
+              return this.getArticleContainer(this.buildPath("articles", this.buildArticlesQuery(limit, offset, tag)), "GET", this.headers(token));
           };
           this.getArticlesByFollowingUser = (token, limit, offset) => {
-              return this.callArticleAPI(this.buildPath("articles/feed", this.buildArticlesQuery(limit, offset)), "GET", this.buildHeader(token));
+              return this.getArticleContainer(this.buildPath("articles/feed", this.buildArticlesQuery(limit, offset)), "GET", this.headers(token));
           };
           this.getArticle = (slug, token) => {
-              return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
-                  const response = yield fetch(this.endpoint + "/articles/" + slug, {
-                      headers: this.buildHeader(token)
-                  });
-                  this.evaluateResponse(response, (json) => {
-                      resolve(Article.init(json.article));
-                  }, error => { reject(error); });
-              }));
+              return this.fetchingPromise("/articles/" + slug, "GET", this.headers(token)).then(json => Article.init(json.article));
           };
           this.postArticle = (token, article) => {
-              return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
-                  const response = yield fetch(this.endpoint + "/articles", {
-                      method: "POST",
-                      headers: this.buildHeader(token),
-                      body: JSON.stringify({ "article": article })
-                  });
-                  this.evaluateResponse(response, (json) => {
-                      resolve(Article.init(json.article));
-                  }, error => { reject(error); });
-              }));
-          };
-          this.deleteComment = (token, slug, commentId) => {
-              return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
-                  const response = yield fetch(this.endpoint + "/articles/" + slug + "/comments/" + commentId, {
-                      method: "DELETE",
-                      headers: this.buildHeader(token)
-                  });
-                  this.evaluateResponse(response, (_) => {
-                      resolve();
-                  }, error => { reject(error); });
-              }));
+              return this.fetchingPromise("/articles/", "POST", this.headers(token), { "article": article }).then(json => Article.init(json.article));
           };
           this.updateArticle = (token, article, slug) => {
-              return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
-                  const response = yield fetch(this.endpoint + "/articles/" + slug, {
-                      method: "PUT",
-                      headers: this.buildHeader(token),
-                      body: JSON.stringify({ "article": article })
-                  });
-                  this.evaluateResponse(response, (json) => {
-                      resolve(Article.init(json.article));
-                  }, error => { reject(error); });
-              }));
+              return this.fetchingPromise("/articles/" + slug, "PUT", this.headers(token), { "article": article }).then(json => Article.init(json.article));
           };
           this.deleteArticle = (token, slug) => {
-              return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
-                  const response = yield fetch(this.endpoint + "/articles/" + slug, {
-                      headers: this.buildHeader(token),
-                      method: "DELETE"
-                  });
-                  this.evaluateResponse(response, (_) => {
-                      resolve();
-                  }, error => { reject(error); });
-              }));
+              return this.fetchingPromise("/articles/" + slug, "DELETE", this.headers(token));
           };
           this.favorite = (token, slug) => {
-              return this.callArticleFavoriteAPI(token, slug, "POST");
+              return this.fetchingPromise("/articles/" + slug + "/favorite", "POST", this.headers(token)).then(json => Article.init(json.article));
           };
           this.unfavorite = (token, slug) => {
-              return this.callArticleFavoriteAPI(token, slug, "DELETE");
+              return this.fetchingPromise("/articles/" + slug + "/favorite", "DELETE", this.headers(token)).then(json => Article.init(json.article));
           };
           this.getComments = (slug) => {
-              return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
-                  const response = yield fetch(this.endpoint + "/articles/" + slug + "/comments", { headers: this.buildHeader() });
-                  this.evaluateResponse(response, (json) => {
-                      resolve(json.comments.map((comment) => { return Comment.init(comment); }));
-                  }, error => { reject(error); });
-              }));
-          };
-          this.getProfile = (username, token) => {
-              return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
-                  const response = yield fetch(this.endpoint + "/profiles/" + username, { headers: this.buildHeader(token) });
-                  this.evaluateResponse(response, (json) => {
-                      resolve(Profile.init(json.profile));
-                  }, error => { reject(error); });
-              }));
-          };
-          this.follow = (token, username) => {
-              return this.callUserFollowAPI(token, username, "POST");
-          };
-          this.unfollow = (token, username) => {
-              return this.callUserFollowAPI(token, username, "DELETE");
-          };
-          this.getTags = () => {
-              return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
-                  try {
-                      const response = yield fetch(this.endpoint + "/tags", { headers: this.buildHeader() });
-                      const json = yield response.json();
-                      resolve(json.tags);
-                  }
-                  catch (error) {
-                      reject(error);
-                  }
-              }));
+              return this.fetchingPromise("/articles/" + slug + "/comments", "GET", this.headers()).then(json => {
+                  return json.comments.map((comment) => { return Comment.init(comment); });
+              });
           };
           this.postComment = (token, slug, comment) => {
-              return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
-                  const response = yield fetch(this.endpoint + "/articles/" + slug + "/comments", {
-                      headers: this.buildHeader(token),
-                      method: "POST",
-                      body: JSON.stringify({ "comment": { "body": comment } })
-                  });
-                  this.evaluateResponse(response, (json) => {
-                      resolve(Comment.init(json.comment));
-                  }, error => { reject(error); });
-              }));
+              return this.fetchingPromise("/articles/" + slug + "/comments", "POST", this.headers(token), { "comment": { "body": comment } }).then(json => Comment.init(json.comment));
+          };
+          this.deleteComment = (token, slug, commentId) => {
+              return this.fetchingPromise("/articles/" + slug + "/comments/" + commentId, "DELETE", this.headers(token));
+          };
+          this.getProfile = (username, token) => {
+              return this.fetchingPromise("/profiles/" + username, "GET", this.headers(token)).then(json => Profile.init(json.profile));
+          };
+          this.follow = (token, username) => {
+              return this.fetchingPromise("/profiles/" + username + "/follow", "POST", this.headers(token)).then(json => json.tags).then(json => Profile.init(json.profile));
+          };
+          this.unfollow = (token, username) => {
+              return this.fetchingPromise("/profiles/" + username + "/follow", "DELETE", this.headers(token)).then(json => json.tags).then(json => Profile.init(json.profile));
+          };
+          this.getTags = () => {
+              return this.fetchingPromise("/tags", "GET", this.headers()).then(json => json.tags);
           };
           // Privates
-          this.callUserFollowAPI = (token, username, method) => {
-              return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
-                  const response = yield fetch(this.endpoint + "/profiles/" + username + "/follow", { headers: this.buildHeader(token), method: method });
-                  this.evaluateResponse(response, (json) => {
-                      resolve(Profile.init(json.profile));
-                  }, error => { reject(error); });
-              }));
+          this.getArticleContainer = (path, method, headers) => {
+              return this.fetchingPromise(path, method, headers).then(json => new ArticleContainer(json.articlesCount, json.articles));
           };
-          this.callArticleFavoriteAPI = (token, slug, method) => {
-              return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
-                  const response = yield fetch(this.endpoint + "/articles/" + slug + "/favorite", { headers: this.buildHeader(token), method: method });
-                  this.evaluateResponse(response, (json) => {
-                      resolve(Article.init(json.article));
-                  }, error => { reject(error); });
-              }));
-          };
-          this.callArticleAPI = (path, method, headers) => {
-              return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
-                  try {
-                      const response = yield fetch(this.endpoint + "/" + path, { headers: headers, method: method });
-                      const json = yield response.json();
-                      let container = new ArticleContainer(json.articlesCount, json.articles);
-                      resolve(container);
-                  }
-                  catch (error) {
-                      reject(error);
-                  }
-              }));
-          };
-          this.buildHeader = (token) => {
+          this.headers = (token) => {
               let headers = {
                   "Accept": "application/json",
                   "Content-Type": "application/json"
               };
-              if (token == null) {
-                  return headers;
+              if (token != null) {
+                  headers["Authorization"] = "Token " + token;
               }
-              return Object.assign(headers, { "Authorization": "Token " + token });
+              return headers;
           };
           this.buildPath = (scene, queries) => {
               let path = scene;
@@ -3942,6 +3817,19 @@
                   failureHandler(new Error("Unexpected error.　code=" + response.status));
               }
           });
+          this.fetchingPromise = (path, method, headers, body) => {
+              let init = { "method": method };
+              if (headers != null) {
+                  init["headers"] = headers;
+              }
+              if (body != null) {
+                  init["body"] = JSON.stringify(body);
+              }
+              return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
+                  const response = yield fetch(this.endpoint + "/" + path, init);
+                  this.evaluateResponse(response, json => { resolve(json); }, error => { reject(error); });
+              }));
+          };
       }
   }
 
