@@ -15,7 +15,7 @@ import ArticlesUseCase from "../../Domain/UseCase/ArticlesUseCase"
 var self = this
 var useCase = new ArticlesUseCase()
 
-this.on('mount', () => {
+this.on("mount", () => {
 
     // setup header
     self.tags.header_view.setItems( useCase.menuItems() )
@@ -50,6 +50,10 @@ this.on('mount', () => {
     self.tags.articles_table_view.didSelectProfile = (profile) => {
         useCase.jumpToProfileScene (profile)
     }
+
+    // From here only logged-in
+    if ( useCase.isLoggedIn() == false ){ return }
+
     self.tags.articles_table_view.didFavorite = (article) => {
         useCase.toggleFavorite(article).then( articles => {
             if ( articles === null ) return

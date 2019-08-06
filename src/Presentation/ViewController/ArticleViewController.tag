@@ -13,7 +13,7 @@ import ArticleUseCase from "../../Domain/UseCase/ArticleUseCase"
 var self = this
 var useCase = new ArticleUseCase()
 
-this.on('mount', () => {
+this.on("mount", () => {
 
     // setup header
     self.tags.header_view.setItems( useCase.menuItems() )
@@ -38,6 +38,9 @@ this.on('mount', () => {
     useCase.requestComments().then( (comments) => {
         self.tags.comment_table_view.setComments( comments )
     })
+
+    // From here only logged-in
+    if ( useCase.isLoggedIn() == false ){ return }
 
     // setup view action handler
     let didFollowHandler = () => {

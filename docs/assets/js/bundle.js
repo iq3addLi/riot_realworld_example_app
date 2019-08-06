@@ -4390,7 +4390,7 @@
   var self = this;
   var useCase = new ArticlesUseCase();
 
-  this.on('mount', () => {
+  this.on("mount", () => {
 
       self.tags.header_view.setItems( useCase.menuItems() );
 
@@ -4420,6 +4420,9 @@
       self.tags.articles_table_view.didSelectProfile = (profile) => {
           useCase.jumpToProfileScene (profile);
       };
+
+      if ( useCase.isLoggedIn() == false ){ return }
+
       self.tags.articles_table_view.didFavorite = (article) => {
           useCase.toggleFavorite(article).then( articles => {
               if ( articles === null ) return
@@ -4462,7 +4465,7 @@
   var useCase = new LoginUseCase();
   self.errors = null;
 
-  self.on('mount', () => {
+  self.on("mount", () => {
 
       self.tags.header_view.setItems( useCase.menuItems() );
   });
@@ -11000,7 +11003,7 @@
   var self = this;
   var useCase = new ArticleUseCase();
 
-  this.on('mount', () => {
+  this.on("mount", () => {
 
       self.tags.header_view.setItems( useCase.menuItems() );
 
@@ -11021,6 +11024,8 @@
       useCase.requestComments().then( (comments) => {
           self.tags.comment_table_view.setComments( comments );
       });
+
+      if ( useCase.isLoggedIn() == false ){ return }
 
       let didFollowHandler = () => {
           useCase.toggleFollowing().then( () =>{
@@ -11121,6 +11126,9 @@
           this.jumpToArticleScene = (article) => {
               location.href = new SPAPathBuilder("article", [article.slug]).fullPath();
           };
+          this.jumpToNotFound = () => {
+              location.href = "#/notfound";
+          };
           this.state = new EditerState(SPALocation.shared());
       }
   }
@@ -11140,7 +11148,13 @@
   var useCase = new EditerUseCase();
 
   self.errors = null;
-  self.on('mount', () => {
+
+  self.on("mount", () => {
+
+      if( useCase.isLoggedIn() === false ){
+          useCase.jumpToNotFound();
+          return
+      }
 
       self.tags.header_view.setItems( useCase.menuItems() );
 
@@ -11228,6 +11242,9 @@
           this.jumpToHome = () => {
               location.href = "/";
           };
+          this.jumpToNotFound = () => {
+              location.href = "#/notfound";
+          };
           this.state = new SettingsState(SPALocation.shared());
       }
   }
@@ -11245,7 +11262,12 @@
 
   self.errors = null;
 
-  this.on('mount', () => {
+  this.on("mount", () => {
+
+      if( useCase.isLoggedIn() === false ){
+          useCase.jumpToNotFound();
+          return
+      }
 
       self.tags.header_view.setItems( useCase.menuItems() );
 
@@ -11329,10 +11351,14 @@
               return new MenuItemsBuilder().items(this.state.scene, this.storage.user());
           };
           this.isOwnedProfile = () => {
-              return this.storage.user().username === this.profile.username;
+              let user = this.storage.user();
+              if (user == null) {
+                  return false;
+              }
+              return user.username === this.profile.username;
           };
           this.requestProfile = () => {
-              let token = this.storage.user().token;
+              let token = this.storage.user() != null ? this.storage.user().token : null;
               return this.conduit.getProfile(this.state.username, token).then((p) => { this.profile = p; return p; });
           };
           this.requestArticles = () => {
@@ -11341,7 +11367,7 @@
               let page = this.currentPage();
               let offset = page == null ? null : (page - 1) * limit;
               // prepare request
-              let token = this.storage.user().token;
+              let token = this.storage.user() != null ? this.storage.user().token : null;
               let nextProcess = (c) => { this.container = c; return c; };
               // request
               switch (this.state.articleKind) {
@@ -11463,7 +11489,7 @@
   var self = this;
   var useCase = new ProfileUseCase();
 
-  this.on('mount', () => {
+  this.on("mount", () => {
 
       self.tags.header_view.setItems( useCase.menuItems() );
 
@@ -11485,6 +11511,24 @@
       self.tags.article_tab_view.didSelectTab = (item) => {
           useCase.jumpToSubPath(item.identifier);
       };
+      self.tags.articles_table_view.didSelectArticle = (article) => {
+          useCase.jumpToArticleScene(article);
+      };
+      self.tags.articles_table_view.didSelectProfile  = (profile) => {
+          useCase.jumpToProfileScene(profile);
+      };
+      self.tags.pagenation_view.didSelectPageNumber = (page) => {
+          useCase.jumpPage(page);
+      };
+
+      if ( useCase.isLoggedIn() == false ){ return }
+
+      self.tags.articles_table_view.didFavorite = (article) => {
+          useCase.toggleFavorite(article).then( articles => {
+              if ( articles === null ) return
+              self.tags.articles_table_view.setArticles( articles );
+          });
+      };
       self.tags.profile_view.didClickButtonHandler = (isOwned) => {
           if (isOwned){
               useCase.jumpToSettingScene();
@@ -11493,21 +11537,6 @@
                   self.tags.profile_view.setProfile( profile, useCase.isLoggedIn(), useCase.isOwnedProfile() );
               });
           }
-      };
-      self.tags.pagenation_view.didSelectPageNumber = (page) => {
-          useCase.jumpPage(page);
-      };
-      self.tags.articles_table_view.didSelectArticle = (article) => {
-          useCase.jumpToArticleScene(article);
-      };
-      self.tags.articles_table_view.didSelectProfile  = (profile) => {
-          useCase.jumpToProfileScene(profile);
-      };
-      self.tags.articles_table_view.didFavorite = (article) => {
-          useCase.toggleFavorite(article).then( articles => {
-              if ( articles === null ) return
-              self.tags.articles_table_view.setArticles( articles );
-          });
       };
   });
 
@@ -11541,7 +11570,7 @@
   var useCase = new RegisterUseCase();
   self.errors = null;
 
-  this.on('mount', () => {
+  this.on("mount", () => {
 
       self.tags.header_view.setItems( useCase.menuItems() );
   });
@@ -12020,7 +12049,7 @@
   riot$1.tag2('application', '<div id="mainView"></div>', '', '', function(opts) {
   var useCase = new ApplicationUseCase();
 
-  this.on('mount', function() {
+  this.on("mount", function() {
       useCase.initialize( function( error ){
           if (error != null){
 

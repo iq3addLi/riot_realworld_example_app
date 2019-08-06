@@ -15,7 +15,7 @@ import ApplicationUseCase from "../Domain/UseCase/ApplicationUseCase"
 var self = this
 var useCase = new ApplicationUseCase()
 
-this.on('mount', function() {
+this.on("mount", function() {
     useCase.initialize( function( error ){
         if (error != null){
             // go to 404

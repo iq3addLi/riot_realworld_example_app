@@ -15,7 +15,7 @@ import ProfileUseCase from "../../Domain/UseCase/ProfileUseCase"
 var self = this
 var useCase = new ProfileUseCase()
 
-this.on('mount', () => {
+this.on("mount", () => {
 
     // setup header
     self.tags.header_view.setItems( useCase.menuItems() )
@@ -42,6 +42,25 @@ this.on('mount', () => {
     self.tags.article_tab_view.didSelectTab = (item) => {
         useCase.jumpToSubPath(item.identifier)
     }
+    self.tags.articles_table_view.didSelectArticle = (article) => {
+        useCase.jumpToArticleScene(article)
+    }
+    self.tags.articles_table_view.didSelectProfile  = (profile) => {
+        useCase.jumpToProfileScene(profile)
+    }
+    self.tags.pagenation_view.didSelectPageNumber = (page) => {
+        useCase.jumpPage(page)
+    }
+
+    // From here only logged-in
+    if ( useCase.isLoggedIn() == false ){ return }
+
+    self.tags.articles_table_view.didFavorite = (article) => {
+        useCase.toggleFavorite(article).then( articles => {
+            if ( articles === null ) return
+            self.tags.articles_table_view.setArticles( articles )
+        }) 
+    }
     self.tags.profile_view.didClickButtonHandler = (isOwned) => {
         if (isOwned){
             useCase.jumpToSettingScene()
@@ -50,21 +69,6 @@ this.on('mount', () => {
                 self.tags.profile_view.setProfile( profile, useCase.isLoggedIn(), useCase.isOwnedProfile() )
             })
         }
-    }
-    self.tags.pagenation_view.didSelectPageNumber = (page) => {
-        useCase.jumpPage(page)
-    }
-    self.tags.articles_table_view.didSelectArticle = (article) => {
-        useCase.jumpToArticleScene(article)
-    }
-    self.tags.articles_table_view.didSelectProfile  = (profile) => {
-        useCase.jumpToProfileScene(profile)
-    }
-    self.tags.articles_table_view.didFavorite = (article) => {
-        useCase.toggleFavorite(article).then( articles => {
-            if ( articles === null ) return
-            self.tags.articles_table_view.setArticles( articles )
-        }) 
     }
 })
 

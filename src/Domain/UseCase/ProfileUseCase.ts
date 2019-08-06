@@ -35,11 +35,13 @@ export default class ProfileUseCase {
     }
 
     isOwnedProfile = () => {
-        return this.storage.user().username === this.profile.username
+        let user = this.storage.user()
+        if ( user == null ) { return false }
+        return user.username === this.profile.username
     }
 
     requestProfile = () => {
-        let token = this.storage.user().token
+        let token = this.storage.user() != null ? this.storage.user().token : null
         return this.conduit.getProfile( this.state.username, token ).then( ( p ) => { this.profile = p; return p } )
     }
 
@@ -50,7 +52,7 @@ export default class ProfileUseCase {
         let offset = page == null ? null : (page - 1) * limit
 
         // prepare request
-        let token = this.storage.user().token
+        let token = this.storage.user() != null ? this.storage.user().token : null
         let nextProcess = ( c ) => { this.container = c; return c }
 
         // request

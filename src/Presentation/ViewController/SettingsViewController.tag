@@ -11,7 +11,7 @@ var useCase = new SettingsUseCase()
 
 self.errors = null
 
-this.on('mount', () => {
+this.on("mount", () => {
     // setup header
     self.tags.header_view.setItems( useCase.menuItems() )
 

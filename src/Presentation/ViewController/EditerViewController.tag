@@ -10,7 +10,8 @@ var self = this
 var useCase = new EditerUseCase()
 
 self.errors = null
-self.on('mount', () => {
+
+self.on("mount", () => {
     // setup header
     self.tags.header_view.setItems( useCase.menuItems() )
 
