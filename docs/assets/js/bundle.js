@@ -11959,7 +11959,7 @@
 
   class ApplicationUseCase {
       constructor() {
-          this.menus = [{
+          this.scenes = [{
                   identifier: "login",
                   filter: "/login",
                   viewControllerName: "login_view_controller"
@@ -12022,9 +12022,9 @@
                   riot$1.mount("div#mainView", "notfound_view_controller");
               });
               // Expected routing
-              this.menus.forEach((menu) => {
-                  route(menu.filter, () => {
-                      riot$1.mount("div#mainView", menu.viewControllerName);
+              this.scenes.forEach(scene => {
+                  route(scene.filter, () => {
+                      riot$1.mount("div#mainView", scene.viewControllerName);
                   });
               });
           };
@@ -12033,7 +12033,7 @@
               // Decide what to mount
               let vcname;
               if (loc.scene()) {
-                  let filterd = this.menus.filter(menu => menu.identifier === loc.scene());
+                  let filterd = this.scenes.filter(scene => scene.identifier === loc.scene());
                   vcname = (filterd.length > 0) ? filterd[0].viewControllerName : "notfound_view_controller";
               }
               else {

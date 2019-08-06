@@ -1,10 +1,10 @@
-import Settings from "../../Infrastructure/Settings"
 import riot from "riot"
 import route from "riot-route"
 
+import Settings from "../../Infrastructure/Settings"
 import SPALocation from "../../Infrastructure/SPALocation"
 
-interface Menu {
+interface Scene {
     identifier: string
     filter: string
     viewControllerName: string
@@ -12,7 +12,7 @@ interface Menu {
 
 export default class ApplicationUseCase {
 
-    private menus: Menu[] = [{
+    private scenes: Scene[] = [{
             identifier : "login",
             filter : "/login",
             viewControllerName : "login_view_controller"
@@ -79,9 +79,9 @@ export default class ApplicationUseCase {
             riot.mount( "div#mainView", "notfound_view_controller" )
         })
         // Expected routing
-        this.menus.forEach( ( menu: Menu ) => {
-            route( menu.filter, () => {
-                riot.mount( "div#mainView", menu.viewControllerName )
+        this.scenes.forEach( scene => {
+            route( scene.filter, () => {
+                riot.mount( "div#mainView", scene.viewControllerName )
             })
         })
     }
@@ -91,7 +91,7 @@ export default class ApplicationUseCase {
         // Decide what to mount
         let vcname: string
         if ( loc.scene() ) {
-            let filterd = this.menus.filter( menu => menu.identifier === loc.scene() )
+            let filterd = this.scenes.filter( scene => scene.identifier === loc.scene() )
             vcname = (filterd.length > 0 ) ? filterd[0].viewControllerName : "notfound_view_controller"
         } else {
             vcname = "articles_view_controller"
