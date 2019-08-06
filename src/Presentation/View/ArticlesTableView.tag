@@ -54,6 +54,9 @@ self.actionOfFavoriteButton = (event) => {
         <h1>{ article.title } </h1>
         <p>{ article.description }</p>
         <span>Read more...</span>
+        <ul class="tag-list">
+            <li each={ tagWord in article.tagList } class="tag-default tag-pill tag-outline">{ tagWord }</li>
+        </ul>
     </a>
 </div>
 
