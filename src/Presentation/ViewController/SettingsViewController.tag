@@ -12,6 +12,11 @@ var useCase = new SettingsUseCase()
 self.errors = null
 
 this.on("mount", () => {
+
+    if( useCase.isLoggedIn() === false ){
+        useCase.jumpToNotFound()
+        return
+    }
     // setup header
     self.tags.header_view.setItems( useCase.menuItems() )
 

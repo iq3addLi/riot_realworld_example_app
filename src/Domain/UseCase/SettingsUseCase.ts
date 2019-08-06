@@ -39,6 +39,10 @@ export default class SettingsUseCase {
     jumpToHome = () => {
         location.href = "/"
     }
+
+    jumpToNotFound = () => {
+        location.href = "#/notfound"
+    }
 }
 
 class SettingsState {

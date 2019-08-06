@@ -55,6 +55,10 @@ export default class EditerUseCase {
     jumpToArticleScene = (article: Article) => {
         location.href = new SPAPathBuilder("article", [article.slug]).fullPath()
     }
+
+    jumpToNotFound = () => {
+        location.href = "#/notfound"
+    }
 }
 
 class EditerState {
