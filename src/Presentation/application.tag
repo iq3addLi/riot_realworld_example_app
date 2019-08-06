@@ -5,6 +5,7 @@ import "./ViewController/EditerViewController.tag"
 import "./ViewController/SettingsViewController.tag"
 import "./ViewController/ProfileViewController.tag"
 import "./ViewController/RegisterViewController.tag"
+import "./ViewController/NotFoundViewController.tag"
 
 <application>
 

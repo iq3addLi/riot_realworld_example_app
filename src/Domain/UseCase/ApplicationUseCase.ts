@@ -5,9 +5,9 @@ import route from "riot-route"
 import SPALocation from "../../Infrastructure/SPALocation"
 
 interface Menu {
-    identifier: String
-    filter: String
-    viewControllerName: String
+    identifier: string
+    filter: string
+    viewControllerName: string
 }
 
 export default class ApplicationUseCase {
@@ -74,38 +74,30 @@ export default class ApplicationUseCase {
 
     setRoute = () => {
         route.start()
-
-        // 404
+        // Not Found
         route( () => {
-            // Show 404 Not Found
+            riot.mount( "div#mainView", "notfound_view_controller" )
         })
-
+        // Expected routing
         this.menus.forEach( ( menu: Menu ) => {
             route( menu.filter, () => {
-                riot.mount( "div#mainView", menu.viewControllerName, menu )
+                riot.mount( "div#mainView", menu.viewControllerName )
             })
         })
     }
 
     routing = () => {
-
         let loc = SPALocation.shared()
-
-        // in launch
+        // Decide what to mount
+        let vcname: string
         if ( loc.scene() ) {
-            let filterd = this.menus.filter( ( menu: Menu ) => {
-                return menu.identifier === loc.scene()
-            })
-            if ( filterd.length > 0 ) {
-                let menu = filterd[0]
-                setTimeout( () => {
-                    riot.mount( "div#mainView", menu.viewControllerName )
-                }, 5)
-            }
+            let filterd = this.menus.filter( menu => menu.identifier === loc.scene() )
+            vcname = (filterd.length > 0 ) ? filterd[0].viewControllerName : "notfound_view_controller"
         } else {
-            setTimeout( () => {
-                riot.mount( "div#mainView", "articles_view_controller" )
-            }, 5)
+            vcname = "articles_view_controller"
         }
+        setTimeout( () => {
+            riot.mount( "div#mainView", vcname )
+        }, 5)
     }
 }

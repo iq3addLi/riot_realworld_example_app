@@ -11571,6 +11571,9 @@
 
   });
 
+  riot$1.tag2('notfound_view_controller', '<div class="home-page"> <header_view></header_view> <div class="banner"> <div class="container"> <h1 class="logo-font">Your order is not found.<br>Sorry, Please back <a class="spotlink" href="/">home</a>.</h1> </div> </div> <footer_view></footer_view> </div>', 'notfound_view_controller .spotlink,[data-is="notfound_view_controller"] .spotlink{ color: white; text-decoration: underline; } notfound_view_controller .spotlink:hover,[data-is="notfound_view_controller"] .spotlink:hover{ color: white; }', '', function(opts) {
+  });
+
   /**
    * Simple client-side router
    * @module riot-route
@@ -11985,35 +11988,31 @@
           };
           this.setRoute = () => {
               route.start();
-              // 404
+              // Not Found
               route(() => {
-                  // Show 404 Not Found
+                  riot$1.mount("div#mainView", "notfound_view_controller");
               });
+              // Expected routing
               this.menus.forEach((menu) => {
                   route(menu.filter, () => {
-                      riot$1.mount("div#mainView", menu.viewControllerName, menu);
+                      riot$1.mount("div#mainView", menu.viewControllerName);
                   });
               });
           };
           this.routing = () => {
               let loc = SPALocation.shared();
-              // in launch
+              // Decide what to mount
+              let vcname;
               if (loc.scene()) {
-                  let filterd = this.menus.filter((menu) => {
-                      return menu.identifier === loc.scene();
-                  });
-                  if (filterd.length > 0) {
-                      let menu = filterd[0];
-                      setTimeout(() => {
-                          riot$1.mount("div#mainView", menu.viewControllerName);
-                      }, 5);
-                  }
+                  let filterd = this.menus.filter(menu => menu.identifier === loc.scene());
+                  vcname = (filterd.length > 0) ? filterd[0].viewControllerName : "notfound_view_controller";
               }
               else {
-                  setTimeout(() => {
-                      riot$1.mount("div#mainView", "articles_view_controller");
-                  }, 5);
+                  vcname = "articles_view_controller";
               }
+              setTimeout(() => {
+                  riot$1.mount("div#mainView", vcname);
+              }, 5);
           };
       }
   }
