@@ -1,0 +1,29 @@
+<article_tab_view>
+    
+<script>
+
+export default{
+
+    setItems( items ){
+        this.state.items = items
+        this.update()
+    },
+    actionOfClickTab(event){
+        props.didSelectTab( event.item.item )
+    },
+    navItemClassName( isActive ){
+        return "nav-link" + ( isActive ? " active" : "" )
+    }
+}
+
+</script>
+
+<div class={ props.toggle_style }>
+    <ul class="nav nav-pills outline-active">
+        <li class="nav-item" each={ item in state.items }>
+            <a class={ navItemClassName( item.isActive ) } onclick={ actionOfClickTab }>{ item.title }</a>
+        </li>
+    </ul>
+</div>
+
+</article_tab_view>

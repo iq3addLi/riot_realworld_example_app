@@ -11,7 +11,7 @@ import Settings from "../../Infrastructure/Settings"
 
 export default class ConduitProductionRepository implements ConduitRepository {
 
-    private endpoint = Settings.shared().valueForKey("endpoint")
+    private _endpoint = null
 
     login = (email: string, password: string ) => {
         return this.fetchingPromise( "/users/login", "POST", this.headers(), {"user": {"email": email, "password": password}}).then( json => User.init(json.user) )
@@ -101,8 +101,14 @@ export default class ConduitProductionRepository implements ConduitRepository {
         return this.fetchingPromise( "/tags", "GET", this.headers()).then( json => json.tags )
     }
 
-
     // Privates
+
+    private endpoint = () => {
+        if ( this._endpoint == null ) {
+            this._endpoint = Settings.shared().valueForKey("endpoint")
+        }
+        return this._endpoint
+    }
 
     private getArticleContainer = ( path: string, method: string, headers?: {[key: string]: string }) => {
         return this.fetchingPromise( path, method, headers ).then( json => new ArticleContainer( json.articlesCount, json.articles ))
@@ -158,7 +164,7 @@ export default class ConduitProductionRepository implements ConduitRepository {
         if ( headers != null ) { init["headers"] = headers }
         if ( body != null ) { init["body"] = JSON.stringify(body) }
         return new Promise<any>( async (resolve, reject) => {
-            const response = await fetch( this.endpoint + "/" + path, init)
+            const response = await fetch( this.endpoint() + "/" + path, init)
             this.evaluateResponse( response,
                 json  => { resolve( json ) },
                 error => { reject( error ) }

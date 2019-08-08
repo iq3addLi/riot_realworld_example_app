@@ -2,12 +2,14 @@
 
 <script>
 
-var self = this
-
-self.items = []
-self.setItems = (items) => {
-    self.items = items
-    self.update()
+export default {
+    setItems( items ){
+        this.state.items = items
+        this.update()
+    },
+    navItemClassName( isActive ){
+        return "nav-link" + ( isActive ? " active" : "" )
+    }
 }
 
 </script>
@@ -18,17 +20,14 @@ self.setItems = (items) => {
 }
 </style>
 
-<!-- Header -->
 <nav class="navbar navbar-light">
     <div class="container">
 
-        <!-- Logo -->
         <a class="navbar-brand" href="/">conduit</a>
 
-        <!-- Menus -->
         <ul class="nav navbar-nav pull-xs-right">
-            <li each={ item in items } class="nav-item">
-                <a class={ nav-link: true, active: item.isActive } href={ item.href }>
+            <li each={ item in state.items } class="nav-item">
+                <a class={ navItemClassName(item.isActive) } href={ item.href }>
                     &nbsp;
                     <i if={ item.icon !== null } class={ item.icon }></i>
                     <img if={ item.image !== null } class="user-pic" src={ item.image }>

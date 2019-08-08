@@ -1,8 +1,11 @@
-import riot from "riot"
+import { mount, register } from "riot"
 import route from "riot-route"
 
 import Settings from "../../Infrastructure/Settings"
 import SPALocation from "../../Infrastructure/SPALocation"
+
+// Riot components
+import Articles from "../../Presentation/ViewController/Articles.riot"
 
 interface Scene {
     identifier: string
@@ -23,7 +26,7 @@ export default class ApplicationUseCase {
         }, {
             identifier : "articles",
             filter : "/articles..",
-            viewControllerName : "articles_view_controller"
+            viewControllerName : "articles"
         }, {
             identifier : "article",
             filter : "/article..",
@@ -43,7 +46,7 @@ export default class ApplicationUseCase {
         }, {
             identifier : "",
             filter : "/",
-            viewControllerName : "articles_view_controller"
+            viewControllerName : "articles"
         }
     ]
 
@@ -64,6 +67,10 @@ export default class ApplicationUseCase {
         .then( () => {
             // set title
             document.title = Settings.shared().valueForKey("title")
+
+            // register view controllers
+            register("articles", Articles)
+
             completion(null)
         })
         .catch((error) => {
@@ -76,12 +83,12 @@ export default class ApplicationUseCase {
         route.start()
         // Not Found
         route( () => {
-            riot.mount( "div#mainView", "notfound_view_controller" )
+            mount( "div#mainView", null, "notfound_view_controller" )
         })
         // Expected routing
         this.scenes.forEach( scene => {
             route( scene.filter, () => {
-                riot.mount( "div#mainView", scene.viewControllerName )
+                mount( "div#mainView", null, scene.viewControllerName )
             })
         })
     }
@@ -94,10 +101,10 @@ export default class ApplicationUseCase {
             let filterd = this.scenes.filter( scene => scene.identifier === loc.scene() )
             vcname = (filterd.length > 0 ) ? filterd[0].viewControllerName : "notfound_view_controller"
         } else {
-            vcname = "articles_view_controller"
+            vcname = "articles"
         }
         setTimeout( () => {
-            riot.mount( "div#mainView", vcname )
+            mount( "div#mainView", null, vcname )
         }, 5)
     }
 }

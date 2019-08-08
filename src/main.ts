@@ -2,10 +2,23 @@
 import "fetch-polyfill"
 
 // Import Framework
-import riot from "riot"
+import { component, install } from "riot"
 
 // Import application with riot
-import "./Presentation/application.tag"
+import application from "./Presentation/application.riot"
 
-// Launch Application
-riot.mount("application")
+// Install plugin
+// install((component) => {
+//     const { onBeforeMount } = component
+//     component.onBeforeMount = (props, state) => {
+//         if (props["ref"]) {
+//             props["ref"](component)
+//         }
+//         onBeforeMount.apply(component, [props, state])
+//     }
+//     return component
+// })
+
+// Start Application
+component(application)( document.getElementById("application") )
+
