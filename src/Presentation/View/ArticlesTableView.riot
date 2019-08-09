@@ -2,42 +2,19 @@
 
 <script>
 
-// var self = this
-
-// self.articles = []
-// self.setArticles = ( articles ) => {
-//     self.articles = articles
-//     self.update()
-// }
-
-// self.didSelectProfile  = () => {}
-// self.actionOfClickProfile  = (event) => {
-//     self.didSelectProfile ( event.item.article.author )
-// }
-
-// self.didSelectArticle = () => {}
-// self.actionOfClickArticle = (event) => {
-//     self.didSelectArticle( event.item.article )
-// }
-
-// self.didFavorite = () => {}
-// self.actionOfFavoriteButton = (event) => {
-//     self.didFavorite( event.item.article )
-// }
-
 export default{
     setArticles( articles ){
         this.state.articles = articles
         this.update()
     },
-    actionOfClickProfile(event){
-        this.props.didSelectProfile ( event.item.article.author )
+    actionOfClickProfile(author){
+        if( this.props.didSelectProfile ) { this.props.didSelectProfile ( author ) }
     },
-    actionOfClickArticle(event){
-        this.props.didSelectArticle( event.item.article )
+    actionOfClickArticle(article){
+        if( this.props.didSelectArticle ) { this.props.didSelectArticle( article ) }
     },
-    actionOfFavoriteButton(event){
-        this.props.didFavoriteArticle( event.item.article )
+    actionOfFavoriteButton(article){
+        if( this.props.didFavoriteArticle ) { this.props.didFavoriteArticle( article ) }
     },
     favoriteButtonClassName( favorited ){
         return "btn btn-sm pull-xs-right" + ( favorited ? " btn-primary" : " btn-outline-primary" )
@@ -62,14 +39,14 @@ export default{
     <div class="article-meta">
         <a onclick={ actionOfClickProfile  }><img src={ article.author.image } /></a>
         <div class="info">
-            <a class="author author-link" onclick={ actionOfClickProfile  }>{ article.author.username }</a>
+            <a class="author author-link" onclick={ () => actionOfClickProfile( article.author ) }>{ article.author.username }</a>
             <span class="date">January 20th</span>
         </div>
-        <button onclick={ actionOfFavoriteButton } class={ favoriteButtonClassName(article.favorited) }>
+        <button onclick={ () => actionOfFavoriteButton(article) } class={ favoriteButtonClassName(article.favorited) }>
         <i class="ion-heart"></i> { article.favoritesCount }
         </button>
     </div>
-    <a class="preview-link" onclick={ actionOfClickArticle }>
+    <a class="preview-link" onclick={ () => actionOfClickArticle( article ) }>
         <h1>{ article.title } </h1>
         <p>{ article.description }</p>
         <span>Read more...</span>

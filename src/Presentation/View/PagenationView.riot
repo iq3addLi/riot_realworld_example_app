@@ -4,7 +4,7 @@
 
 export default{
 
-    onMount(_, state){
+    onBeforeMount(_, state){
         state.countOfPage = 1
         state.shownPage = 1
     },
@@ -12,8 +12,8 @@ export default{
         this.state.countOfPage = count === null ? 0 : count
         this.update()
     },
-    actionOfClickPageLink( event ){
-        this.props.didSelectPageNumber( event.item.page )
+    actionOfClickPageLink( page ){
+        if (this.props.didSelectPageNumber) { this.props.didSelectPageNumber( page ) }
     },
     arrayOfPageNumber(){
         return [...Array(this.state.countOfPage).keys()].map(i => ++i)
@@ -27,7 +27,7 @@ export default{
 
 <ul class="pagination">
     <li each={ page in arrayOfPageNumber() } class={ pageItemClassName( page ) }>
-        <a class="page-link" onclick={ actionOfClickPageLink }>{ page }</a>
+        <a class="page-link" onclick={ () => actionOfClickPageLink(page) }>{ page }</a>
     </li>
 </ul>
 

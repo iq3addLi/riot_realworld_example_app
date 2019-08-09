@@ -4037,17 +4037,17 @@
 
     'template': function(template, expressionTypes, bindingTypes, getComponent) {
       return template(
-        '<nav class="navbar navbar-light"><div class="container"><a class="navbar-brand" href="/">conduit</a><ul class="nav navbar-nav pull-xs-right"><li expr1 class="nav-item"></li></ul></div></nav>',
+        '<nav class="navbar navbar-light"><div class="container"><a class="navbar-brand" href="/">conduit</a><ul class="nav navbar-nav pull-xs-right"><li expr13 class="nav-item"></li></ul></div></nav>',
         [{
           'type': bindingTypes.EACH,
           'getKey': null,
           'condition': null,
 
           'template': template(
-            '<a expr2>\n                    &nbsp;\n                    <i expr3></i><img expr4 class="user-pic"/><!----></a>',
+            '<a expr14>\n                    &nbsp;\n                    <i expr15></i><img expr16 class="user-pic"/><!----></a>',
             [{
-              'redundantAttribute': 'expr2',
-              'selector': '[expr2]',
+              'redundantAttribute': 'expr14',
+              'selector': '[expr14]',
 
               'expressions': [{
                 'type': expressionTypes.TEXT,
@@ -4078,8 +4078,8 @@
                 return scope.item.icon !== null;
               },
 
-              'redundantAttribute': 'expr3',
-              'selector': '[expr3]',
+              'redundantAttribute': 'expr15',
+              'selector': '[expr15]',
 
               'template': template(null, [{
                 'expressions': [{
@@ -4098,8 +4098,8 @@
                 return scope.item.image !== null;
               },
 
-              'redundantAttribute': 'expr4',
-              'selector': '[expr4]',
+              'redundantAttribute': 'expr16',
+              'selector': '[expr16]',
 
               'template': template(null, [{
                 'expressions': [{
@@ -4114,8 +4114,8 @@
             }]
           ),
 
-          'redundantAttribute': 'expr1',
-          'selector': '[expr1]',
+          'redundantAttribute': 'expr13',
+          'selector': '[expr13]',
           'itemName': 'item',
           'indexName': null,
 
@@ -4183,8 +4183,8 @@
           this.update();
       },
 
-      actionOfClickTab(event){
-          props.didSelectTab( event.item.item );
+      actionOfClickTab(item){
+          if ( this.props.didSelectTab ) { this.props.didSelectTab( item ); }
       },
 
       navItemClassName( isActive ){
@@ -4194,10 +4194,10 @@
 
     'template': function(template, expressionTypes, bindingTypes, getComponent) {
       return template(
-        '<div expr14><ul class="nav nav-pills outline-active"><li expr15 class="nav-item"></li></ul></div>',
+        '<div expr1><ul class="nav nav-pills outline-active"><li expr2 class="nav-item"></li></ul></div>',
         [{
-          'redundantAttribute': 'expr14',
-          'selector': '[expr14]',
+          'redundantAttribute': 'expr1',
+          'selector': '[expr1]',
 
           'expressions': [{
             'type': expressionTypes.ATTRIBUTE,
@@ -4212,9 +4212,9 @@
           'getKey': null,
           'condition': null,
 
-          'template': template('<a expr16><!----></a>', [{
-            'redundantAttribute': 'expr16',
-            'selector': '[expr16]',
+          'template': template('<a expr3><!----></a>', [{
+            'redundantAttribute': 'expr3',
+            'selector': '[expr3]',
 
             'expressions': [{
               'type': expressionTypes.TEXT,
@@ -4235,13 +4235,13 @@
               'name': 'onclick',
 
               'evaluate': function(scope) {
-                return scope.actionOfClickTab;
+                return () => scope.actionOfClickTab( scope.item );
               }
             }]
           }]),
 
-          'redundantAttribute': 'expr15',
-          'selector': '[expr15]',
+          'redundantAttribute': 'expr2',
+          'selector': '[expr2]',
           'itemName': 'item',
           'indexName': null,
 
@@ -4264,16 +4264,16 @@
           this.update();
       },
 
-      actionOfClickProfile(event){
-          this.props.didSelectProfile ( event.item.article.author );
+      actionOfClickProfile(author){
+          if( this.props.didSelectProfile ) { this.props.didSelectProfile ( author ); }
       },
 
-      actionOfClickArticle(event){
-          this.props.didSelectArticle( event.item.article );
+      actionOfClickArticle(article){
+          if( this.props.didSelectArticle ) { this.props.didSelectArticle( article ); }
       },
 
-      actionOfFavoriteButton(event){
-          this.props.didFavoriteArticle( event.item.article );
+      actionOfFavoriteButton(article){
+          if( this.props.didFavoriteArticle ) { this.props.didFavoriteArticle( article ); }
       },
 
       favoriteButtonClassName( favorited ){
@@ -4282,16 +4282,16 @@
     },
 
     'template': function(template, expressionTypes, bindingTypes, getComponent) {
-      return template('<div expr5 class="article-preview"></div>', [{
+      return template('<div expr4 class="article-preview"></div>', [{
         'type': bindingTypes.EACH,
         'getKey': null,
         'condition': null,
 
         'template': template(
-          '<div class="article-meta"><a expr6><img expr7/></a><div class="info"><a expr8 class="author author-link"><!----></a><span class="date">January 20th</span></div><button expr9><i class="ion-heart"></i><!----></button></div><a expr10 class="preview-link"><h1 expr11><!----></h1><p expr12><!----></p><span>Read more...</span><ul class="tag-list"><li expr13 class="tag-default tag-pill tag-outline"></li></ul></a>',
+          '<div class="article-meta"><a expr5><img expr6/></a><div class="info"><a expr7 class="author author-link"><!----></a><span class="date">January 20th</span></div><button expr8><i class="ion-heart"></i><!----></button></div><a expr9 class="preview-link"><h1 expr10><!----></h1><p expr11><!----></p><span>Read more...</span><ul class="tag-list"><li expr12 class="tag-default tag-pill tag-outline"></li></ul></a>',
           [{
-            'redundantAttribute': 'expr6',
-            'selector': '[expr6]',
+            'redundantAttribute': 'expr5',
+            'selector': '[expr5]',
 
             'expressions': [{
               'type': expressionTypes.EVENT,
@@ -4302,8 +4302,8 @@
               }
             }]
           }, {
-            'redundantAttribute': 'expr7',
-            'selector': '[expr7]',
+            'redundantAttribute': 'expr6',
+            'selector': '[expr6]',
 
             'expressions': [{
               'type': expressionTypes.ATTRIBUTE,
@@ -4314,8 +4314,8 @@
               }
             }]
           }, {
-            'redundantAttribute': 'expr8',
-            'selector': '[expr8]',
+            'redundantAttribute': 'expr7',
+            'selector': '[expr7]',
 
             'expressions': [{
               'type': expressionTypes.TEXT,
@@ -4329,12 +4329,12 @@
               'name': 'onclick',
 
               'evaluate': function(scope) {
-                return scope.actionOfClickProfile;
+                return () => scope.actionOfClickProfile( scope.article.author );
               }
             }]
           }, {
-            'redundantAttribute': 'expr9',
-            'selector': '[expr9]',
+            'redundantAttribute': 'expr8',
+            'selector': '[expr8]',
 
             'expressions': [{
               'type': expressionTypes.TEXT,
@@ -4348,7 +4348,7 @@
               'name': 'onclick',
 
               'evaluate': function(scope) {
-                return scope.actionOfFavoriteButton;
+                return () => scope.actionOfFavoriteButton(scope.article);
               }
             }, {
               'type': expressionTypes.ATTRIBUTE,
@@ -4359,20 +4359,20 @@
               }
             }]
           }, {
-            'redundantAttribute': 'expr10',
-            'selector': '[expr10]',
+            'redundantAttribute': 'expr9',
+            'selector': '[expr9]',
 
             'expressions': [{
               'type': expressionTypes.EVENT,
               'name': 'onclick',
 
               'evaluate': function(scope) {
-                return scope.actionOfClickArticle;
+                return () => scope.actionOfClickArticle( scope.article );
               }
             }]
           }, {
-            'redundantAttribute': 'expr11',
-            'selector': '[expr11]',
+            'redundantAttribute': 'expr10',
+            'selector': '[expr10]',
 
             'expressions': [{
               'type': expressionTypes.TEXT,
@@ -4383,8 +4383,8 @@
               }
             }]
           }, {
-            'redundantAttribute': 'expr12',
-            'selector': '[expr12]',
+            'redundantAttribute': 'expr11',
+            'selector': '[expr11]',
 
             'expressions': [{
               'type': expressionTypes.TEXT,
@@ -4410,8 +4410,8 @@
               }]
             }]),
 
-            'redundantAttribute': 'expr13',
-            'selector': '[expr13]',
+            'redundantAttribute': 'expr12',
+            'selector': '[expr12]',
             'itemName': 'tagWord',
             'indexName': null,
 
@@ -4421,8 +4421,8 @@
           }]
         ),
 
-        'redundantAttribute': 'expr5',
-        'selector': '[expr5]',
+        'redundantAttribute': 'expr4',
+        'selector': '[expr4]',
         'itemName': 'article',
         'indexName': null,
 
@@ -4447,7 +4447,7 @@
 
     'template': function(template, expressionTypes, bindingTypes, getComponent) {
       return template(
-        '<div class="sidebar"><p>Popular Tags</p><div class="tag-list"><a expr19 class="tag-pill tag-default"></a></div></div>',
+        '<div class="sidebar"><p>Popular Tags</p><div class="tag-list"><a expr17 class="tag-pill tag-default"></a></div></div>',
         [{
           'type': bindingTypes.EACH,
           'getKey': null,
@@ -4471,8 +4471,8 @@
             }]
           }]),
 
-          'redundantAttribute': 'expr19',
-          'selector': '[expr19]',
+          'redundantAttribute': 'expr17',
+          'selector': '[expr17]',
           'itemName': 'tag',
           'indexName': null,
 
@@ -4490,7 +4490,7 @@
     'css': null,
 
     'exports': {
-      onMount(_, state){
+      onBeforeMount(_, state){
           state.countOfPage = 1;
           state.shownPage = 1;
       },
@@ -4500,8 +4500,8 @@
           this.update();
       },
 
-      actionOfClickPageLink( event ){
-          this.props.didSelectPageNumber( event.item.page );
+      actionOfClickPageLink( page ){
+          if (this.props.didSelectPageNumber) { this.props.didSelectPageNumber( page ); }
       },
 
       arrayOfPageNumber(){
@@ -4514,12 +4514,12 @@
     },
 
     'template': function(template, expressionTypes, bindingTypes, getComponent) {
-      return template('<ul class="pagination"><li expr17></li></ul>', [{
+      return template('<ul class="pagination"><li expr18></li></ul>', [{
         'type': bindingTypes.EACH,
         'getKey': null,
         'condition': null,
 
-        'template': template('<a expr18 class="page-link"><!----></a>', [{
+        'template': template('<a expr19 class="page-link"><!----></a>', [{
           'expressions': [{
             'type': expressionTypes.ATTRIBUTE,
             'name': 'class',
@@ -4529,8 +4529,8 @@
             }
           }]
         }, {
-          'redundantAttribute': 'expr18',
-          'selector': '[expr18]',
+          'redundantAttribute': 'expr19',
+          'selector': '[expr19]',
 
           'expressions': [{
             'type': expressionTypes.TEXT,
@@ -4544,13 +4544,13 @@
             'name': 'onclick',
 
             'evaluate': function(scope) {
-              return scope.actionOfClickPageLink;
+              return () => scope.actionOfClickPageLink(scope.page);
             }
           }]
         }]),
 
-        'redundantAttribute': 'expr17',
-        'selector': '[expr17]',
+        'redundantAttribute': 'expr18',
+        'selector': '[expr18]',
         'itemName': 'page',
         'indexName': null,
 
