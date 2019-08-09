@@ -1,0 +1,68 @@
+<comment_table_view>
+
+<script>
+import { component } from "riot"
+import moment from "moment"
+import MarkdownView from "./MarkdownView.riot"
+export default{
+    onUpdated(){
+        let bodyFields = this.$$("div.comment_body_view")
+        if (bodyFields){
+            bodyFields.forEach( field => {
+                component(MarkdownView)( field, { body: field.attributes["body"].value } )
+            })
+        }
+    },
+    setLoggedUserProfile( profile ){
+        this.state.loggedUserProfile = profile
+        this.update()
+    },
+    setComments( comments ){
+        this.state.comments = comments
+        this.update()
+    },
+    formattedDate( date ){
+        return moment( date ).format("MMMM DD, YYYY"); 
+    },
+    actionOfTrashButton( commentId ){
+        if (this.props.didDeleteHandler) { this.props.didDeleteHandler() }
+    },
+    isDeletable( comment ){
+        return comment.author.username == ( this.state.loggedUserProfile ? this.state.loggedUserProfile.username : false )
+    }
+}
+
+</script>
+
+<div class="card" each={ comment in state.comments }>
+
+    <!-- comment body -->
+    <div class="card-block">
+        <p class="card-text">
+            <div class="comment_body_view" body={ comment.body }/>
+        </p>
+    </div>
+
+    <!-- comment footer -->
+    <div class="card-footer">
+
+        <!-- comment author infomation -->
+        <a href={ "#/profile/" + comment.author.username } class="comment-author">
+            <img src={ comment.author.image } class="comment-author-img" />
+        </a>
+        &nbsp;
+        <a href={ "#/profile/" + comment.author.username } class="comment-author">
+            { comment.author.username }
+        </a>
+        <span class="date-posted">{ formattedDate( comment.createdAt ) }</span>
+
+        <!-- comment controls -->
+        <template if={ isDeletable( comment ) }>
+            <span class="mod-options">
+                <i onclick={ () => actionOfTrashButton( comment.id ) } class="ion-trash-a"></i>
+            </span>
+        </template>
+    </div>
+</div>
+
+</comment_table_view>

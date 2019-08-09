@@ -1,0 +1,28 @@
+<article_view>
+
+<script>
+
+import { component } from "riot"
+import MarkdownView from "./MarkdownView.riot"
+export default{
+    onUpdated(){
+        let bodyField = this.$("div#article_body_field")
+        if (bodyField){
+            component(MarkdownView)( bodyField, { body: this.state.article.body } )
+        }
+    },
+    setArticle( article ){
+        this.state.article = article
+        this.update()
+    }
+}
+</script>
+
+<template if={ state.article != null }>
+    <div id="article_body_field" />
+    <ul class="tag-list">
+        <li each={ tagWord in state.article.tagList } class="tag-default tag-pill tag-outline">{ tagWord }</li>
+    </ul>
+</template>
+
+</article_view>

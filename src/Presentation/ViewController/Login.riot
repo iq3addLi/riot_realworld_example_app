@@ -1,0 +1,78 @@
+<login>
+
+<script>
+import { component } from "riot"
+import LoginViewController from "./LoginViewController"
+
+import HeaderView from "../../Presentation/View/HeaderView.riot"
+import FooterView from "../../Presentation/View/FooterView.riot"
+
+export default{
+    onBeforeMount() {
+        // set owner
+        let vc = new LoginViewController()
+        this.owner = vc
+        // Connect outlet
+        vc.view = this
+        // Call lifecycle
+        vc.viewWillAppear()
+    },
+    onMounted(){
+        // Mount child components and Connect action
+        let headerView = component(HeaderView)( this.$("div#header_view") )
+        component(FooterView)( this.$("div#footer_view") ) 
+
+        // Connect outlet
+        this.owner.headerView = headerView
+
+        // Call lifecycle
+        this.owner.viewDidAppear()
+    },
+    actionOfSubmitButton(){
+        this.owner.login( this.$("#emailField").value, this.$("#passwordField").value )
+    },
+    shouldSubmit(){
+        this.$("#submitButton").disabled = ( this.$("#emailField").value.length == 0 || this.$("#passwordField").value.length == 0 )
+    },
+    setErrorMessages( messages ){
+        this.state.errorMessages = messages
+        this.update()
+    }
+}
+
+</script>
+
+<div id="header_view"/>
+
+<div class="auth-page">
+    <div class="container page">
+        <div class="row">
+    
+        <div class="col-md-6 offset-md-3 col-xs-12">
+            <h1 class="text-xs-center">Sign In</h1>
+            <p class="text-xs-center">
+            <a href="#/register">Need an account?</a>
+            </p>
+    
+            <ul if={ state.errorMessages != null } class="error-messages">
+                <li each={ message in state.errorMessages }>{ message }</li>
+            </ul>
+    
+            <fieldset class="form-group">
+                <input id="emailField" class="form-control form-control-lg" type="text" placeholder="Email" oninput={ shouldSubmit }>
+            </fieldset>
+            <fieldset class="form-group">
+                <input id="passwordField" class="form-control form-control-lg" type="password" placeholder="Password" oninput={ shouldSubmit }>
+            </fieldset>
+            <button id="submitButton" class="btn btn-lg btn-primary pull-xs-right" onclick={ actionOfSubmitButton } disabled>
+                Sign in
+            </button>
+        </div>
+    
+        </div>
+    </div>
+</div>
+
+<div id="footer_view"/>
+
+</login>

@@ -1,0 +1,17 @@
+<!-- markdown by marked -->
+<markdown_view>
+<script>
+import marked from "marked"
+export default{
+    onMounted(props){
+        this.setBody( props.body )
+    },
+    onUpdated(props){
+        this.setBody( props.body )
+    },
+    setBody( body ){
+        this.root.innerHTML = body ? marked( body ) : ""
+    }
+}
+</script>
+</markdown_view>

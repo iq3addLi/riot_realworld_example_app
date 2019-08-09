@@ -1,0 +1,43 @@
+<notfound>
+
+<script>
+import { component } from "riot"
+
+import HeaderView from "../../Presentation/View/HeaderView.riot"
+import FooterView from "../../Presentation/View/FooterView.riot"
+
+export default{
+    onMounted(){
+        // Mount child components
+        component(HeaderView)( this.$("div#header_view") )
+        component(FooterView)( this.$("div#footer_view") )
+    }
+}
+</script>
+
+<style>
+.spotlink{
+    color: white;
+    text-decoration: underline;
+}
+.spotlink:hover{
+    color: white;
+}
+</style>
+
+<div class="home-page">
+    <!-- Header -->
+    <div id="header_view" />
+
+    <!-- Banner -->
+    <div class="banner">
+        <div class="container">
+            <h1 class="logo-font">Your order is not found.<br/>Sorry, Please back <a class="spotlink" href="/">home</a>.</h1>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div id="footer_view" />
+</div>
+
+</notfound>

@@ -1,0 +1,81 @@
+<article_widget_view>
+
+<script>
+
+import moment from "moment"
+export default{
+
+    setLoggedUserProfile( profile ){
+        this.state.loggedUserProfile = profile
+        this.update()
+    },
+    setArticle( article ){
+        this.state.article = article
+        this.update()
+    },
+    formattedDate( date ){
+        return moment( date ).format("MMMM DD, YYYY")
+    },
+    isOwnArticle(){
+        let profile = this.state.loggedUserProfile
+        let article = this.state.article
+        if ( profile == null || article == null ) return false
+        return profile.username === article.author.username
+    },
+    followButtonClassName( article ){
+        return "btn btn-sm" + (article.author.following ? " btn-secondary" : " btn-outline-secondary")
+    },
+    favoriteButtonClassName( article ){
+        return "btn btn-sm" + (article.author.following ? " btn-primary" : " btn-outline-primary")
+    },
+    actionOfFollowButton(){
+        if ( this.didFollowHandler ){ this.didFollowHandler() }
+    },
+    actionOfFavoriteButton(){
+        if ( this.didFavoriteHandler ){ this.didFavoriteHandler() }
+    },
+    actionOfEditingButton(){
+        if ( this.didEditingHandler ){ this.didEditingHandler() }
+    },
+    actionOfDeleteButton(){
+        if ( this.didDeleteHandler ){ this.didDeleteHandler() }
+    }
+}
+</script>
+
+<div class="article-meta" if={ state.article != null }>
+
+    <!-- infomation of article author -->
+    <a href={ "#/profile/" + state.article.author.username }><img src={ state.article.author.image } /></a>
+    <div class="info">
+        <a href={ "#/profile/" + state.article.author.username } class="author">{ state.article.author.username }</a>
+        <span class="date">{ formattedDate( state.article.createdAt ) }</span>
+    </div>
+
+    <!-- follow or favorite to other user -->
+    <template if={ isOwnArticle() == false }>
+        <button onclick={ actionOfFollowButton } class={ followButtonClassName( state.article ) }>
+            <i class="ion-plus-round"></i>
+            { (state.article.author.following ? "Unfollow" : "Follow") + " " + state.article.author.username }
+        </button>
+        &nbsp;
+        <button onclick={ actionOfFavoriteButton } class={ favoriteButtonClassName( state.article ) }>
+            <i class="ion-heart"></i> 
+            { (state.article.favorited ? "Unfavorite" : "Favorite") + " Article" } 
+            <span class="counter">({ state.article.favoritesCount })</span>
+        </button>
+    </template>
+
+    <!-- update or delete to the article -->
+    <template if={ isOwnArticle() }>
+        <button onclick={ actionOfEditingButton } class="btn btn-sm btn-outline-secondary">
+            <i class="ion-edit"></i> Edit Article
+        </button>
+        &nbsp;
+        <button onclick={ actionOfDeleteButton } class="btn btn-sm btn-outline-danger">
+            <i class="ion-trash-a"></i> Delete Article
+        </button>
+    </template>
+</div>
+
+</article_widget_view>

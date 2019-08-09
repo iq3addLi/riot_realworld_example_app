@@ -1,0 +1,44 @@
+<comment_form_view>
+
+<script>
+
+export default{
+    setProfile( profile ){
+        this.state.profile = profile
+        this.update()
+    },
+    actionOfPostCommentButton(){
+        let comment = this.$("textarea#commentArea").value
+        if( this.props.didSubmitHandler ){ this.props.didSubmitHandler( comment ) }
+    },
+    clearComment(){
+        this.$("textarea#commentArea").value = ""
+    }
+}
+</script>
+
+
+<form class="card comment-form">
+
+    <!-- comment form -->
+    <div class="card-block">
+        <textarea id="commentArea" class="form-control" placeholder="Write a comment..." rows="3"></textarea>
+    </div>
+
+    <!-- comment footer -->
+    <div class="card-footer">
+
+        <!-- logged user icon -->
+        <template if={ state.profile != null }>
+            <img src={ state.profile.image } class="comment-author-img" />
+        </template>
+
+        <!-- submit button -->
+        <button onclick={ actionOfPostCommentButton } type="button" class="btn btn-sm btn-primary">
+        Post Comment
+        </button>
+    </div>
+    
+</form>
+
+</comment_form_view>

@@ -1,0 +1,43 @@
+<profile_view>
+    
+<script>
+
+export default{
+    onBeforeMount(_,state){
+        state.profile = null
+        state.isLoggedIn = false
+        state.isOwn = false
+    },
+    setProfile( profile, isLoggedIn, isOwn ){
+        this.state.profile = profile
+        this.state.isLoggedIn = isLoggedIn
+        this.state.isOwn = isOwn
+        this.update()
+    },
+    buttonTitle(){
+        let prof = this.state.profile
+        if ( this.state.isOwn == true ){
+            return "Edit Profile Settings"
+        }else{
+            return ( prof.following ? "Unfollow" : "Follow" ) + " " + prof.username
+        }
+    },
+    actionOfProfileButton() {
+        if ( this.props.didClickButtonHandler ) { this.props.didClickButtonHandler( this.state.isOwn ) }
+    }
+}
+</script>
+
+<template if={ state.profile !== null }>
+    
+    <img src={ state.profile.image } class="user-img" />
+    <h4>{ state.profile.username }</h4>
+    <p>{ state.profile.bio }</p>
+
+    <button onclick={ actionOfProfileButton } class={ "btn btn-sm action-btn" + ( state.profile.following ? " btn-secondary" : " btn-outline-secondary" ) }>
+        <i class={ isOwn === true ? "ion-gear-a" : "ion-plus-round" }></i> { buttonTitle() }
+    </button>
+
+</template>
+
+</profile_view>

@@ -1,0 +1,86 @@
+<register>
+
+<script>
+
+import { component } from "riot"
+import RegisterViewController from "./RegisterViewController"
+
+import HeaderView from "../../Presentation/View/HeaderView.riot"
+import FooterView from "../../Presentation/View/FooterView.riot"
+
+export default{
+    onBeforeMount() {
+        // set owner
+        let vc = new RegisterViewController()
+        this.owner = vc
+        // Connect outlet
+        vc.view = this
+        // Call lifecycle
+        vc.viewWillAppear()
+    },
+    shouldSubmit(){
+        this.$("#submitButton").disabled = ( 
+            this.$("#usernameField").value.length == 0 || 
+            this.$("#emailField").value.length == 0 ||
+            this.$("#passwordField").value.length == 0
+        )
+    },
+    onMounted(){
+        // Mount child components and Connect action
+        let headerView = component(HeaderView)( this.$("div#header_view") )
+        component(FooterView)( this.$("div#footer_view") ) 
+
+        // Connect outlet
+        this.owner.headerView = headerView
+
+        // Call lifecycle
+        this.owner.viewDidAppear()
+    },
+    actionOfSubmitButton(){
+        this.owner.register( this.$("#usernameField").value, this.$("#emailField").value, this.$("#passwordField").value )
+    },
+    setErrorMessages( messages ){
+        this.state.errorMessages = messages
+        this.update()
+    }
+}
+</script>
+    
+<div id="header_view" />
+    
+<div class="auth-page">
+    <div class="container page">
+        <div class="row">
+    
+        <div class="col-md-6 offset-md-3 col-xs-12">
+            <h1 class="text-xs-center">Sign Up</h1>
+            <p class="text-xs-center">
+            <a href="#/login">Have an account?</a>
+            </p>
+    
+
+            <ul if={ state.errorMessages != null } class="error-messages">
+                <li each={ message in state.errorMessages }>{ message }</li>
+            </ul>
+
+            <fieldset class="form-group">
+                <input id="usernameField" class="form-control form-control-lg" type="text" placeholder="Username" oninput={ shouldSubmit }>
+            </fieldset>
+            <fieldset class="form-group">
+                <input id="emailField" class="form-control form-control-lg" type="text" placeholder="Email" oninput={ shouldSubmit }>
+            </fieldset>
+            <fieldset class="form-group">
+                <input id="passwordField" class="form-control form-control-lg" type="password" placeholder="Password" oninput={ shouldSubmit }>
+            </fieldset>
+            <button id="submitButton" class="btn btn-lg btn-primary pull-xs-right" onclick={ actionOfSubmitButton } disabled>
+                Sign up
+            </button>
+        </div>
+    
+        </div>
+    </div>
+</div>
+
+<div id="footer_view" />
+
+</register>
