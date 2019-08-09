@@ -1,0 +1,34 @@
+<pagenation_view>
+
+<script>
+
+export default{
+
+    onMount(_, state){
+        state.countOfPage = 1
+        state.shownPage = 1
+    },
+    setCountOfPage( count ){
+        this.state.countOfPage = count === null ? 0 : count
+        this.update()
+    },
+    actionOfClickPageLink( event ){
+        this.props.didSelectPageNumber( event.item.page )
+    },
+    arrayOfPageNumber(){
+        return [...Array(this.state.countOfPage).keys()].map(i => ++i)
+    },
+    pageItemClassName( page ){
+        return "page-item " + ( page === this.state.shownPage ? " active" : "" )
+    }
+
+}
+</script>
+
+<ul class="pagination">
+    <li each={ page in arrayOfPageNumber() } class={ pageItemClassName( page ) }>
+        <a class="page-link" onclick={ actionOfClickPageLink }>{ page }</a>
+    </li>
+</ul>
+
+</pagenation_view>

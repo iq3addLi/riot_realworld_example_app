@@ -1,5 +1,13 @@
 <banner_view>
-    
+
+<script>
+export default{
+    setVisible( visible ){
+        this.state.isVisible = visible
+        this.update()
+    }
+}
+</script>
 <style>
 .spotlink{
     color: white;
@@ -10,7 +18,7 @@
 }
 </style>
 
-<div class="banner">
+<div class="banner" if={ state.isVisible }>
     <div class="container">
         <h1 class="logo-font">conduit</h1>
         <p>A place to share your <a class="spotlink" href="https://v3.riotjs.now.sh" target="blank">RIOT</a> knowledge.</p>

@@ -1,72 +1,7 @@
-<!--
-import "../View/HeaderView.tag"
-import "../View/FooterView.tag"
-import "../View/BannerView.tag"
-import "../View/ArticleTabView.tag"
-import "../View/ArticlesTableView.tag"
-import "../View/TagsView.tag"
-import "../View/PagenationView.tag"
--->
-
 <articles>
 
 <script>
     
-// import ArticlesUseCase from "../../Domain/UseCase/ArticlesUseCase"
-
-// var self = this
-// var useCase = new ArticlesUseCase()
-
-// this.on("mount", () => {
-
-//     // setup header
-//     self.tags.header_view.setItems( useCase.menuItems() )
-
-//     // request articles
-//     useCase.requestArticles().then( (container) => {
-//         self.tags.articles_table_view.setArticles( container.articles )
-
-//         // setup pagenation
-//         self.tags.pagenation_view.shownPage = useCase.currentPage()
-//         self.tags.pagenation_view.setCountOfPage( useCase.pageCount() )
-//     })
-//     // request tagList
-//     useCase.requestTags().then( (tags) => {
-//         self.tags.tags_view.setTagWords( tags ) // note: riot.tags are undefined from the promise function
-//         self.tags.tags_view.update()
-//     })
-
-//     // setup article tab
-//     self.tags.article_tab_view.setItems( useCase.tabItems() )
-
-//     // setup view action handler
-//     self.tags.pagenation_view.didSelectPageNumber = (page) => {
-//         useCase.jumpPage(page)
-//     }
-//     self.tags.article_tab_view.didSelectTab = (item) => {
-//         useCase.jumpToSubPath(item.identifier)
-//     }
-//     self.tags.articles_table_view.didSelectArticle = (article) => {
-//         useCase.jumpToArticleScene(article)
-//     }
-//     self.tags.articles_table_view.didSelectProfile = (profile) => {
-//         useCase.jumpToProfileScene (profile)
-//     }
-
-//     // From here only logged-in
-//     if ( useCase.isLoggedIn() == false ){ return }
-
-//     self.tags.articles_table_view.didFavorite = (article) => {
-//         useCase.toggleFavorite(article).then( articles => {
-//             if ( articles === null ) return
-//             self.tags.articles_table_view.setArticles( articles )
-//         }) 
-//     }
-// })
-
-// self.isLoggedIn = () => {
-//     return useCase.isLoggedIn()
-// }
 import { register, component } from "riot"
 import ArticlesViewController from "./ArticlesViewController"
 
@@ -75,6 +10,8 @@ import FooterView from "../../Presentation/View/FooterView.riot"
 import BannerView from "../../Presentation/View/BannerView.riot"
 import ArticleTabView from "../../Presentation/View/ArticleTabView.riot"
 import ArticlesTableView from "../../Presentation/View/ArticlesTableView.riot"
+import TagsView from "../../Presentation/View/TagsView.riot"
+import PagenationView from "../../Presentation/View/PagenationView.riot"
 
 export default{
     onBeforeMount() {
@@ -89,14 +26,12 @@ export default{
         vc.viewWillAppear()
     },
     onMounted(){
-        // Mount components
+        // Mount child components and Connect action
         let headerView = component(HeaderView)( this.$("div#header_view") )
         component(FooterView)( this.$("div#footer_view") ) // unuse
-        if ( this.owner.isLoggedIn() == false ){
-            component(BannerView)( this.$("div#banner_view") ) // unuse
-        }
+        let bannerView = component(BannerView)( this.$("div#banner_view") )
         let articleTabView = component(ArticleTabView)( this.$("div#article_tab_View"), {
-             toggle_style: "feed-toggle",
+             toggleStyle: "feed-toggle",
              didSelectTab: this.owner.didSelectTab
         })
         let articlesTableView = component(ArticlesTableView)( this.$("div#articles_table_view"), {
@@ -104,11 +39,18 @@ export default{
             didSelectArticle: this.owner.didSelectArticle,
             didFavoriteArticle: this.owner.didFavoriteArticle
         })
+        let tagsView = component(TagsView)( this.$("div#tags_view") )
+        let pagenationView = component(PagenationView)( this.$("div#pagenation_view"), {
+            didSelectPageNumber:  this.owner.didSelectPageNumber
+        })
 
-        // linking outlet
+        // Connect outlet
         this.owner.headerView = headerView
+        this.owner.bannerView = bannerView
         this.owner.articleTabView = articleTabView
         this.owner.articlesTableView = articlesTableView
+        this.owner.tagsView = tagsView
+        this.owner.pagenationView = pagenationView
 
         // Call lifecycle
         this.owner.viewDidAppear()
@@ -125,20 +67,15 @@ export default{
     <div id="header_view"/>
     <div id="banner_view"/>
 
-    
     <div class="container page">
         <div class="row">
             <div class="col-md-9">
                 <div id="article_tab_View" />
                 <div id="articles_table_view" />
-                <!--
-                <pagenation_view />
-                -->
+                <div id="pagenation_view" />
             </div>
             <div class="col-md-3">
-                <!--
-                <tags_view/>
-                -->
+                <div id="tags_view" />
             </div>
         </div>
     </div>

@@ -3972,29 +3972,30 @@
 
   class ArticlesViewController {
       constructor() {
+          // Usecase
           this.useCase = new ArticlesUseCase();
           // Lifecycle
           this.viewWillAppear = () => {
+              console.log("viewWillAppear");
           };
           this.viewDidAppear = () => {
+              this.bannerView.setVisible(!this.useCase.isLoggedIn());
               this.headerView.setItems(this.useCase.menuItems());
               this.articleTabView.setItems(this.useCase.tabItems());
               this.useCase.requestArticles().then((container) => {
                   this.articlesTableView.setArticles(container.articles);
-                  // setup pagenation
-                  // this.pagenation_view.shownPage = useCase.currentPage()
-                  // this.pagenation_view.setCountOfPage( useCase.pageCount() )
+                  this.pagenationView.shownPage = this.useCase.currentPage();
+                  this.pagenationView.setCountOfPage(this.useCase.pageCount());
+              });
+              this.useCase.requestTags().then((tags) => {
+                  this.tagsView.setTagWords(tags);
               });
           };
           this.viewWillDisappear = () => {
-              console.log("viewWillAppear");
+              console.log("viewWillDisappear");
           };
           this.viewDidDisappear = () => {
-              console.log("viewDidAppear");
-          };
-          // Public functions
-          this.isLoggedIn = () => {
-              return this.useCase.isLoggedIn();
+              console.log("viewDidDisappear");
           };
           // IB Actions
           this.didSelectTab = (item) => {
@@ -4013,6 +4014,9 @@
                   }
                   this.articlesTableView.setArticles(articles);
               });
+          };
+          this.didSelectPageNumber = (page) => {
+              this.useCase.jumpPage(page);
           };
       }
   }
@@ -4033,17 +4037,17 @@
 
     'template': function(template, expressionTypes, bindingTypes, getComponent) {
       return template(
-        '<nav class="navbar navbar-light"><div class="container"><a class="navbar-brand" href="/">conduit</a><ul class="nav navbar-nav pull-xs-right"><li expr0 class="nav-item"></li></ul></div></nav>',
+        '<nav class="navbar navbar-light"><div class="container"><a class="navbar-brand" href="/">conduit</a><ul class="nav navbar-nav pull-xs-right"><li expr1 class="nav-item"></li></ul></div></nav>',
         [{
           'type': bindingTypes.EACH,
           'getKey': null,
           'condition': null,
 
           'template': template(
-            '<a expr1>\n                    &nbsp;\n                    <i expr2></i><img expr3 class="user-pic"/><!----></a>',
+            '<a expr2>\n                    &nbsp;\n                    <i expr3></i><img expr4 class="user-pic"/><!----></a>',
             [{
-              'redundantAttribute': 'expr1',
-              'selector': '[expr1]',
+              'redundantAttribute': 'expr2',
+              'selector': '[expr2]',
 
               'expressions': [{
                 'type': expressionTypes.TEXT,
@@ -4074,8 +4078,8 @@
                 return scope.item.icon !== null;
               },
 
-              'redundantAttribute': 'expr2',
-              'selector': '[expr2]',
+              'redundantAttribute': 'expr3',
+              'selector': '[expr3]',
 
               'template': template(null, [{
                 'expressions': [{
@@ -4094,8 +4098,8 @@
                 return scope.item.image !== null;
               },
 
-              'redundantAttribute': 'expr3',
-              'selector': '[expr3]',
+              'redundantAttribute': 'expr4',
+              'selector': '[expr4]',
 
               'template': template(null, [{
                 'expressions': [{
@@ -4110,8 +4114,8 @@
             }]
           ),
 
-          'redundantAttribute': 'expr0',
-          'selector': '[expr0]',
+          'redundantAttribute': 'expr1',
+          'selector': '[expr1]',
           'itemName': 'item',
           'indexName': null,
 
@@ -4141,13 +4145,30 @@
 
   var BannerView = {
     'css': `banner_view .spotlink,[is="banner_view"] .spotlink{ color: white; } banner_view .spotlink:hover,[is="banner_view"] .spotlink:hover{ color: white; text-decoration: none; }`,
-    'exports': null,
+
+    'exports': {
+      setVisible( visible ){
+          this.state.isVisible = visible;
+          this.update();
+      }
+    },
 
     'template': function(template, expressionTypes, bindingTypes, getComponent) {
-      return template(
-        '<div class="banner"><div class="container"><h1 class="logo-font">conduit</h1><p>A place to share your <a class="spotlink" href="https://v3.riotjs.now.sh" target="blank">RIOT</a> knowledge.</p></div></div>',
-        []
-      );
+      return template('<div expr0 class="banner"></div>', [{
+        'type': bindingTypes.IF,
+
+        'evaluate': function(scope) {
+          return scope.state.isVisible;
+        },
+
+        'redundantAttribute': 'expr0',
+        'selector': '[expr0]',
+
+        'template': template(
+          '<div class="container"><h1 class="logo-font">conduit</h1><p>A place to share your <a class="spotlink" href="https://v3.riotjs.now.sh" target="blank">RIOT</a> knowledge.</p></div>',
+          []
+        )
+      }]);
     },
 
     'name': 'banner_view'
@@ -4173,17 +4194,17 @@
 
     'template': function(template, expressionTypes, bindingTypes, getComponent) {
       return template(
-        '<div expr4><ul class="nav nav-pills outline-active"><li expr5 class="nav-item"></li></ul></div>',
+        '<div expr14><ul class="nav nav-pills outline-active"><li expr15 class="nav-item"></li></ul></div>',
         [{
-          'redundantAttribute': 'expr4',
-          'selector': '[expr4]',
+          'redundantAttribute': 'expr14',
+          'selector': '[expr14]',
 
           'expressions': [{
             'type': expressionTypes.ATTRIBUTE,
             'name': 'class',
 
             'evaluate': function(scope) {
-              return scope.props.toggle_style;
+              return scope.props.toggleStyle;
             }
           }]
         }, {
@@ -4191,9 +4212,9 @@
           'getKey': null,
           'condition': null,
 
-          'template': template('<a expr6><!----></a>', [{
-            'redundantAttribute': 'expr6',
-            'selector': '[expr6]',
+          'template': template('<a expr16><!----></a>', [{
+            'redundantAttribute': 'expr16',
+            'selector': '[expr16]',
 
             'expressions': [{
               'type': expressionTypes.TEXT,
@@ -4219,8 +4240,8 @@
             }]
           }]),
 
-          'redundantAttribute': 'expr5',
-          'selector': '[expr5]',
+          'redundantAttribute': 'expr15',
+          'selector': '[expr15]',
           'itemName': 'item',
           'indexName': null,
 
@@ -4261,16 +4282,16 @@
     },
 
     'template': function(template, expressionTypes, bindingTypes, getComponent) {
-      return template('<div expr7 class="article-preview"></div>', [{
+      return template('<div expr5 class="article-preview"></div>', [{
         'type': bindingTypes.EACH,
         'getKey': null,
         'condition': null,
 
         'template': template(
-          '<div class="article-meta"><a expr8><img expr9/></a><div class="info"><a expr10 class="author author-link"><!----></a><span class="date">January 20th</span></div><button expr11><i class="ion-heart"></i><!----></button></div><a expr12 class="preview-link"><h1 expr13><!----></h1><p expr14><!----></p><span>Read more...</span><ul class="tag-list"><li expr15 class="tag-default tag-pill tag-outline"></li></ul></a>',
+          '<div class="article-meta"><a expr6><img expr7/></a><div class="info"><a expr8 class="author author-link"><!----></a><span class="date">January 20th</span></div><button expr9><i class="ion-heart"></i><!----></button></div><a expr10 class="preview-link"><h1 expr11><!----></h1><p expr12><!----></p><span>Read more...</span><ul class="tag-list"><li expr13 class="tag-default tag-pill tag-outline"></li></ul></a>',
           [{
-            'redundantAttribute': 'expr8',
-            'selector': '[expr8]',
+            'redundantAttribute': 'expr6',
+            'selector': '[expr6]',
 
             'expressions': [{
               'type': expressionTypes.EVENT,
@@ -4281,8 +4302,8 @@
               }
             }]
           }, {
-            'redundantAttribute': 'expr9',
-            'selector': '[expr9]',
+            'redundantAttribute': 'expr7',
+            'selector': '[expr7]',
 
             'expressions': [{
               'type': expressionTypes.ATTRIBUTE,
@@ -4293,8 +4314,8 @@
               }
             }]
           }, {
-            'redundantAttribute': 'expr10',
-            'selector': '[expr10]',
+            'redundantAttribute': 'expr8',
+            'selector': '[expr8]',
 
             'expressions': [{
               'type': expressionTypes.TEXT,
@@ -4312,8 +4333,8 @@
               }
             }]
           }, {
-            'redundantAttribute': 'expr11',
-            'selector': '[expr11]',
+            'redundantAttribute': 'expr9',
+            'selector': '[expr9]',
 
             'expressions': [{
               'type': expressionTypes.TEXT,
@@ -4338,8 +4359,8 @@
               }
             }]
           }, {
-            'redundantAttribute': 'expr12',
-            'selector': '[expr12]',
+            'redundantAttribute': 'expr10',
+            'selector': '[expr10]',
 
             'expressions': [{
               'type': expressionTypes.EVENT,
@@ -4350,8 +4371,8 @@
               }
             }]
           }, {
-            'redundantAttribute': 'expr13',
-            'selector': '[expr13]',
+            'redundantAttribute': 'expr11',
+            'selector': '[expr11]',
 
             'expressions': [{
               'type': expressionTypes.TEXT,
@@ -4362,8 +4383,8 @@
               }
             }]
           }, {
-            'redundantAttribute': 'expr14',
-            'selector': '[expr14]',
+            'redundantAttribute': 'expr12',
+            'selector': '[expr12]',
 
             'expressions': [{
               'type': expressionTypes.TEXT,
@@ -4389,8 +4410,8 @@
               }]
             }]),
 
-            'redundantAttribute': 'expr15',
-            'selector': '[expr15]',
+            'redundantAttribute': 'expr13',
+            'selector': '[expr13]',
             'itemName': 'tagWord',
             'indexName': null,
 
@@ -4400,8 +4421,8 @@
           }]
         ),
 
-        'redundantAttribute': 'expr7',
-        'selector': '[expr7]',
+        'redundantAttribute': 'expr5',
+        'selector': '[expr5]',
         'itemName': 'article',
         'indexName': null,
 
@@ -4414,7 +4435,133 @@
     'name': 'articles_table_view'
   };
 
-  // import ArticlesUseCase from "../../Domain/UseCase/ArticlesUseCase"
+  var TagsView = {
+    'css': null,
+
+    'exports': {
+      setTagWords( tagWords ){
+          this.state.tagWords = tagWords;
+          this.update();
+      }
+    },
+
+    'template': function(template, expressionTypes, bindingTypes, getComponent) {
+      return template(
+        '<div class="sidebar"><p>Popular Tags</p><div class="tag-list"><a expr19 class="tag-pill tag-default"></a></div></div>',
+        [{
+          'type': bindingTypes.EACH,
+          'getKey': null,
+          'condition': null,
+
+          'template': template('<!---->', [{
+            'expressions': [{
+              'type': expressionTypes.TEXT,
+              'childNodeIndex': 0,
+
+              'evaluate': function(scope) {
+                return scope.tag;
+              }
+            }, {
+              'type': expressionTypes.ATTRIBUTE,
+              'name': 'href',
+
+              'evaluate': function(scope) {
+                return ['#/articles/tag/', scope.tag].join('');
+              }
+            }]
+          }]),
+
+          'redundantAttribute': 'expr19',
+          'selector': '[expr19]',
+          'itemName': 'tag',
+          'indexName': null,
+
+          'evaluate': function(scope) {
+            return scope.state.tagWords;
+          }
+        }]
+      );
+    },
+
+    'name': 'tags_view'
+  };
+
+  var PagenationView = {
+    'css': null,
+
+    'exports': {
+      onMount(_, state){
+          state.countOfPage = 1;
+          state.shownPage = 1;
+      },
+
+      setCountOfPage( count ){
+          this.state.countOfPage = count === null ? 0 : count;
+          this.update();
+      },
+
+      actionOfClickPageLink( event ){
+          this.props.didSelectPageNumber( event.item.page );
+      },
+
+      arrayOfPageNumber(){
+          return [...Array(this.state.countOfPage).keys()].map(i => ++i)
+      },
+
+      pageItemClassName( page ){
+          return "page-item " + ( page === this.state.shownPage ? " active" : "" )
+      }
+    },
+
+    'template': function(template, expressionTypes, bindingTypes, getComponent) {
+      return template('<ul class="pagination"><li expr17></li></ul>', [{
+        'type': bindingTypes.EACH,
+        'getKey': null,
+        'condition': null,
+
+        'template': template('<a expr18 class="page-link"><!----></a>', [{
+          'expressions': [{
+            'type': expressionTypes.ATTRIBUTE,
+            'name': 'class',
+
+            'evaluate': function(scope) {
+              return scope.pageItemClassName( scope.page );
+            }
+          }]
+        }, {
+          'redundantAttribute': 'expr18',
+          'selector': '[expr18]',
+
+          'expressions': [{
+            'type': expressionTypes.TEXT,
+            'childNodeIndex': 0,
+
+            'evaluate': function(scope) {
+              return scope.page;
+            }
+          }, {
+            'type': expressionTypes.EVENT,
+            'name': 'onclick',
+
+            'evaluate': function(scope) {
+              return scope.actionOfClickPageLink;
+            }
+          }]
+        }]),
+
+        'redundantAttribute': 'expr17',
+        'selector': '[expr17]',
+        'itemName': 'page',
+        'indexName': null,
+
+        'evaluate': function(scope) {
+          return scope.arrayOfPageNumber();
+        }
+      }]);
+    },
+
+    'name': 'pagenation_view'
+  };
 
   var Articles = {
     'css': null,
@@ -4433,28 +4580,31 @@
       },
 
       onMounted(){
-          // Mount components
-          let headerEl = this.$("div#header_view");
-          let headerView = component(HeaderView)( headerEl );
-          let footerEl = this.$("div#footer_view");
-          component(FooterView)( footerEl ); // unuse
-          if ( this.owner.isLoggedIn() == false ){
-              let bannerEl = this.$("div#banner_view");
-              component(BannerView)( bannerEl ); // unuse
-          }
-          let articleTabEl = this.$("div#article_tab_View");
-          let articleTabView = component(ArticleTabView)( articleTabEl, { toggle_style: "feed-toggle", didSelectTab: this.owner.didSelectTab });
-          let articlesTableEl = this.$("div#articles_table_view");
-          let articlesTableView = component(ArticlesTableView)( articlesTableEl, {
+          // Mount child components and Connect action
+          let headerView = component(HeaderView)( this.$("div#header_view") );
+          component(FooterView)( this.$("div#footer_view") ); // unuse
+          let bannerView = component(BannerView)( this.$("div#banner_view") );
+          let articleTabView = component(ArticleTabView)( this.$("div#article_tab_View"), {
+               toggleStyle: "feed-toggle",
+               didSelectTab: this.owner.didSelectTab
+          });
+          let articlesTableView = component(ArticlesTableView)( this.$("div#articles_table_view"), {
               didSelectProfile: this.owner.didSelectProfile,
               didSelectArticle: this.owner.didSelectArticle,
               didFavoriteArticle: this.owner.didFavoriteArticle
           });
+          let tagsView = component(TagsView)( this.$("div#tags_view") );
+          let pagenationView = component(PagenationView)( this.$("div#pagenation_view"), {
+              didSelectPageNumber:  this.owner.didSelectPageNumber
+          });
 
-          // linking outlet
+          // Connect outlet
           this.owner.headerView = headerView;
+          this.owner.bannerView = bannerView;
           this.owner.articleTabView = articleTabView;
           this.owner.articlesTableView = articlesTableView;
+          this.owner.tagsView = tagsView;
+          this.owner.pagenationView = pagenationView;
 
           // Call lifecycle
           this.owner.viewDidAppear();
@@ -4466,7 +4616,7 @@
 
     'template': function(template, expressionTypes, bindingTypes, getComponent) {
       return template(
-        '<div class="home-page"><div id="header_view"></div><div id="banner_view"></div><div class="container page"><div class="row"><div class="col-md-9"><div id="article_tab_View"></div><div id="articles_table_view"></div></div><div class="col-md-3"></div></div></div><div id="footer_view"></div></div>',
+        '<div class="home-page"><div id="header_view"></div><div id="banner_view"></div><div class="container page"><div class="row"><div class="col-md-9"><div id="article_tab_View"></div><div id="articles_table_view"></div><div id="pagenation_view"></div></div><div class="col-md-3"><div id="tags_view"></div></div></div></div><div id="footer_view"></div></div>',
         []
       );
     },

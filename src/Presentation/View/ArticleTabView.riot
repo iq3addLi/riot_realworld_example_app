@@ -18,7 +18,7 @@ export default{
 
 </script>
 
-<div class={ props.toggle_style }>
+<div class={ props.toggleStyle }>
     <ul class="nav nav-pills outline-active">
         <li class="nav-item" each={ item in state.items }>
             <a class={ navItemClassName( item.isActive ) } onclick={ actionOfClickTab }>{ item.title }</a>
