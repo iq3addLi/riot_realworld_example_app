@@ -10,16 +10,7 @@ export default {
     format: "iife"
   },
   plugins: [
-    riot({
-        parserOptions:{
-            js: {
-                module: 5, //commonjs
-                babelrc: false,
-                presets: ["es2015-riot", ["latest-node6", { "es2015": false }]],
-                plugins: ["add-module-exports", "transform-runtime"],
-            }
-        }
-    }),
+    riot(),
     nodeResolve({ mainFields: ['module', 'main'] }),
     typescript(),
     commonjs()
