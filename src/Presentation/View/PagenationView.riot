@@ -8,7 +8,8 @@ export default{
         state.countOfPage = 1
         state.shownPage = 1
     },
-    setCountOfPage( count ){
+    setCountOfPage( count, shownPage ){
+        if ( shownPage != null ){ this.state.shownPage = shownPage }
         this.state.countOfPage = count === null ? 0 : count
         this.update()
     },

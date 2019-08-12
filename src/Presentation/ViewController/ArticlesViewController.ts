@@ -29,10 +29,10 @@ export default class ArticlesViewController {
         this.articleTabView.setItems( this.useCase.tabItems() )
 
         this.useCase.requestArticles().then( (container) => {
+            // setup table of article
             this.articlesTableView.setArticles( container.articles )
-
-            this.pagenationView.shownPage = this.useCase.currentPage()
-            this.pagenationView.setCountOfPage( this.useCase.pageCount() )
+            // setup pagenation
+            this.pagenationView.setCountOfPage( this.useCase.pageCount(), this.useCase.currentPage() )
         })
 
         this.useCase.requestTags().then( (tags) => {

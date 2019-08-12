@@ -32,8 +32,7 @@ export default class ProfileViewController {
             // setup table of article
             this.articlesTableView.setArticles( container.articles )
             // setup pagenation
-            this.pagenationView.shownPage = this.useCase.currentPage()
-            this.pagenationView.setCountOfPage( this.useCase.pageCount() )
+            this.pagenationView.setCountOfPage( this.useCase.pageCount(), this.useCase.currentPage() )
         })
 
         // setup article tab
