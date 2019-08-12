@@ -12,49 +12,48 @@ import CommentFormView from "../../Presentation/View/CommentFormView.riot"
 import CommentTableView from "../../Presentation/View/CommentTableView.riot"
 
 export default{
-    onBeforeMount() {
-        // set owner
-        let vc = new ArticleViewController()
-        this.owner = vc
+    onBeforeMount(_,state) {
+        state.owner = new ArticleViewController()
         // Connect outlet
-        vc.view = this
+        state.owner.view = this
         // Call lifecycle
-        vc.viewWillAppear()
+        state.owner.viewWillAppear()
     },
-    onMounted(){
+    onMounted(_,state){
+        let owner = state.owner
         // Mount child components and Connect action
         let headerView = component(HeaderView)( this.$("div#header_view") )
         component(FooterView)( this.$("div#footer_view") ) 
         let aboveWidgetView = component(ArticleWidgetView)( this.$("div#above_article_widget_view"),{
-            didFollowHandler: this.owner.didFollowHandler,
-            didFavoriteHandler: this.owner.didFavoriteHandler,
-            didEditingHandler: this.owner.didEditingHandler,
-            didDeleteHandler: this.owner.didDeleteHandler
+            didFollowHandler: owner.didFollowHandler,
+            didFavoriteHandler: owner.didFavoriteHandler,
+            didEditingHandler: owner.didEditingHandler,
+            didDeleteHandler: owner.didDeleteHandler
         })
         let belowWidgetView = component(ArticleWidgetView)( this.$("div#below_article_widget_view"),{
-            didFollowHandler: this.owner.didFollowHandler,
-            didFavoriteHandler: this.owner.didFavoriteHandler,
-            didEditingHandler: this.owner.didEditingHandler,
-            didDeleteHandler: this.owner.didDeleteHandler
+            didFollowHandler: owner.didFollowHandler,
+            didFavoriteHandler: owner.didFavoriteHandler,
+            didEditingHandler: owner.didEditingHandler,
+            didDeleteHandler: owner.didDeleteHandler
         })
         let articleView = component(ArticleView)( this.$("div#article_view") )
         let commentFormView = component(CommentFormView)( this.$("div#comment_form_view"), {
-            didSubmitHandler: this.owner.didSubmitHandler
+            didSubmitHandler: owner.didSubmitHandler
         })
         let commentTableView = component(CommentTableView)( this.$("div#comment_table_view"), {
-            didDeleteHandler: this.owner.didDeleteHandler
+            didDeleteHandler: owner.didDeleteHandler
         })
 
         // Connect outlet
-        this.owner.headerView = headerView
-        this.owner.aboveWidgetView = aboveWidgetView
-        this.owner.belowWidgetView = belowWidgetView
-        this.owner.articleView = articleView
-        this.owner.commentFormView = commentFormView
-        this.owner.commentTableView = commentTableView
+        owner.headerView = headerView
+        owner.aboveWidgetView = aboveWidgetView
+        owner.belowWidgetView = belowWidgetView
+        owner.articleView = articleView
+        owner.commentFormView = commentFormView
+        owner.commentTableView = commentTableView
         
         // Call lifecycle
-        this.owner.viewDidAppear()
+        owner.viewDidAppear()
     }
 }
 </script>

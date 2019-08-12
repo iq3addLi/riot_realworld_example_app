@@ -9,25 +9,21 @@ import HeaderView from "../../Presentation/View/HeaderView.riot"
 import FooterView from "../../Presentation/View/FooterView.riot"
 
 export default{
-    onBeforeMount() {
-        // set owner
-        let vc = new EditerViewController()
-        this.owner = vc
+    onBeforeMount(_,state) {
+        state.owner = new EditerViewController()
         // Connect outlet
-        vc.view = this
+        state.owner.view = this
         // Call lifecycle
-        vc.viewWillAppear()
+        state.owner.viewWillAppear()
     },
-    onMounted(){
+    onMounted(_,state){
         // Mount child components and Connect action
         let headerView = component(HeaderView)( this.$("div#header_view") )
         component(FooterView)( this.$("div#footer_view") ) 
-
         // Connect outlet
-        this.owner.headerView = headerView
-
+        state.owner.headerView = headerView
         // Call lifecycle
-        this.owner.viewDidAppear()
+        state.owner.viewDidAppear()
     },
     setArticle( title, description, body, tagsString ){
         this.$("#titleField").value = title
@@ -44,7 +40,7 @@ export default{
         let description = this.$("#descriptionField").value
         let body = this.$("#bodyField").value
         let tagsString = this.$("#tagListField").value
-        this.owner.postArticle( title, description, body, tagsString )
+        this.state.owner.postArticle( title, description, body, tagsString )
     }
 }
 </script>

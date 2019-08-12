@@ -9,14 +9,21 @@ import HeaderView from "../../Presentation/View/HeaderView.riot"
 import FooterView from "../../Presentation/View/FooterView.riot"
 
 export default{
-    onBeforeMount() {
-        // set owner
-        let vc = new RegisterViewController()
-        this.owner = vc
+    onBeforeMount(_,state) {
+        state.owner = new RegisterViewController()
         // Connect outlet
-        vc.view = this
+        state.owner.view = this
         // Call lifecycle
-        vc.viewWillAppear()
+        state.owner.viewWillAppear()
+    },
+    onMounted(_,state){
+        // Mount child components and Connect action
+        let headerView = component(HeaderView)( this.$("div#header_view") )
+        component(FooterView)( this.$("div#footer_view") ) 
+        // Connect outlet
+        state.owner.headerView = headerView
+        // Call lifecycle
+        state.owner.viewDidAppear()
     },
     shouldSubmit(){
         this.$("#submitButton").disabled = ( 
@@ -25,23 +32,12 @@ export default{
             this.$("#passwordField").value.length == 0
         )
     },
-    onMounted(){
-        // Mount child components and Connect action
-        let headerView = component(HeaderView)( this.$("div#header_view") )
-        component(FooterView)( this.$("div#footer_view") ) 
-
-        // Connect outlet
-        this.owner.headerView = headerView
-
-        // Call lifecycle
-        this.owner.viewDidAppear()
-    },
-    actionOfSubmitButton(){
-        this.owner.register( this.$("#usernameField").value, this.$("#emailField").value, this.$("#passwordField").value )
-    },
     setErrorMessages( messages ){
         this.state.errorMessages = messages
         this.update()
+    },
+    actionOfSubmitButton(){
+        this.state.owner.register( this.$("#usernameField").value, this.$("#emailField").value, this.$("#passwordField").value )
     }
 }
 </script>

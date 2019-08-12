@@ -40,14 +40,6 @@ export default class ArticlesViewController {
         })
     }
 
-    viewWillDisappear = () => {
-        console.log("viewWillDisappear")
-    }
-
-    viewDidDisappear = () => {
-        console.log("viewDidDisappear")
-    }
-
     // Actions
     didSelectTab = ( item: ArticleTabItem ) => {
         this.useCase.jumpToSubPath( item.identifier )

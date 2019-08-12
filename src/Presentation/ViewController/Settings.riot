@@ -9,23 +9,21 @@ import HeaderView from "../../Presentation/View/HeaderView.riot"
 import FooterView from "../../Presentation/View/FooterView.riot"
 
 export default{
-    onBeforeMount() {
-        // set owner
-        let vc = new SettingsViewController()
-        this.owner = vc
+    onBeforeMount(_,state) {
+        state.owner = new SettingsViewController()
         // Connect outlet
-        vc.view = this
+        state.owner.view = this
         // Call lifecycle
-        vc.viewWillAppear()
+        state.owner.viewWillAppear()
     },
-    onMounted(){
+    onMounted(_,state){
         // Mount child components and Connect action
         let headerView = component(HeaderView)( this.$("div#header_view") )
         component(FooterView)( this.$("div#footer_view") ) 
         // Connect outlet
-        this.owner.headerView = headerView
+        state.owner.headerView = headerView
         // Call lifecycle
-        this.owner.viewDidAppear()
+        state.owner.viewDidAppear()
     },
     setUser( user ){
         this.$("#icon_url_field").value = user.image

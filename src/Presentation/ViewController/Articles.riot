@@ -14,47 +14,44 @@ import TagsView from "../../Presentation/View/TagsView.riot"
 import PagenationView from "../../Presentation/View/PagenationView.riot"
 
 export default{
-    onBeforeMount() {
-        // set owner
-        let vc = new ArticlesViewController()
-        this.owner = vc
+    onBeforeMount(_,state) {
+        state.owner = new ArticlesViewController()
         // Connect outlet
-        vc.view = this
+        state.owner.view = this
         // Call lifecycle
-        vc.viewWillAppear()
+        state.owner.viewWillAppear()
     },
-    onMounted(){
+    onMounted(_,state){
+        let owner = state.owner
         // Mount child components and Connect action
         let headerView = component(HeaderView)( this.$("div#header_view") )
         component(FooterView)( this.$("div#footer_view") ) // unuse
         let bannerView = component(BannerView)( this.$("div#banner_view") )
         let articleTabView = component(ArticleTabView)( this.$("div#article_tab_view"), {
              toggleStyle: "feed-toggle",
-             didSelectTab: this.owner.didSelectTab
+             didSelectTab: owner.didSelectTab
         })
         let articlesTableView = component(ArticlesTableView)( this.$("div#articles_table_view"), {
-            didSelectProfile: this.owner.didSelectProfile,
-            didSelectArticle: this.owner.didSelectArticle,
-            didFavoriteArticle: this.owner.didFavoriteArticle
+            didSelectProfile: owner.didSelectProfile,
+            didSelectArticle: owner.didSelectArticle,
+            didFavoriteArticle: owner.didFavoriteArticle
         })
         let tagsView = component(TagsView)( this.$("div#tags_view") )
         let pagenationView = component(PagenationView)( this.$("div#pagenation_view"), {
-            didSelectPageNumber:  this.owner.didSelectPageNumber
+            didSelectPageNumber:  owner.didSelectPageNumber
         })
 
         // Connect outlet
-        this.owner.headerView = headerView
-        this.owner.bannerView = bannerView
-        this.owner.articleTabView = articleTabView
-        this.owner.articlesTableView = articlesTableView
-        this.owner.tagsView = tagsView
-        this.owner.pagenationView = pagenationView
+        owner.headerView = headerView
+        owner.bannerView = bannerView
+        owner.articleTabView = articleTabView
+        owner.articlesTableView = articlesTableView
+        owner.tagsView = tagsView
+        owner.pagenationView = pagenationView
 
         // Call lifecycle
-        this.owner.viewDidAppear()
-    },
-    onBeforeUnmount(){ this.owner.viewWillAppear() },
-    onUnmount(){ this.owner.viewDidAppear() }
+        owner.viewDidAppear()
+    }
 }
 
 </script>

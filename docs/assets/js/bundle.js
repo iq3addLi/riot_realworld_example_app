@@ -4013,12 +4013,6 @@
                   this.tagsView.setTagWords(tags);
               });
           };
-          this.viewWillDisappear = () => {
-              console.log("viewWillDisappear");
-          };
-          this.viewDidDisappear = () => {
-              console.log("viewDidDisappear");
-          };
           // Actions
           this.didSelectTab = (item) => {
               this.useCase.jumpToSubPath(item.identifier);
@@ -4176,15 +4170,15 @@
     },
 
     'template': function(template, expressionTypes, bindingTypes, getComponent) {
-      return template('<div expr38 class="banner"></div>', [{
+      return template('<div expr39 class="banner"></div>', [{
         'type': bindingTypes.IF,
 
         'evaluate': function(scope) {
           return scope.state.isVisible;
         },
 
-        'redundantAttribute': 'expr38',
-        'selector': '[expr38]',
+        'redundantAttribute': 'expr39',
+        'selector': '[expr39]',
 
         'template': template(
           '<div class="container"><h1 class="logo-font">conduit</h1><p>A place to share your <a class="spotlink" href="https://v3.riotjs.now.sh" target="blank">RIOT</a> knowledge.</p></div>',
@@ -4216,10 +4210,10 @@
 
     'template': function(template, expressionTypes, bindingTypes, getComponent) {
       return template(
-        '<div expr24><ul class="nav nav-pills outline-active"><li expr25 class="nav-item"></li></ul></div>',
+        '<div expr40><ul class="nav nav-pills outline-active"><li expr41 class="nav-item"></li></ul></div>',
         [{
-          'redundantAttribute': 'expr24',
-          'selector': '[expr24]',
+          'redundantAttribute': 'expr40',
+          'selector': '[expr40]',
 
           'expressions': [{
             'type': expressionTypes.ATTRIBUTE,
@@ -4234,9 +4228,9 @@
           'getKey': null,
           'condition': null,
 
-          'template': template('<a expr26><!----></a>', [{
-            'redundantAttribute': 'expr26',
-            'selector': '[expr26]',
+          'template': template('<a expr42><!----></a>', [{
+            'redundantAttribute': 'expr42',
+            'selector': '[expr42]',
 
             'expressions': [{
               'type': expressionTypes.TEXT,
@@ -4262,8 +4256,8 @@
             }]
           }]),
 
-          'redundantAttribute': 'expr25',
-          'selector': '[expr25]',
+          'redundantAttribute': 'expr41',
+          'selector': '[expr41]',
           'itemName': 'item',
           'indexName': null,
 
@@ -4304,16 +4298,16 @@
     },
 
     'template': function(template, expressionTypes, bindingTypes, getComponent) {
-      return template('<div expr27 class="article-preview"></div>', [{
+      return template('<div expr54 class="article-preview"></div>', [{
         'type': bindingTypes.EACH,
         'getKey': null,
         'condition': null,
 
         'template': template(
-          '<div class="article-meta"><a expr28><img expr29/></a><div class="info"><a expr30 class="author author-link"><!----></a><span class="date">January 20th</span></div><button expr31><i class="ion-heart"></i><!----></button></div><a expr32 class="preview-link"><h1 expr33><!----></h1><p expr34><!----></p><span>Read more...</span><ul class="tag-list"><li expr35 class="tag-default tag-pill tag-outline"></li></ul></a>',
+          '<div class="article-meta"><a expr55><img expr56/></a><div class="info"><a expr57 class="author author-link"><!----></a><span class="date">January 20th</span></div><button expr58><i class="ion-heart"></i><!----></button></div><a expr59 class="preview-link"><h1 expr60><!----></h1><p expr61><!----></p><span>Read more...</span><ul class="tag-list"><li expr62 class="tag-default tag-pill tag-outline"></li></ul></a>',
           [{
-            'redundantAttribute': 'expr28',
-            'selector': '[expr28]',
+            'redundantAttribute': 'expr55',
+            'selector': '[expr55]',
 
             'expressions': [{
               'type': expressionTypes.EVENT,
@@ -4324,8 +4318,8 @@
               }
             }]
           }, {
-            'redundantAttribute': 'expr29',
-            'selector': '[expr29]',
+            'redundantAttribute': 'expr56',
+            'selector': '[expr56]',
 
             'expressions': [{
               'type': expressionTypes.ATTRIBUTE,
@@ -4336,8 +4330,8 @@
               }
             }]
           }, {
-            'redundantAttribute': 'expr30',
-            'selector': '[expr30]',
+            'redundantAttribute': 'expr57',
+            'selector': '[expr57]',
 
             'expressions': [{
               'type': expressionTypes.TEXT,
@@ -4355,8 +4349,8 @@
               }
             }]
           }, {
-            'redundantAttribute': 'expr31',
-            'selector': '[expr31]',
+            'redundantAttribute': 'expr58',
+            'selector': '[expr58]',
 
             'expressions': [{
               'type': expressionTypes.TEXT,
@@ -4381,8 +4375,8 @@
               }
             }]
           }, {
-            'redundantAttribute': 'expr32',
-            'selector': '[expr32]',
+            'redundantAttribute': 'expr59',
+            'selector': '[expr59]',
 
             'expressions': [{
               'type': expressionTypes.EVENT,
@@ -4393,8 +4387,8 @@
               }
             }]
           }, {
-            'redundantAttribute': 'expr33',
-            'selector': '[expr33]',
+            'redundantAttribute': 'expr60',
+            'selector': '[expr60]',
 
             'expressions': [{
               'type': expressionTypes.TEXT,
@@ -4405,8 +4399,8 @@
               }
             }]
           }, {
-            'redundantAttribute': 'expr34',
-            'selector': '[expr34]',
+            'redundantAttribute': 'expr61',
+            'selector': '[expr61]',
 
             'expressions': [{
               'type': expressionTypes.TEXT,
@@ -4432,8 +4426,8 @@
               }]
             }]),
 
-            'redundantAttribute': 'expr35',
-            'selector': '[expr35]',
+            'redundantAttribute': 'expr62',
+            'selector': '[expr62]',
             'itemName': 'tagWord',
             'indexName': null,
 
@@ -4443,8 +4437,8 @@
           }]
         ),
 
-        'redundantAttribute': 'expr27',
-        'selector': '[expr27]',
+        'redundantAttribute': 'expr54',
+        'selector': '[expr54]',
         'itemName': 'article',
         'indexName': null,
 
@@ -4469,7 +4463,7 @@
 
     'template': function(template, expressionTypes, bindingTypes, getComponent) {
       return template(
-        '<div class="sidebar"><p>Popular Tags</p><div class="tag-list"><a expr57 class="tag-pill tag-default"></a></div></div>',
+        '<div class="sidebar"><p>Popular Tags</p><div class="tag-list"><a expr51 class="tag-pill tag-default"></a></div></div>',
         [{
           'type': bindingTypes.EACH,
           'getKey': null,
@@ -4493,8 +4487,8 @@
             }]
           }]),
 
-          'redundantAttribute': 'expr57',
-          'selector': '[expr57]',
+          'redundantAttribute': 'expr51',
+          'selector': '[expr51]',
           'itemName': 'tag',
           'indexName': null,
 
@@ -4536,12 +4530,12 @@
     },
 
     'template': function(template, expressionTypes, bindingTypes, getComponent) {
-      return template('<ul class="pagination"><li expr36></li></ul>', [{
+      return template('<ul class="pagination"><li expr63></li></ul>', [{
         'type': bindingTypes.EACH,
         'getKey': null,
         'condition': null,
 
-        'template': template('<a expr37 class="page-link"><!----></a>', [{
+        'template': template('<a expr64 class="page-link"><!----></a>', [{
           'expressions': [{
             'type': expressionTypes.ATTRIBUTE,
             'name': 'class',
@@ -4551,8 +4545,8 @@
             }
           }]
         }, {
-          'redundantAttribute': 'expr37',
-          'selector': '[expr37]',
+          'redundantAttribute': 'expr64',
+          'selector': '[expr64]',
 
           'expressions': [{
             'type': expressionTypes.TEXT,
@@ -4571,8 +4565,8 @@
           }]
         }]),
 
-        'redundantAttribute': 'expr36',
-        'selector': '[expr36]',
+        'redundantAttribute': 'expr63',
+        'selector': '[expr63]',
         'itemName': 'page',
         'indexName': null,
 
@@ -4589,49 +4583,45 @@
     'css': null,
 
     'exports': {
-      onBeforeMount() {
-          // set owner
-          let vc = new ArticlesViewController();
-          this.owner = vc;
+      onBeforeMount(_,state) {
+          state.owner = new ArticlesViewController();
           // Connect outlet
-          vc.view = this;
+          state.owner.view = this;
           // Call lifecycle
-          vc.viewWillAppear();
+          state.owner.viewWillAppear();
       },
 
-      onMounted(){
+      onMounted(_,state){
+          let owner = state.owner;
           // Mount child components and Connect action
           let headerView = component(HeaderView)( this.$("div#header_view") );
           component(FooterView)( this.$("div#footer_view") ); // unuse
           let bannerView = component(BannerView)( this.$("div#banner_view") );
           let articleTabView = component(ArticleTabView)( this.$("div#article_tab_view"), {
                toggleStyle: "feed-toggle",
-               didSelectTab: this.owner.didSelectTab
+               didSelectTab: owner.didSelectTab
           });
           let articlesTableView = component(ArticlesTableView)( this.$("div#articles_table_view"), {
-              didSelectProfile: this.owner.didSelectProfile,
-              didSelectArticle: this.owner.didSelectArticle,
-              didFavoriteArticle: this.owner.didFavoriteArticle
+              didSelectProfile: owner.didSelectProfile,
+              didSelectArticle: owner.didSelectArticle,
+              didFavoriteArticle: owner.didFavoriteArticle
           });
           let tagsView = component(TagsView)( this.$("div#tags_view") );
           let pagenationView = component(PagenationView)( this.$("div#pagenation_view"), {
-              didSelectPageNumber:  this.owner.didSelectPageNumber
+              didSelectPageNumber:  owner.didSelectPageNumber
           });
 
           // Connect outlet
-          this.owner.headerView = headerView;
-          this.owner.bannerView = bannerView;
-          this.owner.articleTabView = articleTabView;
-          this.owner.articlesTableView = articlesTableView;
-          this.owner.tagsView = tagsView;
-          this.owner.pagenationView = pagenationView;
+          owner.headerView = headerView;
+          owner.bannerView = bannerView;
+          owner.articleTabView = articleTabView;
+          owner.articlesTableView = articlesTableView;
+          owner.tagsView = tagsView;
+          owner.pagenationView = pagenationView;
 
           // Call lifecycle
-          this.owner.viewDidAppear();
-      },
-
-      onBeforeUnmount(){ this.owner.viewWillAppear(); },
-      onUnmount(){ this.owner.viewDidAppear(); }
+          owner.viewDidAppear();
+      }
     },
 
     'template': function(template, expressionTypes, bindingTypes, getComponent) {
@@ -9469,21 +9459,21 @@
     },
 
     'template': function(template, expressionTypes, bindingTypes, getComponent) {
-      return template('<div expr39 class="article-meta"></div>', [{
+      return template('<div expr24 class="article-meta"></div>', [{
         'type': bindingTypes.IF,
 
         'evaluate': function(scope) {
           return scope.state.article != null;
         },
 
-        'redundantAttribute': 'expr39',
-        'selector': '[expr39]',
+        'redundantAttribute': 'expr24',
+        'selector': '[expr24]',
 
         'template': template(
-          '<a expr40><img expr41/></a><div class="info"><a expr42 class="author"><!----></a><span expr43 class="date"><!----></span></div><template expr44></template><template expr48></template>',
+          '<a expr25><img expr26/></a><div class="info"><a expr27 class="author"><!----></a><span expr28 class="date"><!----></span></div><template expr29></template><template expr33></template>',
           [{
-            'redundantAttribute': 'expr40',
-            'selector': '[expr40]',
+            'redundantAttribute': 'expr25',
+            'selector': '[expr25]',
 
             'expressions': [{
               'type': expressionTypes.ATTRIBUTE,
@@ -9494,8 +9484,8 @@
               }
             }]
           }, {
-            'redundantAttribute': 'expr41',
-            'selector': '[expr41]',
+            'redundantAttribute': 'expr26',
+            'selector': '[expr26]',
 
             'expressions': [{
               'type': expressionTypes.ATTRIBUTE,
@@ -9506,8 +9496,8 @@
               }
             }]
           }, {
-            'redundantAttribute': 'expr42',
-            'selector': '[expr42]',
+            'redundantAttribute': 'expr27',
+            'selector': '[expr27]',
 
             'expressions': [{
               'type': expressionTypes.TEXT,
@@ -9525,8 +9515,8 @@
               }
             }]
           }, {
-            'redundantAttribute': 'expr43',
-            'selector': '[expr43]',
+            'redundantAttribute': 'expr28',
+            'selector': '[expr28]',
 
             'expressions': [{
               'type': expressionTypes.TEXT,
@@ -9543,14 +9533,14 @@
               return scope.isOwnArticle() == false;
             },
 
-            'redundantAttribute': 'expr44',
-            'selector': '[expr44]',
+            'redundantAttribute': 'expr29',
+            'selector': '[expr29]',
 
             'template': template(
-              '<button expr45><i class="ion-plus-round"></i><!----></button>\n        &nbsp;\n        <button expr46><i class="ion-heart"></i><!----><span expr47 class="counter"><!----></span></button>',
+              '<button expr30><i class="ion-plus-round"></i><!----></button>\n        &nbsp;\n        <button expr31><i class="ion-heart"></i><!----><span expr32 class="counter"><!----></span></button>',
               [{
-                'redundantAttribute': 'expr45',
-                'selector': '[expr45]',
+                'redundantAttribute': 'expr30',
+                'selector': '[expr30]',
 
                 'expressions': [{
                   'type': expressionTypes.TEXT,
@@ -9579,8 +9569,8 @@
                   }
                 }]
               }, {
-                'redundantAttribute': 'expr46',
-                'selector': '[expr46]',
+                'redundantAttribute': 'expr31',
+                'selector': '[expr31]',
 
                 'expressions': [{
                   'type': expressionTypes.TEXT,
@@ -9609,8 +9599,8 @@
                   }
                 }]
               }, {
-                'redundantAttribute': 'expr47',
-                'selector': '[expr47]',
+                'redundantAttribute': 'expr32',
+                'selector': '[expr32]',
 
                 'expressions': [{
                   'type': expressionTypes.TEXT,
@@ -9629,14 +9619,14 @@
               return scope.isOwnArticle();
             },
 
-            'redundantAttribute': 'expr48',
-            'selector': '[expr48]',
+            'redundantAttribute': 'expr33',
+            'selector': '[expr33]',
 
             'template': template(
-              '<button expr49 class="btn btn-sm btn-outline-secondary"><i class="ion-edit"></i> Edit Article\n        </button>\n        &nbsp;\n        <button expr50 class="btn btn-sm btn-outline-danger"><i class="ion-trash-a"></i> Delete Article\n        </button>',
+              '<button expr34 class="btn btn-sm btn-outline-secondary"><i class="ion-edit"></i> Edit Article\n        </button>\n        &nbsp;\n        <button expr35 class="btn btn-sm btn-outline-danger"><i class="ion-trash-a"></i> Delete Article\n        </button>',
               [{
-                'redundantAttribute': 'expr49',
-                'selector': '[expr49]',
+                'redundantAttribute': 'expr34',
+                'selector': '[expr34]',
 
                 'expressions': [{
                   'type': expressionTypes.EVENT,
@@ -9647,8 +9637,8 @@
                   }
                 }]
               }, {
-                'redundantAttribute': 'expr50',
-                'selector': '[expr50]',
+                'redundantAttribute': 'expr35',
+                'selector': '[expr35]',
 
                 'expressions': [{
                   'type': expressionTypes.EVENT,
@@ -11403,18 +11393,18 @@
     },
 
     'template': function(template, expressionTypes, bindingTypes, getComponent) {
-      return template('<template expr69></template>', [{
+      return template('<template expr52></template>', [{
         'type': bindingTypes.IF,
 
         'evaluate': function(scope) {
           return scope.state.article != null;
         },
 
-        'redundantAttribute': 'expr69',
-        'selector': '[expr69]',
+        'redundantAttribute': 'expr52',
+        'selector': '[expr52]',
 
         'template': template(
-          '<div id="article_body_field"></div><ul class="tag-list"><li expr70 class="tag-default tag-pill tag-outline"></li></ul>',
+          '<div id="article_body_field"></div><ul class="tag-list"><li expr53 class="tag-default tag-pill tag-outline"></li></ul>',
           [{
             'type': bindingTypes.EACH,
             'getKey': null,
@@ -11431,8 +11421,8 @@
               }]
             }]),
 
-            'redundantAttribute': 'expr70',
-            'selector': '[expr70]',
+            'redundantAttribute': 'expr53',
+            'selector': '[expr53]',
             'itemName': 'tagWord',
             'indexName': null,
 
@@ -11469,7 +11459,7 @@
 
     'template': function(template, expressionTypes, bindingTypes, getComponent) {
       return template(
-        '<form class="card comment-form"><div class="card-block"><textarea id="commentArea" class="form-control" placeholder="Write a comment..." rows="3"></textarea></div><div class="card-footer"><template expr66></template><button expr68 type="button" class="btn btn-sm btn-primary">\n        Post Comment\n        </button></div></form>',
+        '<form class="card comment-form"><div class="card-block"><textarea id="commentArea" class="form-control" placeholder="Write a comment..." rows="3"></textarea></div><div class="card-footer"><template expr36></template><button expr38 type="button" class="btn btn-sm btn-primary">\n        Post Comment\n        </button></div></form>',
         [{
           'type': bindingTypes.IF,
 
@@ -11477,12 +11467,12 @@
             return scope.state.profile != null;
           },
 
-          'redundantAttribute': 'expr66',
-          'selector': '[expr66]',
+          'redundantAttribute': 'expr36',
+          'selector': '[expr36]',
 
-          'template': template('<img expr67 class="comment-author-img"/>', [{
-            'redundantAttribute': 'expr67',
-            'selector': '[expr67]',
+          'template': template('<img expr37 class="comment-author-img"/>', [{
+            'redundantAttribute': 'expr37',
+            'selector': '[expr37]',
 
             'expressions': [{
               'type': expressionTypes.ATTRIBUTE,
@@ -11494,8 +11484,8 @@
             }]
           }])
         }, {
-          'redundantAttribute': 'expr68',
-          'selector': '[expr68]',
+          'redundantAttribute': 'expr38',
+          'selector': '[expr38]',
 
           'expressions': [{
             'type': expressionTypes.EVENT,
@@ -11549,16 +11539,16 @@
     },
 
     'template': function(template, expressionTypes, bindingTypes, getComponent) {
-      return template('<div expr58 class="card"></div>', [{
+      return template('<div expr43 class="card"></div>', [{
         'type': bindingTypes.EACH,
         'getKey': null,
         'condition': null,
 
         'template': template(
-          '<div class="card-block"><p class="card-text"><div expr59 class="comment_body_view"></div></p></div><div class="card-footer"><a expr60 class="comment-author"><img expr61 class="comment-author-img"/></a>\n        &nbsp;\n        <a expr62 class="comment-author"><!----></a><span expr63 class="date-posted"><!----></span><template expr64></template></div>',
+          '<div class="card-block"><p class="card-text"><div expr44 class="comment_body_view"></div></p></div><div class="card-footer"><a expr45 class="comment-author"><img expr46 class="comment-author-img"/></a>\n        &nbsp;\n        <a expr47 class="comment-author"><!----></a><span expr48 class="date-posted"><!----></span><template expr49></template></div>',
           [{
-            'redundantAttribute': 'expr59',
-            'selector': '[expr59]',
+            'redundantAttribute': 'expr44',
+            'selector': '[expr44]',
 
             'expressions': [{
               'type': expressionTypes.ATTRIBUTE,
@@ -11569,8 +11559,8 @@
               }
             }]
           }, {
-            'redundantAttribute': 'expr60',
-            'selector': '[expr60]',
+            'redundantAttribute': 'expr45',
+            'selector': '[expr45]',
 
             'expressions': [{
               'type': expressionTypes.ATTRIBUTE,
@@ -11581,8 +11571,8 @@
               }
             }]
           }, {
-            'redundantAttribute': 'expr61',
-            'selector': '[expr61]',
+            'redundantAttribute': 'expr46',
+            'selector': '[expr46]',
 
             'expressions': [{
               'type': expressionTypes.ATTRIBUTE,
@@ -11593,8 +11583,8 @@
               }
             }]
           }, {
-            'redundantAttribute': 'expr62',
-            'selector': '[expr62]',
+            'redundantAttribute': 'expr47',
+            'selector': '[expr47]',
 
             'expressions': [{
               'type': expressionTypes.TEXT,
@@ -11612,8 +11602,8 @@
               }
             }]
           }, {
-            'redundantAttribute': 'expr63',
-            'selector': '[expr63]',
+            'redundantAttribute': 'expr48',
+            'selector': '[expr48]',
 
             'expressions': [{
               'type': expressionTypes.TEXT,
@@ -11630,12 +11620,12 @@
               return scope.isDeletable( scope.comment );
             },
 
-            'redundantAttribute': 'expr64',
-            'selector': '[expr64]',
+            'redundantAttribute': 'expr49',
+            'selector': '[expr49]',
 
-            'template': template('<span class="mod-options"><i expr65 class="ion-trash-a"></i></span>', [{
-              'redundantAttribute': 'expr65',
-              'selector': '[expr65]',
+            'template': template('<span class="mod-options"><i expr50 class="ion-trash-a"></i></span>', [{
+              'redundantAttribute': 'expr50',
+              'selector': '[expr50]',
 
               'expressions': [{
                 'type': expressionTypes.EVENT,
@@ -11649,8 +11639,8 @@
           }]
         ),
 
-        'redundantAttribute': 'expr58',
-        'selector': '[expr58]',
+        'redundantAttribute': 'expr43',
+        'selector': '[expr43]',
         'itemName': 'comment',
         'indexName': null,
 
@@ -11667,50 +11657,49 @@
     'css': null,
 
     'exports': {
-      onBeforeMount() {
-          // set owner
-          let vc = new ArticleViewController();
-          this.owner = vc;
+      onBeforeMount(_,state) {
+          state.owner = new ArticleViewController();
           // Connect outlet
-          vc.view = this;
+          state.owner.view = this;
           // Call lifecycle
-          vc.viewWillAppear();
+          state.owner.viewWillAppear();
       },
 
-      onMounted(){
+      onMounted(_,state){
+          let owner = state.owner;
           // Mount child components and Connect action
           let headerView = component(HeaderView)( this.$("div#header_view") );
           component(FooterView)( this.$("div#footer_view") ); 
           let aboveWidgetView = component(ArticleWidgetView)( this.$("div#above_article_widget_view"),{
-              didFollowHandler: this.owner.didFollowHandler,
-              didFavoriteHandler: this.owner.didFavoriteHandler,
-              didEditingHandler: this.owner.didEditingHandler,
-              didDeleteHandler: this.owner.didDeleteHandler
+              didFollowHandler: owner.didFollowHandler,
+              didFavoriteHandler: owner.didFavoriteHandler,
+              didEditingHandler: owner.didEditingHandler,
+              didDeleteHandler: owner.didDeleteHandler
           });
           let belowWidgetView = component(ArticleWidgetView)( this.$("div#below_article_widget_view"),{
-              didFollowHandler: this.owner.didFollowHandler,
-              didFavoriteHandler: this.owner.didFavoriteHandler,
-              didEditingHandler: this.owner.didEditingHandler,
-              didDeleteHandler: this.owner.didDeleteHandler
+              didFollowHandler: owner.didFollowHandler,
+              didFavoriteHandler: owner.didFavoriteHandler,
+              didEditingHandler: owner.didEditingHandler,
+              didDeleteHandler: owner.didDeleteHandler
           });
           let articleView = component(ArticleView)( this.$("div#article_view") );
           let commentFormView = component(CommentFormView)( this.$("div#comment_form_view"), {
-              didSubmitHandler: this.owner.didSubmitHandler
+              didSubmitHandler: owner.didSubmitHandler
           });
           let commentTableView = component(CommentTableView)( this.$("div#comment_table_view"), {
-              didDeleteHandler: this.owner.didDeleteHandler
+              didDeleteHandler: owner.didDeleteHandler
           });
 
           // Connect outlet
-          this.owner.headerView = headerView;
-          this.owner.aboveWidgetView = aboveWidgetView;
-          this.owner.belowWidgetView = belowWidgetView;
-          this.owner.articleView = articleView;
-          this.owner.commentFormView = commentFormView;
-          this.owner.commentTableView = commentTableView;
+          owner.headerView = headerView;
+          owner.aboveWidgetView = aboveWidgetView;
+          owner.belowWidgetView = belowWidgetView;
+          owner.articleView = articleView;
+          owner.commentFormView = commentFormView;
+          owner.commentTableView = commentTableView;
           
           // Call lifecycle
-          this.owner.viewDidAppear();
+          owner.viewDidAppear();
       }
     },
 
@@ -11791,30 +11780,26 @@
     'css': null,
 
     'exports': {
-      onBeforeMount() {
-          // set owner
-          let vc = new LoginViewController();
-          this.owner = vc;
+      onBeforeMount(_,state) {
+          state.owner = new LoginViewController();
           // Connect outlet
-          vc.view = this;
+          state.owner.view = this;
           // Call lifecycle
-          vc.viewWillAppear();
+          state.owner.viewWillAppear();
       },
 
-      onMounted(){
+      onMounted(_,state){
           // Mount child components and Connect action
           let headerView = component(HeaderView)( this.$("div#header_view") );
           component(FooterView)( this.$("div#footer_view") ); 
-
           // Connect outlet
-          this.owner.headerView = headerView;
-
+          state.owner.headerView = headerView;
           // Call lifecycle
-          this.owner.viewDidAppear();
+          state.owner.viewDidAppear();
       },
 
       actionOfSubmitButton(){
-          this.owner.login( this.$("#emailField").value, this.$("#passwordField").value );
+          this.state.owner.login( this.$("#emailField").value, this.$("#passwordField").value );
       },
 
       shouldSubmit(){
@@ -11829,7 +11814,7 @@
 
     'template': function(template, expressionTypes, bindingTypes, getComponent) {
       return template(
-        '<div id="header_view"></div><div class="auth-page"><div class="container page"><div class="row"><div class="col-md-6 offset-md-3 col-xs-12"><h1 class="text-xs-center">Sign In</h1><p class="text-xs-center"><a href="#/register">Need an account?</a></p><ul expr10 class="error-messages"></ul><fieldset class="form-group"><input expr12 id="emailField" class="form-control form-control-lg" type="text" placeholder="Email"/></fieldset><fieldset class="form-group"><input expr13 id="passwordField" class="form-control form-control-lg" type="password" placeholder="Password"/></fieldset><button expr14 id="submitButton" class="btn btn-lg btn-primary pull-xs-right" disabled>\n                Sign in\n            </button></div></div></div></div><div id="footer_view"></div>',
+        '<div id="header_view"></div><div class="auth-page"><div class="container page"><div class="row"><div class="col-md-6 offset-md-3 col-xs-12"><h1 class="text-xs-center">Sign In</h1><p class="text-xs-center"><a href="#/register">Need an account?</a></p><ul expr1 class="error-messages"></ul><fieldset class="form-group"><input expr3 id="emailField" class="form-control form-control-lg" type="text" placeholder="Email"/></fieldset><fieldset class="form-group"><input expr4 id="passwordField" class="form-control form-control-lg" type="password" placeholder="Password"/></fieldset><button expr5 id="submitButton" class="btn btn-lg btn-primary pull-xs-right" disabled>\n                Sign in\n            </button></div></div></div></div><div id="footer_view"></div>',
         [{
           'type': bindingTypes.IF,
 
@@ -11837,10 +11822,10 @@
             return scope.state.errorMessages != null;
           },
 
-          'redundantAttribute': 'expr10',
-          'selector': '[expr10]',
+          'redundantAttribute': 'expr1',
+          'selector': '[expr1]',
 
-          'template': template('<li expr11></li>', [{
+          'template': template('<li expr2></li>', [{
             'type': bindingTypes.EACH,
             'getKey': null,
             'condition': null,
@@ -11856,8 +11841,8 @@
               }]
             }]),
 
-            'redundantAttribute': 'expr11',
-            'selector': '[expr11]',
+            'redundantAttribute': 'expr2',
+            'selector': '[expr2]',
             'itemName': 'message',
             'indexName': null,
 
@@ -11866,8 +11851,8 @@
             }
           }])
         }, {
-          'redundantAttribute': 'expr12',
-          'selector': '[expr12]',
+          'redundantAttribute': 'expr3',
+          'selector': '[expr3]',
 
           'expressions': [{
             'type': expressionTypes.EVENT,
@@ -11878,8 +11863,8 @@
             }
           }]
         }, {
-          'redundantAttribute': 'expr13',
-          'selector': '[expr13]',
+          'redundantAttribute': 'expr4',
+          'selector': '[expr4]',
 
           'expressions': [{
             'type': expressionTypes.EVENT,
@@ -11890,8 +11875,8 @@
             }
           }]
         }, {
-          'redundantAttribute': 'expr14',
-          'selector': '[expr14]',
+          'redundantAttribute': 'expr5',
+          'selector': '[expr5]',
 
           'expressions': [{
             'type': expressionTypes.EVENT,
@@ -11963,14 +11948,22 @@
     'css': null,
 
     'exports': {
-      onBeforeMount() {
-          // set owner
-          let vc = new RegisterViewController();
-          this.owner = vc;
+      onBeforeMount(_,state) {
+          state.owner = new RegisterViewController();
           // Connect outlet
-          vc.view = this;
+          state.owner.view = this;
           // Call lifecycle
-          vc.viewWillAppear();
+          state.owner.viewWillAppear();
+      },
+
+      onMounted(_,state){
+          // Mount child components and Connect action
+          let headerView = component(HeaderView)( this.$("div#header_view") );
+          component(FooterView)( this.$("div#footer_view") ); 
+          // Connect outlet
+          state.owner.headerView = headerView;
+          // Call lifecycle
+          state.owner.viewDidAppear();
       },
 
       shouldSubmit(){
@@ -11981,31 +11974,19 @@
           );
       },
 
-      onMounted(){
-          // Mount child components and Connect action
-          let headerView = component(HeaderView)( this.$("div#header_view") );
-          component(FooterView)( this.$("div#footer_view") ); 
-
-          // Connect outlet
-          this.owner.headerView = headerView;
-
-          // Call lifecycle
-          this.owner.viewDidAppear();
-      },
-
-      actionOfSubmitButton(){
-          this.owner.register( this.$("#usernameField").value, this.$("#emailField").value, this.$("#passwordField").value );
-      },
-
       setErrorMessages( messages ){
           this.state.errorMessages = messages;
           this.update();
+      },
+
+      actionOfSubmitButton(){
+          this.state.owner.register( this.$("#usernameField").value, this.$("#emailField").value, this.$("#passwordField").value );
       }
     },
 
     'template': function(template, expressionTypes, bindingTypes, getComponent) {
       return template(
-        '<div id="header_view"></div><div class="auth-page"><div class="container page"><div class="row"><div class="col-md-6 offset-md-3 col-xs-12"><h1 class="text-xs-center">Sign Up</h1><p class="text-xs-center"><a href="#/login">Have an account?</a></p><ul expr1 class="error-messages"></ul><fieldset class="form-group"><input expr3 id="usernameField" class="form-control form-control-lg" type="text" placeholder="Username"/></fieldset><fieldset class="form-group"><input expr4 id="emailField" class="form-control form-control-lg" type="text" placeholder="Email"/></fieldset><fieldset class="form-group"><input expr5 id="passwordField" class="form-control form-control-lg" type="password" placeholder="Password"/></fieldset><button expr6 id="submitButton" class="btn btn-lg btn-primary pull-xs-right" disabled>\n                Sign up\n            </button></div></div></div></div><div id="footer_view"></div>',
+        '<div id="header_view"></div><div class="auth-page"><div class="container page"><div class="row"><div class="col-md-6 offset-md-3 col-xs-12"><h1 class="text-xs-center">Sign Up</h1><p class="text-xs-center"><a href="#/login">Have an account?</a></p><ul expr6 class="error-messages"></ul><fieldset class="form-group"><input expr8 id="usernameField" class="form-control form-control-lg" type="text" placeholder="Username"/></fieldset><fieldset class="form-group"><input expr9 id="emailField" class="form-control form-control-lg" type="text" placeholder="Email"/></fieldset><fieldset class="form-group"><input expr10 id="passwordField" class="form-control form-control-lg" type="password" placeholder="Password"/></fieldset><button expr11 id="submitButton" class="btn btn-lg btn-primary pull-xs-right" disabled>\n                Sign up\n            </button></div></div></div></div><div id="footer_view"></div>',
         [{
           'type': bindingTypes.IF,
 
@@ -12013,10 +11994,10 @@
             return scope.state.errorMessages != null;
           },
 
-          'redundantAttribute': 'expr1',
-          'selector': '[expr1]',
+          'redundantAttribute': 'expr6',
+          'selector': '[expr6]',
 
-          'template': template('<li expr2></li>', [{
+          'template': template('<li expr7></li>', [{
             'type': bindingTypes.EACH,
             'getKey': null,
             'condition': null,
@@ -12032,8 +12013,8 @@
               }]
             }]),
 
-            'redundantAttribute': 'expr2',
-            'selector': '[expr2]',
+            'redundantAttribute': 'expr7',
+            'selector': '[expr7]',
             'itemName': 'message',
             'indexName': null,
 
@@ -12042,8 +12023,8 @@
             }
           }])
         }, {
-          'redundantAttribute': 'expr3',
-          'selector': '[expr3]',
+          'redundantAttribute': 'expr8',
+          'selector': '[expr8]',
 
           'expressions': [{
             'type': expressionTypes.EVENT,
@@ -12054,8 +12035,8 @@
             }
           }]
         }, {
-          'redundantAttribute': 'expr4',
-          'selector': '[expr4]',
+          'redundantAttribute': 'expr9',
+          'selector': '[expr9]',
 
           'expressions': [{
             'type': expressionTypes.EVENT,
@@ -12066,8 +12047,8 @@
             }
           }]
         }, {
-          'redundantAttribute': 'expr5',
-          'selector': '[expr5]',
+          'redundantAttribute': 'expr10',
+          'selector': '[expr10]',
 
           'expressions': [{
             'type': expressionTypes.EVENT,
@@ -12078,8 +12059,8 @@
             }
           }]
         }, {
-          'redundantAttribute': 'expr6',
-          'selector': '[expr6]',
+          'redundantAttribute': 'expr11',
+          'selector': '[expr11]',
 
           'expressions': [{
             'type': expressionTypes.EVENT,
@@ -12204,26 +12185,22 @@
     'css': null,
 
     'exports': {
-      onBeforeMount() {
-          // set owner
-          let vc = new EditerViewController();
-          this.owner = vc;
+      onBeforeMount(_,state) {
+          state.owner = new EditerViewController();
           // Connect outlet
-          vc.view = this;
+          state.owner.view = this;
           // Call lifecycle
-          vc.viewWillAppear();
+          state.owner.viewWillAppear();
       },
 
-      onMounted(){
+      onMounted(_,state){
           // Mount child components and Connect action
           let headerView = component(HeaderView)( this.$("div#header_view") );
           component(FooterView)( this.$("div#footer_view") ); 
-
           // Connect outlet
-          this.owner.headerView = headerView;
-
+          state.owner.headerView = headerView;
           // Call lifecycle
-          this.owner.viewDidAppear();
+          state.owner.viewDidAppear();
       },
 
       setArticle( title, description, body, tagsString ){
@@ -12243,13 +12220,13 @@
           let description = this.$("#descriptionField").value;
           let body = this.$("#bodyField").value;
           let tagsString = this.$("#tagListField").value;
-          this.owner.postArticle( title, description, body, tagsString );
+          this.state.owner.postArticle( title, description, body, tagsString );
       }
     },
 
     'template': function(template, expressionTypes, bindingTypes, getComponent) {
       return template(
-        '<div id="header_view"></div><div class="editor-page"><div class="container page"><div class="row"><div class="col-md-10 offset-md-1 col-xs-12"><ul expr7 class="error-messages"></ul><form><fieldset><fieldset class="form-group"><input id="titleField" type="text" class="form-control form-control-lg" placeholder="Article Title"/></fieldset><fieldset class="form-group"><input id="descriptionField" type="text" class="form-control" placeholder="What\'s this article about?"/></fieldset><fieldset class="form-group"><textarea id="bodyField" class="form-control" rows="8" placeholder="Write your article (in markdown)"></textarea></fieldset><fieldset class="form-group"><input id="tagListField" type="text" class="form-control" placeholder="Enter tags"/><div class="tag-list"></div></fieldset><button expr9 class="btn btn-lg pull-xs-right btn-primary" type="button"><!----></button></fieldset></form></div></div></div></div><div id="footer_view"></div>',
+        '<div id="header_view"></div><div class="editor-page"><div class="container page"><div class="row"><div class="col-md-10 offset-md-1 col-xs-12"><ul expr12 class="error-messages"></ul><form><fieldset><fieldset class="form-group"><input id="titleField" type="text" class="form-control form-control-lg" placeholder="Article Title"/></fieldset><fieldset class="form-group"><input id="descriptionField" type="text" class="form-control" placeholder="What\'s this article about?"/></fieldset><fieldset class="form-group"><textarea id="bodyField" class="form-control" rows="8" placeholder="Write your article (in markdown)"></textarea></fieldset><fieldset class="form-group"><input id="tagListField" type="text" class="form-control" placeholder="Enter tags"/><div class="tag-list"></div></fieldset><button expr14 class="btn btn-lg pull-xs-right btn-primary" type="button"><!----></button></fieldset></form></div></div></div></div><div id="footer_view"></div>',
         [{
           'type': bindingTypes.IF,
 
@@ -12257,10 +12234,10 @@
             return scope.state.errorMessages != null;
           },
 
-          'redundantAttribute': 'expr7',
-          'selector': '[expr7]',
+          'redundantAttribute': 'expr12',
+          'selector': '[expr12]',
 
-          'template': template('<li expr8></li>', [{
+          'template': template('<li expr13></li>', [{
             'type': bindingTypes.EACH,
             'getKey': null,
             'condition': null,
@@ -12276,8 +12253,8 @@
               }]
             }]),
 
-            'redundantAttribute': 'expr8',
-            'selector': '[expr8]',
+            'redundantAttribute': 'expr13',
+            'selector': '[expr13]',
             'itemName': 'message',
             'indexName': null,
 
@@ -12286,8 +12263,8 @@
             }
           }])
         }, {
-          'redundantAttribute': 'expr9',
-          'selector': '[expr9]',
+          'redundantAttribute': 'expr14',
+          'selector': '[expr14]',
 
           'expressions': [{
             'type': expressionTypes.TEXT,
@@ -12556,21 +12533,21 @@
     },
 
     'template': function(template, expressionTypes, bindingTypes, getComponent) {
-      return template('<template expr51></template>', [{
+      return template('<template expr65></template>', [{
         'type': bindingTypes.IF,
 
         'evaluate': function(scope) {
           return scope.state.profile !== null;
         },
 
-        'redundantAttribute': 'expr51',
-        'selector': '[expr51]',
+        'redundantAttribute': 'expr65',
+        'selector': '[expr65]',
 
         'template': template(
-          '<img expr52 class="user-img"/><h4 expr53><!----></h4><p expr54><!----></p><button expr55><i expr56></i><!----></button>',
+          '<img expr66 class="user-img"/><h4 expr67><!----></h4><p expr68><!----></p><button expr69><i expr70></i><!----></button>',
           [{
-            'redundantAttribute': 'expr52',
-            'selector': '[expr52]',
+            'redundantAttribute': 'expr66',
+            'selector': '[expr66]',
 
             'expressions': [{
               'type': expressionTypes.ATTRIBUTE,
@@ -12581,8 +12558,8 @@
               }
             }]
           }, {
-            'redundantAttribute': 'expr53',
-            'selector': '[expr53]',
+            'redundantAttribute': 'expr67',
+            'selector': '[expr67]',
 
             'expressions': [{
               'type': expressionTypes.TEXT,
@@ -12593,8 +12570,8 @@
               }
             }]
           }, {
-            'redundantAttribute': 'expr54',
-            'selector': '[expr54]',
+            'redundantAttribute': 'expr68',
+            'selector': '[expr68]',
 
             'expressions': [{
               'type': expressionTypes.TEXT,
@@ -12605,8 +12582,8 @@
               }
             }]
           }, {
-            'redundantAttribute': 'expr55',
-            'selector': '[expr55]',
+            'redundantAttribute': 'expr69',
+            'selector': '[expr69]',
 
             'expressions': [{
               'type': expressionTypes.TEXT,
@@ -12631,8 +12608,8 @@
               }
             }]
           }, {
-            'redundantAttribute': 'expr56',
-            'selector': '[expr56]',
+            'redundantAttribute': 'expr70',
+            'selector': '[expr70]',
 
             'expressions': [{
               'type': expressionTypes.ATTRIBUTE,
@@ -12654,45 +12631,44 @@
     'css': null,
 
     'exports': {
-      onBeforeMount() {
-          // set owner
-          let vc = new ProfileViewController();
-          this.owner = vc;
+      onBeforeMount(_,state) {
+          state.owner = new ProfileViewController();
           // Connect outlet
-          vc.view = this;
+          state.owner.view = this;
           // Call lifecycle
-          vc.viewWillAppear();
+          state.owner.viewWillAppear();
       },
 
-      onMounted(){
+      onMounted(_,state){
+          let owner = state.owner;
           // Mount child components and Connect action
           let headerView = component(HeaderView)( this.$("div#header_view") );
           component(FooterView)( this.$("div#footer_view") ); 
           let profileView = component(ProfileView)( this.$("div#profile_view"), {
-              didClickButtonHandler: this.owner.didClickButtonHandler
+              didClickButtonHandler: owner.didClickButtonHandler
           });
           let articleTabView = component(ArticleTabView)( this.$("#article_tab_view"), {
                toggleStyle: "articles-toggle",
-               didSelectTab: this.owner.didSelectTab
+               didSelectTab: owner.didSelectTab
           });
           let articlesTableView = component(ArticlesTableView)( this.$("div#articles_table_view"), {
-              didSelectProfile: this.owner.didSelectProfile,
-              didSelectArticle: this.owner.didSelectArticle,
-              didFavoriteArticle: this.owner.didFavoriteArticle
+              didSelectProfile: owner.didSelectProfile,
+              didSelectArticle: owner.didSelectArticle,
+              didFavoriteArticle: owner.didFavoriteArticle
           });
           let pagenationView = component(PagenationView)( this.$("div#pagenation_view"), {
-              didSelectPageNumber:  this.owner.didSelectPageNumber
+              didSelectPageNumber:  owner.didSelectPageNumber
           });
 
           // Connect outlet
-          this.owner.headerView = headerView;
-          this.owner.profileView = profileView;
-          this.owner.articleTabView = articleTabView;
-          this.owner.articlesTableView = articlesTableView;
-          this.owner.pagenationView = pagenationView;
+          owner.headerView = headerView;
+          owner.profileView = profileView;
+          owner.articleTabView = articleTabView;
+          owner.articlesTableView = articlesTableView;
+          owner.pagenationView = pagenationView;
 
           // Call lifecycle
-          this.owner.viewDidAppear();
+          owner.viewDidAppear();
       }
     },
 
@@ -12809,24 +12785,22 @@
     'css': null,
 
     'exports': {
-      onBeforeMount() {
-          // set owner
-          let vc = new SettingsViewController();
-          this.owner = vc;
+      onBeforeMount(_,state) {
+          state.owner = new SettingsViewController();
           // Connect outlet
-          vc.view = this;
+          state.owner.view = this;
           // Call lifecycle
-          vc.viewWillAppear();
+          state.owner.viewWillAppear();
       },
 
-      onMounted(){
+      onMounted(_,state){
           // Mount child components and Connect action
           let headerView = component(HeaderView)( this.$("div#header_view") );
           component(FooterView)( this.$("div#footer_view") ); 
           // Connect outlet
-          this.owner.headerView = headerView;
+          state.owner.headerView = headerView;
           // Call lifecycle
-          this.owner.viewDidAppear();
+          state.owner.viewDidAppear();
       },
 
       setUser( user ){
@@ -13023,8 +12997,6 @@
           };
       }
   }
-
-  // import ApplicationUseCase from "../Domain/UseCase/ApplicationUseCase"
 
   var application = {
     'css': null,
