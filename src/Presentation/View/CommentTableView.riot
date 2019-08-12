@@ -24,11 +24,11 @@ export default{
     formattedDate( date ){
         return moment( date ).format("MMMM DD, YYYY"); 
     },
-    actionOfTrashButton( commentId ){
-        if (this.props.didDeleteHandler) { this.props.didDeleteHandler() }
-    },
     isDeletable( comment ){
         return comment.author.username == ( this.state.loggedUserProfile ? this.state.loggedUserProfile.username : false )
+    },
+    actionOfTrashButton( commentId ){
+        if (this.props.didDeleteHandler) { this.props.didDeleteHandler() }
     }
 }
 

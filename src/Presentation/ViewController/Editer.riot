@@ -1,62 +1,7 @@
-<!--
-import "../View/HeaderView.tag"
-import "../View/FooterView.tag"
--->
-
 <editer>
 
 <script>
-// import EditerUseCase from "../../Domain/UseCase/EditerUseCase"
 
-// var self = this
-// var useCase = new EditerUseCase()
-
-// self.errors = null
-
-// self.on("mount", () => {
-
-//     if( useCase.isLoggedIn() === false ){
-//         useCase.jumpToNotFound()
-//         return
-//     }
-
-//     // setup header
-//     self.tags.header_view.setItems( useCase.menuItems() )
-
-//     // request article
-//     useCase.ifNeededRequestArticle().then( (article) => {
-//         if (article === null ) return
-//         // setup form
-//         self.refs.titleField.value = article.title
-//         self.refs.descriptionField.value = article.description
-//         self.refs.bodyField.value = article.body
-//         self.refs.tagListField.value = article.tagList.join(",")
-//     })
-// })
-
-// self.actionOfSubmitButton = () => {
-//     let title = self.refs.titleField.value
-//     let description = self.refs.descriptionField.value
-//     let body = self.refs.bodyField.value
-//     let tagList = self.refs.tagListField.value
-
-//     useCase.post(title, description, body, tagList).then( (article) => {
-//         // success
-//         useCase.jumpToArticleScene(article)
-//     }).catch( (error) => {
-//         // failure
-//         if (error instanceof Array ) {
-//             self.errors = error.map( (aError) => aError.message )
-//         }else if( error instanceof Error ) {
-//             self.errors = [ error.message ]
-//         }
-//         self.update()
-//     })
-// }
-
-// self.submitButtonTitle = () => {
-//     return useCase.isNewArticle() ? "Publish Article" : "Update Article"
-// }
 import { component } from "riot"
 import EditerViewController from "./EditerViewController"
 
@@ -83,6 +28,23 @@ export default{
 
         // Call lifecycle
         this.owner.viewDidAppear()
+    },
+    setArticle( title, description, body, tagsString ){
+        this.$("#titleField").value = title
+        this.$("#descriptionField").value = description
+        this.$("#bodyField").value = body
+        this.$("#tagListField").value = tagsString
+    },
+    setErrorMessages( messages ){
+        this.state.errorMessages = messages
+        this.update()
+    },
+    actionOfSubmitButton(){
+        let title = this.$("#titleField").value
+        let description = this.$("#descriptionField").value
+        let body = this.$("#bodyField").value
+        let tagsString = this.$("#tagListField").value
+        this.owner.postArticle( title, description, body, tagsString )
     }
 }
 </script>
@@ -94,26 +56,26 @@ export default{
         <div class="row">
         <div class="col-md-10 offset-md-1 col-xs-12">
 
-            <ul if={ errors != null } class="error-messages">
-                <li each={ error in errors }>{ error }</li>
+            <ul if={ state.errorMessages != null } class="error-messages">
+                <li each={ message in state.errorMessages }>{ message }</li>
             </ul>
             
             <form>
             <fieldset>
                 <fieldset class="form-group">
-                    <input ref="titleField" type="text" class="form-control form-control-lg" placeholder="Article Title">
+                    <input id="titleField" type="text" class="form-control form-control-lg" placeholder="Article Title">
                 </fieldset>
                 <fieldset class="form-group">
-                    <input ref="descriptionField" type="text" class="form-control" placeholder="What's this article about?">
+                    <input id="descriptionField" type="text" class="form-control" placeholder="What's this article about?">
                 </fieldset>
                 <fieldset class="form-group">
-                    <textarea ref="bodyField" class="form-control" rows="8" placeholder="Write your article (in markdown)"></textarea>
+                    <textarea id="bodyField" class="form-control" rows="8" placeholder="Write your article (in markdown)"></textarea>
                 </fieldset>
                 <fieldset class="form-group">
-                    <input ref="tagListField" type="text" class="form-control" placeholder="Enter tags"><div class="tag-list"></div>
+                    <input id="tagListField" type="text" class="form-control" placeholder="Enter tags"><div class="tag-list"></div>
                 </fieldset>
                 <button class="btn btn-lg pull-xs-right btn-primary" type="button" onclick={ actionOfSubmitButton }>
-                    { submitButtonTitle() }
+                    { owner.submitButtonTitle() }
                 </button>
             </fieldset>
             </form>

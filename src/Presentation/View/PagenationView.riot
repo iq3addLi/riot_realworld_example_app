@@ -12,14 +12,14 @@ export default{
         this.state.countOfPage = count === null ? 0 : count
         this.update()
     },
-    actionOfClickPageLink( page ){
-        if (this.props.didSelectPageNumber) { this.props.didSelectPageNumber( page ) }
-    },
     arrayOfPageNumber(){
         return [...Array(this.state.countOfPage).keys()].map(i => ++i)
     },
     pageItemClassName( page ){
         return "page-item " + ( page === this.state.shownPage ? " active" : "" )
+    },
+    actionOfClickPageLink( page ){
+        if (this.props.didSelectPageNumber) { this.props.didSelectPageNumber( page ) }
     }
 
 }

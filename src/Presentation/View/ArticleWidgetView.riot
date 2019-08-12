@@ -29,16 +29,16 @@ export default{
         return "btn btn-sm" + (article.author.following ? " btn-primary" : " btn-outline-primary")
     },
     actionOfFollowButton(){
-        if ( this.didFollowHandler ){ this.didFollowHandler() }
+        if ( this.props.didFollowHandler ){ this.props.didFollowHandler() }
     },
     actionOfFavoriteButton(){
-        if ( this.didFavoriteHandler ){ this.didFavoriteHandler() }
+        if ( this.props.didFavoriteHandler ){ this.props.didFavoriteHandler() }
     },
     actionOfEditingButton(){
-        if ( this.didEditingHandler ){ this.didEditingHandler() }
+        if ( this.props.didEditingHandler ){ this.props.didEditingHandler() }
     },
     actionOfDeleteButton(){
-        if ( this.didDeleteHandler ){ this.didDeleteHandler() }
+        if ( this.props.didDeleteHandler ){ this.props.didDeleteHandler() }
     }
 }
 </script>

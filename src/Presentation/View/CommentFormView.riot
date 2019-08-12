@@ -8,8 +8,9 @@ export default{
         this.update()
     },
     actionOfPostCommentButton(){
-        let comment = this.$("textarea#commentArea").value
-        if( this.props.didSubmitHandler ){ this.props.didSubmitHandler( comment ) }
+        if( this.props.didSubmitHandler ){
+            this.props.didSubmitHandler( this.$("textarea#commentArea").value )
+        }
     },
     clearComment(){
         this.$("textarea#commentArea").value = ""

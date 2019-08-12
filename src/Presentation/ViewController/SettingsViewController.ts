@@ -13,9 +13,36 @@ export default class SettingsViewController {
     // Lifecycle
 
     viewWillAppear = () => {
-        console.log("viewWillAppear")
+        if ( this.useCase.isLoggedIn() === false ) {
+            this.useCase.jumpToNotFound()
+            return
+        }
     }
     viewDidAppear = () => {
+        // setup header
         this.headerView.setItems( this.useCase.menuItems() )
+
+        // setup form
+        this.view.setUser( this.useCase.loggedUser() )
+    }
+
+    // Public
+
+    postProfile = ( email: string, username: string, bio: string, image: string, password: string ) => {
+        this.useCase.post(email, username, bio, image, password).then( () => {
+            // success
+            this.useCase.jumpToHome()
+        }).catch( (error) => {
+            // failure
+            if (error instanceof Array ) {
+                this.view.setErrorMessages( error.map( (aError) => aError.message ) )
+            } else if ( error instanceof Error ) {
+                this.view.setErrorMessages( [ error.message ] )
+            }
+        })
+    }
+
+    logout = () => {
+        this.useCase.logoutAfterJumpToHome()
     }
 }

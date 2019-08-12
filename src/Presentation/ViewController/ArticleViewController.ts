@@ -13,6 +13,7 @@ export default class ArticleViewController {
     commentTableView: RiotCoreComponent|any
 
     // Usecase
+
     private useCase = new ArticleUseCase()
 
     // Lifecycle

@@ -40,8 +40,8 @@ export default class EditerUseCase {
         return this.state.slug === null
     }
 
-    post = ( title: string, description: string, body: string, tagList: string) => {
-        let splitted = tagList.split(",")
+    post = ( title: string, description: string, body: string, tagsString: string) => {
+        let splitted = tagsString.split(",")
         let tags: string[] = (splitted.length > 0 ? splitted : null )
         if ( this.state.slug === null ) {
             // new article
