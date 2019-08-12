@@ -3413,17 +3413,6 @@
   User.init = (object) => {
       return new User(object.id, object.email, object.createdAt, object.updatedAt, object.username, object.token, object.bio, object.image);
   };
-  // {"user":
-  //     {"id":58598,
-  //     "email":"buyer01@ahk.jp",
-  //     "createdAt":"2019-06-20T02:56:36.621Z",
-  //     "updatedAt":"2019-06-20T02:56:36.630Z",
-  //     "username":"arupaka2525",
-  //     "bio":null,
-  //     "image":null,
-  //     "token":"..."
-  //     }
-  // }
 
   // import Initializable from "../../Infrastructure/Initializable"
   class Article /* implements Initializable*/ {
