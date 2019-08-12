@@ -1,4 +1,4 @@
-<notfound>
+<show_error>
 
 <script>
 import { component } from "riot"
@@ -13,6 +13,7 @@ export default{
         component(FooterView)( this.$("div#footer_view") )
     }
 }
+
 </script>
 
 <style>
@@ -32,12 +33,16 @@ export default{
     <!-- Banner -->
     <div class="banner">
         <div class="container">
-            <h1 class="logo-font">Your order is not found.<br/>Sorry, Please back <a class="spotlink" href="/">home</a>.</h1>
+            <h1 class="logo-font">
+            { props.message }<br/>
+            Sorry, Please back <a class="spotlink" href="/">home</a>.
+            </h1>
         </div>
     </div>
-
+    
     <!-- Footer -->
     <div id="footer_view" />
+
 </div>
 
-</notfound>
+</show_error>
