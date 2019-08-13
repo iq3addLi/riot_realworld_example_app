@@ -23,21 +23,21 @@ export default{
     onMounted(_,state){
         let owner = state.owner
         // Mount child components and Connect action
-        let headerView = component(HeaderView)( this.$("div#header_view") )
-        component(FooterView)( this.$("div#footer_view") ) 
-        let profileView = component(ProfileView)( this.$("div#profile_view"), {
+        let headerView = component(HeaderView)( this.$("#headerView") )
+        component(FooterView)( this.$("#footerView") ) 
+        let profileView = component(ProfileView)( this.$("#profileView"), {
             didClickButtonHandler: owner.didClickButtonHandler
         })
-        let articleTabView = component(ArticleTabView)( this.$("#article_tab_view"), {
+        let articleTabView = component(ArticleTabView)( this.$("#articleTabView"), {
              toggleStyle: "articles-toggle",
              didSelectTab: owner.didSelectTab
         })
-        let articlesTableView = component(ArticlesTableView)( this.$("div#articles_table_view"), {
+        let articlesTableView = component(ArticlesTableView)( this.$("#articlesTableView"), {
             didSelectProfile: owner.didSelectProfile,
             didSelectArticle: owner.didSelectArticle,
             didFavoriteArticle: owner.didFavoriteArticle
         })
-        let pagenationView = component(PagenationView)( this.$("div#pagenation_view"), {
+        let pagenationView = component(PagenationView)( this.$("#pagenationView"), {
             didSelectPageNumber:  owner.didSelectPageNumber
         })
 
@@ -54,7 +54,7 @@ export default{
 }
 </script>
 
-<div id="header_view" />
+<div id="headerView" />
 
 <div class="profile-page">
 
@@ -63,7 +63,7 @@ export default{
         <div class="container">
             <div class="row">
                 <div class="col-xs-12 col-md-10 offset-md-1">
-                    <div id="profile_view" />
+                    <div id="profileView" />
                 </div>
             </div>
         </div>
@@ -73,15 +73,15 @@ export default{
     <div class="container">
         <div class="row">
             <div class="col-xs-12 col-md-10 offset-md-1">
-                <div id="article_tab_view" />
-                <div id="articles_table_view" />
-                <div id="pagenation_view" />
+                <div id="articleTabView" />
+                <div id="articlesTableView" />
+                <div id="pagenationView" />
             </div>
         </div>
     </div>
 
 </div>
 
-<div id="footer_view" />
+<div id="footerView" />
 
 </profile>

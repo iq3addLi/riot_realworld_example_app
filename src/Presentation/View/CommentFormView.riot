@@ -9,11 +9,11 @@ export default{
     },
     actionOfPostCommentButton(){
         if( this.props.didSubmitHandler ){
-            this.props.didSubmitHandler( this.$("textarea#commentArea").value )
+            this.props.didSubmitHandler( this.$("#commentArea").value )
         }
     },
     clearComment(){
-        this.$("textarea#commentArea").value = ""
+        this.$("#commentArea").value = ""
     }
 }
 </script>

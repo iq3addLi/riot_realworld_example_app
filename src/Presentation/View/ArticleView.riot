@@ -6,7 +6,7 @@ import { component } from "riot"
 import MarkdownView from "./MarkdownView.riot"
 export default{
     onUpdated(){
-        let bodyField = this.$("div#article_body_field")
+        let bodyField = this.$("#articleBodyField")
         if (bodyField){
             component(MarkdownView)( bodyField, { body: this.state.article.body } )
         }
@@ -19,7 +19,7 @@ export default{
 </script>
 
 <template if={ state.article != null }>
-    <div id="article_body_field" />
+    <div id="articleBodyField" />
     <ul class="tag-list">
         <li each={ tagWord in state.article.tagList } class="tag-default tag-pill tag-outline">{ tagWord }</li>
     </ul>

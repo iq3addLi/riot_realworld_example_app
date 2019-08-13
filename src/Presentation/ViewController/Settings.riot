@@ -18,29 +18,29 @@ export default{
     },
     onMounted(_,state){
         // Mount child components and Connect action
-        let headerView = component(HeaderView)( this.$("div#header_view") )
-        component(FooterView)( this.$("div#footer_view") ) 
+        let headerView = component(HeaderView)( this.$("#headerView") )
+        component(FooterView)( this.$("#footerView") ) 
         // Connect outlet
         state.owner.headerView = headerView
         // Call lifecycle
         state.owner.viewDidAppear()
     },
     setUser( user ){
-        this.$("#icon_url_field").value = user.image
-        this.$("#username_field").value = user.username
-        this.$("#bio_field").value = user.bio
-        this.$("#email_field").value = user.email
+        this.$("#iconUrlField").value = user.image
+        this.$("#usernameField").value = user.username
+        this.$("#bioField").value = user.bio
+        this.$("#emailField").value = user.email
     },
     setErrorMessages( messages ){
         this.state.errorMessages = messages
         this.update()
     },
     actionOfUpdateButton(){
-        let email = this.$("#email_field").value
-        let username = this.$("#username_field").value
-        let bio = this.$("#bio_field").value
-        let image = this.$("#icon_url_field").value
-        let password = this.$("#password_field").value
+        let email = this.$("#emailField").value
+        let username = this.$("#usernameField").value
+        let bio = this.$("#bioField").value
+        let image = this.$("#iconUrlField").value
+        let password = this.$("#passwordField").value
         this.owner.postProfile( email, username, bio, image, password )
     },
     actionOfLogoutButton(){
@@ -50,7 +50,7 @@ export default{
 
 </script>
 
-<div id="header_view" />
+<div id="headerView" />
 
     <div class="settings-page">
         <div class="container page">
@@ -66,19 +66,19 @@ export default{
                 <form>
                 <fieldset>
                     <fieldset class="form-group">
-                        <input id="icon_url_field" class="form-control" type="text" placeholder="URL of profile picture">
+                        <input id="iconUrlField" class="form-control" type="text" placeholder="URL of profile picture">
                     </fieldset>
                     <fieldset class="form-group">
-                        <input id="username_field" class="form-control form-control-lg" type="text" placeholder="Your Name">
+                        <input id="usernameField" class="form-control form-control-lg" type="text" placeholder="Your Name">
                     </fieldset>
                     <fieldset class="form-group">
-                        <textarea id="bio_field" class="form-control form-control-lg" rows="8" placeholder="Short bio about you"></textarea>
+                        <textarea id="bioField" class="form-control form-control-lg" rows="8" placeholder="Short bio about you"></textarea>
                     </fieldset>
                     <fieldset class="form-group">
-                        <input id="email_field" class="form-control form-control-lg" type="text" placeholder="Email">
+                        <input id="emailField" class="form-control form-control-lg" type="text" placeholder="Email">
                     </fieldset>
                     <fieldset class="form-group">
-                        <input id="password_field" class="form-control form-control-lg" type="password" placeholder="Password">
+                        <input id="passwordField" class="form-control form-control-lg" type="password" placeholder="Password">
                     </fieldset>
                     <button class="btn btn-lg btn-primary pull-xs-right" type="button" onclick={ actionOfUpdateButton }>
                         Update Settings
@@ -94,6 +94,6 @@ export default{
         </div>
     </div>
 
-<div id="footer_view" />
+<div id="footerView" />
 
 </settings>

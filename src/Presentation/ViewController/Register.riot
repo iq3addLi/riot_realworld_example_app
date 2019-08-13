@@ -18,8 +18,8 @@ export default{
     },
     onMounted(_,state){
         // Mount child components and Connect action
-        let headerView = component(HeaderView)( this.$("div#header_view") )
-        component(FooterView)( this.$("div#footer_view") ) 
+        let headerView = component(HeaderView)( this.$("#headerView") )
+        component(FooterView)( this.$("#footerView") ) 
         // Connect outlet
         state.owner.headerView = headerView
         // Call lifecycle
@@ -42,7 +42,7 @@ export default{
 }
 </script>
     
-<div id="header_view" />
+<div id="headerView" />
     
 <div class="auth-page">
     <div class="container page">
@@ -77,6 +77,6 @@ export default{
     </div>
 </div>
 
-<div id="footer_view" />
+<div id="footerView" />
 
 </register>

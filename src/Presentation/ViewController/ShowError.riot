@@ -9,8 +9,8 @@ import FooterView from "../../Presentation/View/FooterView.riot"
 export default{
     onMounted(){
         // Mount child components
-        component(HeaderView)( this.$("div#header_view") )
-        component(FooterView)( this.$("div#footer_view") )
+        component(HeaderView)( this.$("#headerView") )
+        component(FooterView)( this.$("#footerView") )
     }
 }
 
@@ -28,7 +28,7 @@ export default{
 
 <div class="home-page">
     <!-- Header -->
-    <div id="header_view" />
+    <div id="headerView" />
 
     <!-- Banner -->
     <div class="banner">
@@ -41,7 +41,7 @@ export default{
     </div>
     
     <!-- Footer -->
-    <div id="footer_view" />
+    <div id="footerView" />
 
 </div>
 

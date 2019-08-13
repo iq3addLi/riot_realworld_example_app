@@ -24,20 +24,20 @@ export default{
     onMounted(_,state){
         let owner = state.owner
         // Mount child components and Connect action
-        let headerView = component(HeaderView)( this.$("div#header_view") )
-        component(FooterView)( this.$("div#footer_view") ) // unuse
-        let bannerView = component(BannerView)( this.$("div#banner_view") )
-        let articleTabView = component(ArticleTabView)( this.$("div#article_tab_view"), {
+        let headerView = component(HeaderView)( this.$("#headerView") )
+        component(FooterView)( this.$("#footerView") ) // disconnect because unuse.
+        let bannerView = component(BannerView)( this.$("#bannerView") )
+        let articleTabView = component(ArticleTabView)( this.$("#articleTabView"), {
              toggleStyle: "feed-toggle",
              didSelectTab: owner.didSelectTab
         })
-        let articlesTableView = component(ArticlesTableView)( this.$("div#articles_table_view"), {
+        let articlesTableView = component(ArticlesTableView)( this.$("#articlesTableView"), {
             didSelectProfile: owner.didSelectProfile,
             didSelectArticle: owner.didSelectArticle,
             didFavoriteArticle: owner.didFavoriteArticle
         })
-        let tagsView = component(TagsView)( this.$("div#tags_view") )
-        let pagenationView = component(PagenationView)( this.$("div#pagenation_view"), {
+        let tagsView = component(TagsView)( this.$("#tagsView") )
+        let pagenationView = component(PagenationView)( this.$("#pagenationView"), {
             didSelectPageNumber:  owner.didSelectPageNumber
         })
 
@@ -59,22 +59,22 @@ export default{
 
 <div class="home-page">
 
-    <div id="header_view"/>
-    <div id="banner_view"/>
+    <div id="headerView"/>
+    <div id="bannerView"/>
 
     <div class="container page">
         <div class="row">
             <div class="col-md-9">
-                <div id="article_tab_view" />
-                <div id="articles_table_view" />
-                <div id="pagenation_view" />
+                <div id="articleTabView" />
+                <div id="articlesTableView" />
+                <div id="pagenationView" />
             </div>
             <div class="col-md-3">
-                <div id="tags_view" />
+                <div id="tagsView" />
             </div>
         </div>
     </div>
-    <div id="footer_view"/>
+    <div id="footerView"/>
 </div>
 
 </articles>

@@ -22,25 +22,25 @@ export default{
     onMounted(_,state){
         let owner = state.owner
         // Mount child components and Connect action
-        let headerView = component(HeaderView)( this.$("div#header_view") )
-        component(FooterView)( this.$("div#footer_view") ) 
-        let aboveWidgetView = component(ArticleWidgetView)( this.$("div#above_article_widget_view"),{
+        let headerView = component(HeaderView)( this.$("#headerView") )
+        component(FooterView)( this.$("#footerView") ) 
+        let aboveWidgetView = component(ArticleWidgetView)( this.$("#aboveArticleWidgetView"),{
             didFollowHandler: owner.didFollowHandler,
             didFavoriteHandler: owner.didFavoriteHandler,
             didEditingHandler: owner.didEditingHandler,
             didDeleteHandler: owner.didDeleteHandler
         })
-        let belowWidgetView = component(ArticleWidgetView)( this.$("div#below_article_widget_view"),{
+        let belowWidgetView = component(ArticleWidgetView)( this.$("#belowArticleWidgetView"),{
             didFollowHandler: owner.didFollowHandler,
             didFavoriteHandler: owner.didFavoriteHandler,
             didEditingHandler: owner.didEditingHandler,
             didDeleteHandler: owner.didDeleteHandler
         })
-        let articleView = component(ArticleView)( this.$("div#article_view") )
-        let commentFormView = component(CommentFormView)( this.$("div#comment_form_view"), {
+        let articleView = component(ArticleView)( this.$("#articleView") )
+        let commentFormView = component(CommentFormView)(  this.$("#commentFormView"), {
             didSubmitHandler: owner.didSubmitHandler
         })
-        let commentTableView = component(CommentTableView)( this.$("div#comment_table_view"), {
+        let commentTableView = component(CommentTableView)(  this.$("#commentTableView"), {
             didDeleteHandler: owner.didDeleteHandler
         })
 
@@ -58,15 +58,15 @@ export default{
 }
 </script>
 
-<div id="header_view" />
+<div id="headerView" />
 
 <div class="article-page">
 
     <!-- Banner with profile -->
     <div class="banner">
         <div class="container">
-            <h1>{ owner.currentArticleTitle() }</h1>
-            <div id="above_article_widget_view"/>
+            <h1>{ state.owner.currentArticleTitle() }</h1>
+            <div id="aboveArticleWidgetView"/>
         </div>
     </div>
 
@@ -74,7 +74,7 @@ export default{
     <div class="container page">
         <div class="row article-content">
             <div class="col-md-12">
-                <div id="article_view" />
+                <div id="articleView" />
             </div>
         </div>
     </div>
@@ -83,21 +83,21 @@ export default{
 
     <!-- Article below profile -->
     <div class="article-actions">
-        <div id="below_article_widget_view" />
+        <div id="belowArticleWidgetView" />
     </div>
 
     <!-- Comment -->
     <div class="row">
         <div class="col-xs-12 col-md-8 offset-md-2">
             <!-- Comment form -->
-            <div id="comment_form_view" />
+            <div id="commentFormView" />
             <!-- Comment table -->
-            <div id="comment_table_view" />
+            <div id="commentTableView" />
         </div>
     </div>
     
 </div>
 
-<div id="footer_view" />
+<div id="footerView" />
 
 </article>
