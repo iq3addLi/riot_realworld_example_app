@@ -41,10 +41,10 @@ export default{
         let bio = this.$("#bioField").value
         let image = this.$("#iconUrlField").value
         let password = this.$("#passwordField").value
-        this.owner.postProfile( email, username, bio, image, password )
+        this.state.owner.postProfile( email, username, bio, image, password )
     },
     actionOfLogoutButton(){
-        this.owner.logout()
+        this.state.owner.logout()
     }
 }
 
