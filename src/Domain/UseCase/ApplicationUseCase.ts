@@ -1,4 +1,4 @@
-import { mount, unmount, register, RiotComponent, RiotComponentShell } from "riot"
+import { mount, unmount, register, RiotComponentShell } from "riot"
 import route from "riot-route"
 
 import Settings from "../../Infrastructure/Settings"
