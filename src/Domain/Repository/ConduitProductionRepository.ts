@@ -30,23 +30,23 @@ export default class ConduitProductionRepository implements ConduitRepository {
     }
 
     getArticles = ( token?: string, limit?: number, offset?: number ) => {
-        return this.getArticleContainer( this.buildPath("articles", this.buildArticlesQuery(limit, offset)), "GET", this.headers( token ) )
+        return this.getArticleContainer( this.buildPath("/articles", this.buildArticlesQuery(limit, offset)), "GET", this.headers( token ) )
     }
 
     getArticlesOfAuthor = ( username: string, token?: string, limit?: number, offset?: number ) => {
-        return this.getArticleContainer( this.buildPath("articles", this.buildArticlesQuery(limit, offset, null, null, username) ), "GET", this.headers( token ) )
+        return this.getArticleContainer( this.buildPath("/articles", this.buildArticlesQuery(limit, offset, null, null, username) ), "GET", this.headers( token ) )
     }
 
     getArticlesForFavoriteUser = ( username: string, token?: string, limit?: number, offset?: number ) => {
-        return this.getArticleContainer( this.buildPath("articles", this.buildArticlesQuery(limit, offset, null, username) ), "GET", this.headers( token ) )
+        return this.getArticleContainer( this.buildPath("/articles", this.buildArticlesQuery(limit, offset, null, username) ), "GET", this.headers( token ) )
     }
 
     getArticlesOfTagged = ( tag: string, token?: string, limit?: number, offset?: number ) => {
-        return this.getArticleContainer( this.buildPath("articles", this.buildArticlesQuery(limit, offset, tag) ), "GET", this.headers( token ) )
+        return this.getArticleContainer( this.buildPath("/articles", this.buildArticlesQuery(limit, offset, tag) ), "GET", this.headers( token ) )
     }
 
     getArticlesByFollowingUser = ( token: string, limit?: number, offset?: number ) => {
-        return this.getArticleContainer( this.buildPath("articles/feed", this.buildArticlesQuery(limit, offset)), "GET", this.headers( token ) )
+        return this.getArticleContainer( this.buildPath("/articles/feed", this.buildArticlesQuery(limit, offset)), "GET", this.headers( token ) )
     }
 
     getArticle = ( slug: string, token?: string ) => {
@@ -164,7 +164,7 @@ export default class ConduitProductionRepository implements ConduitRepository {
         if ( headers != null ) { init["headers"] = headers }
         if ( body != null ) { init["body"] = JSON.stringify(body) }
         return new Promise<any>( async (resolve, reject) => {
-            const response = await fetch( this.endpoint() + "/" + path, init)
+            const response = await fetch( this.endpoint() + path, init)
             this.evaluateResponse( response,
                 json  => { resolve( json ) },
                 error => { reject( error ) }
