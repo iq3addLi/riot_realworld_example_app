@@ -62,7 +62,7 @@ Same completely to [v3](https://github.com/iq3addLi/riot_realworld_example_app#d
 
 ## How this project uses riot.js
 
-###Pre-compile with npm packages
+### Pre-compile with npm packages
 
 Riot.js can compile `.riot` files on the server side. This is very convenient for getting started quickly. However, I chose to precompile with npm for this project.  This is because TypeScript can be used for most of the implementation code. When developing applications as large as RealWorld, type checking with TypeScript greatly contributes to work efficiency. 
 
@@ -76,19 +76,21 @@ I treated the `.riot` file as an interface definition.  Information to be displa
 
 The reason is next
 
-* I wanted to use TypeScript as much as possible.
-  * There is a way to write TypeScript in <script> in `.riot`, but even so, it is difficult to get editor support, and the benefits of writing in TypeScript are not as expected.
-* It has almost the same structure as iOS application development
+#### I wanted to use TypeScript as much as possible.
 
-I will explain the second reason. I'm usually an iOS Developer. In iOS, the UI layout is described in a file called `.storyboard` or` .xib`. Both are XML.  Normally, editing is not done directly by hand, but can be done on the GUI using the Xcode SDK **InterfaceBuilder** function. After all, the information displayed on the UI and the action by event firing are described in the `.swift` implementation file. This relationship is very similar to the relationship between the `.riot` and the` .ts` implementation code. This meant that the usual strategy could be put directly into web development. **Isn't this great?**
+There is a way to write TypeScript in <script> in `.riot`, but even so, it is difficult to get editor support, and the benefits of writing in TypeScript are not as expected.
+
+#### It has almost the same structure as iOS development
+
+I will explain the second reason. I'm usually an iOS Developer. In iOS, the UI layout is described in a file called `.storyboard` or` .xib`. Both are XML.  Normally, editing is not done directly by hand, but can be done on the GUI using the Xcode SDK **InterfaceBuilder** function. After all, the information displayed on the UI and the action by event firing are described in the `.swift` implementation file. This relationship is very similar to the relationship between the `.riot` and the ` .ts` implementation code. This meant that the usual strategy could be put directly into web development. **Isn't this great?**
 
 I was delighted to see that the power of riot.js removed the barriers to web development. ✊
 
 
 
-### Use riot-route for routing
+### Use [riot-route](https://github.com/riot/route) for routing
 
-I used [riot-route](We used riot-route for routing following v3) for routing following v3. riot-route is an independent and well-designed component that **can be used without modification in v4**. Major updates have not been made to match riot.js, but there is no problem.
+I used riot-route for routing following v3. riot-route is an independent and well-designed component that **can be used without modification in v4**. Major updates have not been made to match riot.js, but there is no problem.
 
 
 
@@ -138,13 +140,15 @@ From v4 you have to call unmount explicitly. Otherwise your UI will look like BO
 
 ### Measures against access to childview being deleted
 
+This was the most difficult part of migrating to v4. 
+
 🖋Now writing...
 
 
 
 ### Writing event handlers with arguments
 
-In v3 you had to use `bind ()`, but in v4 you can now do more appropriate writing.
+In v3 you had to use `bind()`, but in v4 you can now do more appropriate writing.
 
 #### ex. [v3](https://github.com/iq3addLi/riot_realworld_example_app/blob/1.0.0/src/Presentation/View/CommentTableView.tag#L54), [v4](https://github.com/iq3addLi/riot_v4_realworld_example_app/blob/1.0.0/src/Presentation/View/CommentTableView.riot#L62)
 
@@ -163,3 +167,6 @@ In v3 you had to use `bind ()`, but in v4 you can now do more appropriate writin
 
 🖋Now writing...
 
+* Write that migration effort was limited
+* Write that the role of the `.riot` file is closer to` xib without InterfaceBuilder` than in v3
+* 
