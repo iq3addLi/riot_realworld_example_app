@@ -211,7 +211,7 @@ In v3 you had to use `bind()`, but in v4 you can now do more appropriate writing
 
 ## Migrated impressions
 
-The adoption of Layered Archtecture made the transition to v4 very smooth. The effect is limited to the presentation layer only. Look at the commit log after August 8th. You can see that the important fixes are concentrated under `src/Presentation`.  The most time-consuming process was to find out how to implement my design with v4. If you know it in advance, I can migrate in a day. Thanks to Riot.js for making this structure easier.
+The adoption of Layered Archtecture made the transition to v4 very smooth. The effect is limited to the presentation layer only. Look at the commit log after August 8th. You can see that the important fixes are concentrated under `src/Presentation`.  The most time-consuming process was to find out how to implement my design with v4. If you know it in advance, I can migrate in a day. (Please note that I do not spend all my time developing this project because I'm doing part-time work remotely). Thanks to Riot.js for making this structure easier.
 
 Since the access method to childView was cut off from riot, I had to push the idea of iOS Development more than v3 in order to organize thoughts. However, this allowed the idea of .riot files to be advanced to `.xib without InterfaceBuilder`.  This has the disadvantage of not being able to get InterfaceBuilder support, but it also has the advantage of being able to define a UI that is smarter than `.xib`.
 
