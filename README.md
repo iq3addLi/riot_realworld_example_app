@@ -215,6 +215,10 @@ The adoption of Layered Archtecture made the transition to v4 very smooth. The e
 
 Since the access method to childView was cut off from riot, I had to push the idea of iOS Development more than v3 in order to organize thoughts. However, this allowed the idea of .riot files to be advanced to `.xib without InterfaceBuilder`.  This has the disadvantage of not being able to get InterfaceBuilder support, but it also has the advantage of being able to define a UI that is smarter than `.xib`.
 
+```
+🗒 This is an aside, Somewhere a syntax suger that can easily unescape HTML has been proposed. It seems that riot 4.3.7 was not included. This is a very fun feature :).
+```
+
 
 
 ## For those interested in Riot.js
