@@ -186,7 +186,7 @@ When the child view is mounted, the handler of the event issued from the child v
 
 I was able to use the same design as v3 to restore access to child views in the above way.
 
-It's a boring idea,  Child view has a relationship shared life and death with the parent view from the beginning in the screen transition. If so, using that relationship to allow access to the child is the least wasteful way. I think that using the `Observable` or Reactive libraries and trying to add another relationship is the last method to consider. In many cases (even as large as RealWorld), it can be implemented without relying on them.
+It's a my boring idea,  Child view has a relationship shared life and death with the parent view from the beginning in the screen transition. Using that relationship to allow access to the child is the least wasteful way. I think that using the `Observable` or Reactive libraries and trying to add another relationship is the last method to consider. In many cases (even as large as RealWorld), it can be implemented without relying on them.
 
 If only the official migration guide has an alternative, the difficulty of using Riot.js will increase dramatically. In the next major version, I expect riot.js to get back access to child views. `parent` is not required. If the reference is unidirectional, in many cases the problem should not occur.  
 
