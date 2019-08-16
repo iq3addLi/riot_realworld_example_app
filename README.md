@@ -202,14 +202,15 @@ In v3 you had to use `bind()`, but in v4 you can now do more appropriate writing
 
 ### Other things (officially guided)
 
-* [Change extension from .tag to .riot](http://Riot.js.org/documentation/#syntax)
-* [Rewrite `.riot` script to` export default`](https://Riot.js.org/migration-guide/#the-script-tag)
-* [Move local variable to `state`](https://Riot.js.org/migration-guide#opts-vs-props-and-state)
-* [<virtual> to <template>](https://Riot.js.org/migration-guide/#virtual-tags)  There was no trouble just by rewriting :)
+[Change extension from .tag to .riot](http://Riot.js.org/documentation/#syntax)
+
+[Rewrite `.riot` script to` export default`](https://Riot.js.org/migration-guide/#the-script-tag)
+
+[Move local variable to `state`](https://Riot.js.org/migration-guide#opts-vs-props-and-state)
+
+[<virtual> to <template>](https://Riot.js.org/migration-guide/#virtual-tags)  There was no trouble just by rewriting :)
 
 
-
-✊
 
 ## Migrated impressions
 
