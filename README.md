@@ -66,7 +66,7 @@ Same completely to [v3](https://github.com/iq3addLi/riot_realworld_example_app#d
 
 Riot.js can compile `.riot` files on browser side. This is very convenient for getting started quickly. However, I chose to precompile with npm for this project.  This is because TypeScript can be used for most of the implementation code. When developing applications as large as RealWorld, type checking with TypeScript greatly contributes to work efficiency. 
 
-After a few trials, I concluded that the compilation task is rollup and other tasks are reliable to do with gulp. See gulpfile.js and rollup.config.js. I hope it will help those who are considering taking a configuration like this project. 
+After a few trials, I concluded that the compilation task is rollup and other tasks are reliable to do with gulp. See **gulpfile.js** and **rollup.config.js**. I hope it will help those who are considering taking a configuration like this project. 
 
 
 
@@ -143,7 +143,7 @@ Don't forget to put true in the second argument of `unmount`. The root tag will 
 
 This was the most difficult part of migrating to v4. 
 
-[Access to parent and child views from v4 has been removed.](https://riot.js.org/migration-guide/#parent-and-children) I able understand Riot.js remove access to parent view. But, I skeptical about remove access to children view. 
+[Access to parent and child views from v4 has been removed.](https://riot.js.org/migration-guide/#parent-and-children) I able understand Riot.js remove access to parent view. But, I skeptical about remove access to child views. 
 
 I tried using the `riot-ref-plugin.js` described in the official migration guide, but this didn't work 😢.
 
@@ -155,7 +155,7 @@ I kept this reference in the implementation code of `.ts`. Just like `IBOutlet` 
 ```typescript
     onMounted(_,state){
         let owner = state.owner
-				...(Omitted)...
+      	...(Omitted)...
         // Mount child components and Connect action
         let articlesTableView = component(ArticlesTableView)( this.$("#articlesTableView"), {
             didSelectProfile: owner.didSelectProfile,
@@ -186,9 +186,9 @@ When the child view is mounted, the handler of the event issued from the child v
 
 I was able to use the same design as v3 to restore access to child views in the above way.
 
-It's a boring idea, but the child view has a relationship with the parent view that is life and death from the beginning in the screen transition. If so, using that relationship to allow access to the child is the least wasteful way. I think that using the `Observable` or Reactive libraries and trying to add another relationship is the last method to consider. In many cases (even as large as RealWorld), it can be implemented without relying on them.
+It's a boring idea,  Child view has a relationship shared life and death with the parent view from the beginning in the screen transition. If so, using that relationship to allow access to the child is the least wasteful way. I think that using the `Observable` or Reactive libraries and trying to add another relationship is the last method to consider. In many cases (even as large as RealWorld), it can be implemented without relying on them.
 
-If only the official migration guide has an alternative, the difficulty of using Riot.js will increase dramatically. In the next major version, I expect riot.js to regain access to child views. `parent` is not required. If the reference is unidirectional, in many cases the problem should not occur.  
+If only the official migration guide has an alternative, the difficulty of using Riot.js will increase dramatically. In the next major version, I expect riot.js to get back access to child views. `parent` is not required. If the reference is unidirectional, in many cases the problem should not occur.  
 
 
 
