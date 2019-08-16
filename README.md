@@ -221,4 +221,8 @@ Since the access method to childView was cut off from riot, I had to push the id
 
 I've been using Riot.js since 2016 to develop our services. Riot.js is very simple as declared. I was able to devote my time to learning deeply about this framework to study other useful libraries. Since Riot.js does not have many functions by itself, there is not much discussion about itself. That's why I don't see many names on the web. This is because Riot.js users can spend more time learning how to use useful libraries like `moment`, ` i18next`,  `inversity`, `markd`, etc. rather than thinking about the framework.  
 
+I would like to list two important facts here
+* Riot.js made iOS Developer possible for web development.
+* Riot.js development also leads to learning iOS development.
+
 I wish you the best choice without being bound by numbers like Google Trend or Github star 😉.
