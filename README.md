@@ -8,6 +8,15 @@
 
 This project is  realworld/frontend implemented with Riot.js v4. For more information about realworld, see [realworld.io](https://realworld.io).
 
+## Introduction
+
+Please see here about [riot.js](https://riot.js.org).  Recently I often see what is called the **frontend framework**.  This library is useful for HTML componentization and reusability. Although Riot.js can be used in a wide variety of ways, please be aware that the usage for this example is as follows.
+
+* Aware of large-scale development
+* Incorporates iOS Application development methods
+
+These will be explained later. Perhaps there is a big difference from the coding of other samples out there. I currently please feedback on the coding of this project on the [discord channel of riot.js](https://discord.gg/PagXe5Y). It follows the standard expected API usage and guarantees that it is *not tricky*.
+
 
 
 ## Getting started
@@ -223,7 +232,7 @@ Since the access method to childView was cut off from riot, I had to push the id
 
 ## For those interested in Riot.js
 
-I've been using Riot.js since 2016 to develop our services. Riot.js is very simple as declared. I was able to devote my time to learning deeply about this framework to study other useful libraries. Since Riot.js does not have many functions by itself, there is not much discussion about itself. That's why I don't see many names on the web. This is because Riot.js users can spend more time learning how to use useful libraries like `moment`, ` i18next`,  `inversity`, `markd`, etc. rather than thinking about the framework.  
+I've been using Riot.js since 2016 to develop our services. Riot.js is very simple as declared. Since Riot.js does not have many functions by itself, there is not much discussion about itself. That's why I don't see many names on the web. This is because you can spend more time learning how to use CSS frameworks such as `bulma`, or useful libraries such as `moment`, `i18next`, `inversity`, and `marked`.
 
 I would like to list two important facts here
 * Riot.js made iOS Developer possible for web development.
