@@ -1,4 +1,4 @@
-[![RealWorld Frontend](https://img.shields.io/badge/realworld-frontend-%23783578.svg)](http://realworld.io) [<img title="Riot v4 on progress" src="https://img.shields.io/badge/RIOT-v4%20on%20progress-red">](https://Riot.js.org) [![CircleCI](https://circleci.com/gh/iq3addLi/riot_v4_realworld_example_app.svg?style=shield)](https://circleci.com/gh/iq3addLi/riot_v4_realworld_example_app)
+[![RealWorld Frontend](https://img.shields.io/badge/realworld-frontend-%23783578.svg)](http://realworld.io) [<img title="Riot v4" src="https://img.shields.io/badge/RIOT-v4-red">](https://Riot.js.org) [![CircleCI](https://circleci.com/gh/iq3addLi/riot_v4_realworld_example_app.svg?style=shield)](https://circleci.com/gh/iq3addLi/riot_v4_realworld_example_app) [<img title="lighthouse" src="https://img.shields.io/badge/🗼-lighthouse-9cf.svg?logo=google">](https://lighthouse-dot-webdotdevsite.appspot.com/lh/html?url=https://riot-v4-realworld.addli.co.jp) 
 
 # ![RealWorld Example App](./logo.png)
 
