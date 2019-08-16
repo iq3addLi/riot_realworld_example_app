@@ -180,7 +180,7 @@ export default class ArticlesViewController {
     ...(Omitted)...
 ```
 
-ArticlesTableView is a view that lists article title and description. `owner` is the implementation code written in `.ts`. When the parent view `onMount ()` is executed, it explicitly indicates the mount of the child view. (It was done implicitly in v3. I think it was smarter with less boilerplate code, but it can't be helped 🙃)  The `| any` is used to suppress TypeScript warnings. Even in iOS development, there is no checking mechanism for IBOutlet connection, so it may cause problems by connecting an unexpected view at the beginning. I didn't think this was a problem because the mechanism was almost the same.
+ArticlesTableView is a view that lists article title and description. `owner` is the implementation code written in `.ts`. When the parent view `onMounted ()` is executed, it explicitly indicates the mount of the child view. (It was done implicitly in v3. I think it was smarter with less boilerplate code, but it can't be helped 🙃)  The `| any` is used to suppress TypeScript warnings. Even in iOS development, there is no checking mechanism for IBOutlet connection, so it may cause problems by connecting an unexpected view at the beginning. I didn't think this was a problem because the mechanism was almost the same.
 
 When the child view is mounted, the handler of the event issued from the child view is passed as initialProps. This is very similar to the `IBAction` connection in iOS development. 
 
