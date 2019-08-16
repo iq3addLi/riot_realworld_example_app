@@ -133,6 +133,7 @@ import * as riot from 'riot'
 ### Mounted explicitly required unmount
 
 From v4 you have to call unmount explicitly. Otherwise your UI will look like BOSS in part 5 of JOJO's bizarre adventure 😈.
+Don't forget to put true in the second argument of `unmount`. The root tag will also disappear.
 
 #### ex [v3](https://github.com/iq3addLi/riot_realworld_example_app/blob/1.0.0/src/Domain/UseCase/ApplicationUseCase.ts#L84), [v4](https://github.com/iq3addLi/riot_v4_realworld_example_app/blob/master/src/Domain/UseCase/ApplicationUseCase.ts#L79-L80)
 
@@ -162,11 +163,10 @@ In v3 you had to use `bind()`, but in v4 you can now do more appropriate writing
 * [<virtual> to <template>](https://riot.js.org/migration-guide/#virtual-tags)  There was no trouble just by rewriting :)
 
 
-
 ## Migrated impressions
 
 🖋Now writing...
 
 * Write that migration effort was limited
-* Write that the role of the `.riot` file is closer to` xib without InterfaceBuilder` than in v3
-* 
+* Write that the role of the `.riot` file is closer to` xib without InterfaceBuilder` than in v3 
+
