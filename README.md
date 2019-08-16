@@ -209,6 +209,8 @@ In v3 you had to use `bind()`, but in v4 you can now do more appropriate writing
 
 
 
+✊
+
 ## Migrated impressions
 
 The adoption of Layered Archtecture made the transition to v4 very smooth. The effect is limited to the presentation layer only. Look at the commit log after August 8th. You can see that the important fixes are concentrated under `src/Presentation`.  The most time-consuming process was to find out how to implement my design with v4. If you know it in advance, I can migrate in a day. Thanks to Riot.js for making this structure easier.
