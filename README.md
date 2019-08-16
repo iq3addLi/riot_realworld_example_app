@@ -2,11 +2,17 @@
 
 # ![RealWorld Example App](./logo.png)
 
-> **Riot.js codebase containing real world examples (CRUD, auth, advanced patterns, etc) that adheres to the RealWorld spec and API.**
+> ### Riot.js codebase containing real world examples (CRUD, auth, advanced patterns, etc) that adheres to the [RealWorld](https://github.com/gothinkster/realworld) spec and API.
+
 
 ### [Demo](http://riot-v4-realworld.addli.co.jp)&nbsp;&nbsp;&nbsp;&nbsp;[RealWorld](https://github.com/gothinkster/realworld)
 
-This project is  realworld/frontend implemented with Riot.js v4. For more information about realworld, see [realworld.io](https://realworld.io).
+This codebase was created to demonstrate a fully fledged fullstack application built with **Riot.js** including CRUD operations, authentication, routing, pagination, and more.
+
+We've gone to great lengths to adhere to the **Riot.js** community styleguides & best practices.
+
+For more information on how to this works with other frontends/backends, head over to the [RealWorld](https://github.com/gothinkster/realworld) repo.
+
 
 ## Introduction
 
@@ -16,6 +22,11 @@ Please see here about [riot.js](https://riot.js.org).  Recently I often see what
 * Incorporates iOS Application development methods
 
 These will be explained later. Perhaps there is a big difference from the coding of other samples out there. I currently please feedback on the coding of this project on the [discord channel of riot.js](https://discord.gg/PagXe5Y). It follows the standard expected API usage and guarantees that it is *not tricky*.
+
+
+## How it works
+
+See [Design policy](#design-policy) and [How this project uses Riot.js](#how-this-project-uses-riotjs).
 
 
 
@@ -159,7 +170,7 @@ I tried using the `riot-ref-plugin.js` described in the official migration guide
 After trying a lot, I realized that I got a mounted RiotComponent with the `component()` function.
 I kept this reference in the implementation code of `.ts`. Just like `IBOutlet` in iOS development.
 
-**ex.**  [Article table view mounted in article scene](https://github.com/iq3addLi/riot_v4_realworld_example_app/blob/master/src/Presentation/ViewController/Articles.riot#L16-L55)
+**ex.**  [Article table view mounted in articles scene](https://github.com/iq3addLi/riot_v4_realworld_example_app/blob/master/src/Presentation/ViewController/Articles.riot#L16-L55)
 
 ```typescript
     onMounted(_,state){
