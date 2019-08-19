@@ -117,10 +117,9 @@ export default class ArticlesUseCase {
             this.container.articles.splice(index, 1, article)
             return this.container.articles
         }
-        switch (article.favorited) {
-        case true:  return this.conduit.unfavorite( user.token, article.slug ).then( process )
-        case false: return this.conduit.favorite( user.token, article.slug ).then( process )
-        }
+        return article.favorited ?
+            this.conduit.unfavorite( user.token, article.slug ).then( process ) :
+            this.conduit.favorite( user.token, article.slug ).then( process )
     }
 }
 

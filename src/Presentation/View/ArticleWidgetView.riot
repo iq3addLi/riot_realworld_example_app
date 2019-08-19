@@ -22,11 +22,11 @@ export default{
         if ( profile == null || article == null ) return false
         return profile.username === article.author.username
     },
-    followButtonClassName( article ){
-        return "btn btn-sm" + (article.author.following ? " btn-secondary" : " btn-outline-secondary")
+    followButtonClassName( following ){
+        return "btn btn-sm" + ( following ? " btn-secondary" : " btn-outline-secondary")
     },
-    favoriteButtonClassName( article ){
-        return "btn btn-sm" + (article.author.following ? " btn-primary" : " btn-outline-primary")
+    favoriteButtonClassName( favorited ){
+        return "btn btn-sm" + ( favorited ? " btn-primary" : " btn-outline-primary")
     },
     actionOfFollowButton(){
         if ( this.props.didFollowHandler ){ this.props.didFollowHandler() }
@@ -54,12 +54,12 @@ export default{
 
     <!-- follow or favorite to other user -->
     <template if={ isOwnArticle() == false }>
-        <button onclick={ actionOfFollowButton } class={ followButtonClassName( state.article ) }>
+        <button onclick={ actionOfFollowButton } class={ followButtonClassName( state.article.author.following ) }>
             <i class="ion-plus-round"></i>
             { (state.article.author.following ? "Unfollow" : "Follow") + " " + state.article.author.username }
         </button>
         &nbsp;
-        <button onclick={ actionOfFavoriteButton } class={ favoriteButtonClassName( state.article ) }>
+        <button onclick={ actionOfFavoriteButton } class={ favoriteButtonClassName( state.article.favorited ) }>
             <i class="ion-heart"></i> 
             { (state.article.favorited ? "Unfavorite" : "Favorite") + " Article" } 
             <span class="counter">({ state.article.favoritesCount })</span>
