@@ -46,7 +46,7 @@ export default class SettingsUseCase {
 }
 
 class SettingsState {
-    scene: string // article
+    scene: string
 
     constructor( location: SPALocation ) {
         // scene

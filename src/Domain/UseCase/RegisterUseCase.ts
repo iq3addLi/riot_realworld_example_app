@@ -26,7 +26,7 @@ export default class RegisterUseCase {
 }
 
 class RegisterState {
-    scene: string // article
+    scene: string
 
     constructor( location: SPALocation ) {
         // scene
