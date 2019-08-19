@@ -32,7 +32,7 @@
     "moment": "^2.24.0",
     "natives": "^1.1.6",
     "reflect-metadata": "^0.1.13",
-    "riot": "^4.3.7",
+    "riot": "^4.4.0",
     "riot-route": "^3.1.4"
   },
   "devDependencies": {
