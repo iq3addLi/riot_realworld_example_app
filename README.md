@@ -16,12 +16,12 @@ For more information on how to this works with other frontends/backends, head ov
 
 ## Introduction
 
-Please see [here](https://riot.js.org) about riot.js.  Recently I often see what is called the **frontend framework**.  This library is useful for HTML componentization and reusability. Although Riot.js can be used in a wide variety of ways, please be aware that the usage for this example is as follows.
+Please see [here](https://riot.js.org) about Riot.js.  Recently I often see what is called the **frontend framework**.  This library is useful for HTML componentization and reusability. Although Riot.js can be used in a wide variety of ways, please be aware that the usage for this example is as follows.
 
 * Aware of large-scale development
 * Incorporates iOS Application development methods
 
-These will be explained later. Perhaps there is a big difference from the coding of other samples out there. I currently please feedback on the coding of this project on the [discord channel of riot.js](https://discord.gg/PagXe5Y). It follows the standard expected API usage and guarantees that it is *not tricky*.
+These will be explained later. Perhaps there is a big difference from the coding of other samples out there. I currently please feedback on the coding of this project on the [discord channel of Riot.js](https://discord.gg/PagXe5Y). It follows the standard expected API usage and guarantees that it is *not tricky*.
 
 
 ## How it works
@@ -208,7 +208,7 @@ I was able to use the same design as v3 to restore access to child views in the 
 
 It's a my boring idea,  Child view has a relationship shared life and death with the parent view from the beginning in the screen transition. Using that relationship to allow access to the child is the least wasteful way. I think that using the `Observable` or Reactive libraries and trying to add another relationship is the last method to consider. In many cases (even as large as RealWorld), it can be implemented without relying on them.
 
-If only the official migration guide has an alternative, the difficulty of using Riot.js will increase dramatically. In the next major version, I expect riot.js to get back access to child views. `parent` is not required. If the reference is unidirectional, in many cases the problem should not occur.  
+If only the official migration guide has an alternative, the difficulty of using Riot.js will increase dramatically. In the next major version, I expect Riot.js to get back access to child views. `parent` is not required. If the reference is unidirectional, in many cases the problem should not occur.  
 
 
 
@@ -222,10 +222,10 @@ In v3 you had to use `bind()`, but in v4 you can now do more appropriate writing
 
 ### Other things (officially guided)
 
-* [Change extension from .tag to .riot](http://Riot.js.org/documentation/#syntax)
-* [Rewrite `.riot` script to` export default`](https://Riot.js.org/migration-guide/#the-script-tag)
-* [Move local variable to `state`](https://Riot.js.org/migration-guide#opts-vs-props-and-state)
-* [virtual to template tag](https://Riot.js.org/migration-guide/#virtual-tags)  There was no trouble just by rewriting :)
+* [Change extension from .tag to .riot](http://riot.js.org/documentation/#syntax)
+* [Rewrite `.riot` script to` export default`](https://riot.js.org/migration-guide/#the-script-tag)
+* [Move local variable to `state`](https://riot.js.org/migration-guide#opts-vs-props-and-state)
+* [virtual to template tag](https://riot.js.org/migration-guide/#virtual-tags)  There was no trouble just by rewriting :)
 
 
 
