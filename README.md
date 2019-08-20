@@ -16,7 +16,7 @@ For more information on how to this works with other frontends/backends, head ov
 
 ## Introduction
 
-Please see here about [riot.js](https://riot.js.org).  Recently I often see what is called the **frontend framework**.  This library is useful for HTML componentization and reusability. Although Riot.js can be used in a wide variety of ways, please be aware that the usage for this example is as follows.
+Please see [here](https://riot.js.org) about riot.js.  Recently I often see what is called the **frontend framework**.  This library is useful for HTML componentization and reusability. Although Riot.js can be used in a wide variety of ways, please be aware that the usage for this example is as follows.
 
 * Aware of large-scale development
 * Incorporates iOS Application development methods
