@@ -155,7 +155,7 @@ import * as riot from 'riot'
 From v4 you have to call unmount explicitly. Otherwise your UI will look like BOSS in part 5 of JOJO's bizarre adventure 😈.
 Don't forget to put true in the second argument of `unmount`. The root tag will also disappear.
 
-#### ex [v3](https://github.com/iq3addLi/riot_realworld_example_app/blob/1.0.0/src/Domain/UseCase/ApplicationUseCase.ts#L84), [v4](https://github.com/iq3addLi/riot_v4_realworld_example_app/blob/master/src/Domain/UseCase/ApplicationUseCase.ts#L79-L80)
+#### ex [v3](https://github.com/iq3addLi/riot_realworld_example_app/blob/1.0.1/src/Domain/UseCase/ApplicationUseCase.ts#L84), [v4](https://github.com/iq3addLi/riot_v4_realworld_example_app/blob/1.0.1/src/Domain/UseCase/ApplicationUseCase.ts#L79-L80)
 
 
 
@@ -170,7 +170,7 @@ I tried using the `riot-ref-plugin.js` described in the official migration guide
 After trying a lot, I realized that I got a mounted RiotComponent with the `component()` function.
 I kept this reference in the implementation code of `.ts`. Just like `IBOutlet` in iOS development.
 
-**ex.**  [Article table view mounted in articles scene](https://github.com/iq3addLi/riot_v4_realworld_example_app/blob/master/src/Presentation/ViewController/Articles.riot#L16-L55)
+**ex.**  [Article table view mounted in articles scene](https://github.com/iq3addLi/riot_v4_realworld_example_app/blob/1.0.1/src/Presentation/ViewController/Articles.riot#L16-L55)
 
 ```typescript
     onMounted(_,state){
@@ -189,7 +189,7 @@ I kept this reference in the implementation code of `.ts`. Just like `IBOutlet` 
     }
 ```
 
-**ex.**  [Property on the implementation code side](https://github.com/iq3addLi/riot_v4_realworld_example_app/blob/1.0.0/src/Presentation/ViewController/ArticlesViewController.ts#L7-L16)
+**ex.**  [Property on the implementation code side](https://github.com/iq3addLi/riot_v4_realworld_example_app/blob/1.0.1/src/Presentation/ViewController/ArticlesViewController.ts#L7-L16)
 
 ```typescript
 export default class ArticlesViewController {
@@ -216,7 +216,7 @@ If only the official migration guide has an alternative, the difficulty of using
 
 In v3 you had to use `bind()`, but in v4 you can now do more appropriate writing.
 
-#### ex. [v3](https://github.com/iq3addLi/riot_realworld_example_app/blob/1.0.0/src/Presentation/View/CommentTableView.tag#L54), [v4](https://github.com/iq3addLi/riot_v4_realworld_example_app/blob/1.0.0/src/Presentation/View/CommentTableView.riot#L62)
+#### ex. [v3](https://github.com/iq3addLi/riot_realworld_example_app/blob/1.0.1/src/Presentation/View/CommentTableView.tag#L54), [v4](https://github.com/iq3addLi/riot_v4_realworld_example_app/blob/1.0.1/src/Presentation/View/CommentTableView.riot#L62)
 
 
 
