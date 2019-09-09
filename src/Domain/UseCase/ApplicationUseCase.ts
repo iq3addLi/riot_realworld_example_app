@@ -1,39 +1,17 @@
 import { mount, unmount, register, RiotComponentShell } from "riot"
 import route from "riot-route"
 
+import Scene from "../Model/Scene"
+
 import Settings from "../../Infrastructure/Settings"
 import SPALocation from "../../Infrastructure/SPALocation"
 
-// Riot components
-import ArticlesComponent from "../../Presentation/ViewController/Articles.riot"
-import ArticleComponent from "../../Presentation/ViewController/Article.riot"
-import LoginComponent from "../../Presentation/ViewController/Login.riot"
-import RegisterComponent from "../../Presentation/ViewController/Register.riot"
-import EditerComponent from "../../Presentation/ViewController/Editer.riot"
-import ProfileComponent from "../../Presentation/ViewController/Profile.riot"
-import SettingsComponent from "../../Presentation/ViewController/Settings.riot"
-import ShowErrorComponent from "../../Presentation/ViewController/ShowError.riot"
-
-interface Scene {
-    name: string
-    filter: string
-    component: RiotComponentShell
-    props?: object
-}
-
 export default class ApplicationUseCase {
 
-    private notFoundScene: Scene = { name: "show_error", filter: "/error", component: ShowErrorComponent, props: { message: "Your order is not found." } }
-    private scenes: Scene[] = [
-        { name: "login", filter: "/login", component: LoginComponent },
-        { name: "settings", filter: "/settings", component: SettingsComponent },
-        { name: "articles", filter: "/articles..", component: ArticlesComponent },
-        { name: "article", filter: "/article..", component: ArticleComponent },
-        { name: "editer", filter: "/editer..", component: EditerComponent },
-        { name: "profile", filter: "/profile..", component: ProfileComponent },
-        { name: "register", filter: "/register", component: RegisterComponent },
-        this.notFoundScene
-    ]
+    private scenes: Scene[] = []
+    private homeScene?: Scene
+    private notFoundScene?: Scene
+    private mainViewSelector!: string
 
     initialize = ( completion: (error?: Error) => void ) => {
 
@@ -50,8 +28,6 @@ export default class ApplicationUseCase {
         // Parallel request
         Promise.all([requestSettings]).then( () => {
             document.title = Settings.shared().valueForKey("title")
-            // register view controllers
-            this.scenes.forEach( scene => register( scene.name, scene.component ) )
             // Success
             completion(null)
         })
@@ -59,36 +35,59 @@ export default class ApplicationUseCase {
             // Has error
             completion(error)
         })
+
     }
 
-    setRoute = () => {
-        route.start()
-        // Not Found
-        route( () => {
-            unmount( "div#mainView", true)
-            mount( "div#mainView", this.notFoundScene.props, this.notFoundScene.name )
-        })
-        // Home
-        route( "/", () => {
-            unmount( "div#mainView", true)
-            mount( "div#mainView", null, "articles" ) // Note: The behavior when "" is assigned to name is different from v3
-        })
-        // Expected routing
-        this.scenes.forEach( scene => {
-            route( scene.filter, () => {
-                unmount( "div#mainView", true)
-                mount( "div#mainView", scene.props, scene.name )
-            })
-        })
+    setScenes = ( scenes: Scene[] ) => {
+        this.scenes = scenes
+    }
+
+    setHome = ( name: string, component: RiotComponentShell ) => {
+        this.homeScene = { name: name, component: component, filter: "/" }
+    }
+
+    setNotFoundScene = ( scene: Scene ) => {
+        this.notFoundScene = scene
+    }
+
+    setMainViewSelector = ( selector: string ) => {
+        this.mainViewSelector = selector
     }
 
     routing = () => {
-        let loc = SPALocation.shared()
+
+        // register view controllers
+        this.scenes.forEach( scene => register( scene.name, scene.component ) ) // register() does not allow duplicate register.
+
+        // Setup routing
+        route.start()
+        this.scenes.forEach( scene => this.setRoute( this.mainViewSelector, scene ) )
+        this.setRoute( this.mainViewSelector, this.homeScene )
+    }
+
+    showMainView = () => {
+
         // Decide what to mount
+        let loc = SPALocation.shared()
         let sceneName = loc.scene() ? loc.scene() : "articles"
         let filterd = this.scenes.filter( scene => scene.name === sceneName )
         let scene = (filterd.length > 0 ) ? filterd[0] : this.notFoundScene
 
-        mount( "div#mainView", scene.props, scene.name )
+        mount( this.mainViewSelector, scene.props, scene.name )
+    }
+
+    private setRoute = ( selector: string, scene: Scene ) => {
+
+        if ( scene.filter != null ) {
+            route( scene.filter, () => {
+                unmount( selector, true)
+                mount( selector, scene.props, scene.name )
+            })
+        } else {
+            route( () => {
+                unmount( selector, true)
+                mount( selector, scene.props, scene.name )
+            })
+        }
     }
 }
