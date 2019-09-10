@@ -3152,8 +3152,8 @@
               return this.scheme + "://" + this.hostAndPort() + "/" + this.path + "?" + this.concatedQuery();
           };
           this.debugDescription = () => {
-              for (let key in this) {
-                  let value = this[key];
+              for (const key in this) {
+                  const value = this[key];
                   switch (typeof value) {
                       case "object":
                           console.log(key + " = " + JSON.stringify(value));
@@ -3196,11 +3196,11 @@
       constructor() {
           this.parse = (urlString) => {
               try {
-                  let scheme = this.parsedScheme(urlString);
-                  let host = this.parsedHost(urlString);
-                  let port = this.parsedPort(urlString);
-                  let path = this.parsedPath(urlString);
-                  let query = this.parsedQuery(urlString);
+                  const scheme = this.parsedScheme(urlString);
+                  const host = this.parsedHost(urlString);
+                  const port = this.parsedPort(urlString);
+                  const path = this.parsedPath(urlString);
+                  const query = this.parsedQuery(urlString);
                   if (scheme == null || host == null || Number.isNaN(port) || (path === null && query !== null)) {
                       throw Error("urlString is not HTTPURL.");
                   }
@@ -3218,7 +3218,7 @@
           this.parsedScheme = (urlString) => {
               // scheme
               const slasher = "://";
-              let index = urlString.indexOf(slasher);
+              const index = urlString.indexOf(slasher);
               if (index === -1) {
                   return null; // not url
               }
@@ -3232,39 +3232,39 @@
           };
           this.parsedPath = (urlString) => {
               const slasher = "://";
-              let index = urlString.indexOf(slasher);
+              const index = urlString.indexOf(slasher);
               if (index === -1) {
                   return null; // not url
               }
-              let indexS = urlString.indexOf("/", index + slasher.length);
+              const indexS = urlString.indexOf("/", index + slasher.length);
               if (indexS === -1) {
                   return null; // path is not found
               }
               // "?" terminate
-              let indexQ = urlString.indexOf("?", indexS);
+              const indexQ = urlString.indexOf("?", indexS);
               if (indexQ !== -1) {
-                  let path = urlString.substr(indexS + 1, indexQ - indexS - 1);
+                  const path = urlString.substr(indexS + 1, indexQ - indexS - 1);
                   return path.length === 0 ? null : path;
               }
               // path only
-              let path = urlString.substr(indexS + 1);
+              const path = urlString.substr(indexS + 1);
               return path.length === 0 ? null : path;
           };
           this.parsedQuery = (urlString) => {
               // query
-              let indexQ = urlString.indexOf("?");
-              let query = {};
+              const indexQ = urlString.indexOf("?");
+              const query = {};
               if (indexQ === -1) {
                   return null; // query not found
               }
               if (urlString.split("?").length !== 2) {
                   throw Error("Unexpected query.");
               }
-              let queryString = urlString.split("?")[1];
-              let keyValues = queryString.split("&");
-              for (let i in keyValues) {
-                  let keyValue = keyValues[i];
-                  let arr = keyValue.split("=");
+              const queryString = urlString.split("?")[1];
+              const keyValues = queryString.split("&");
+              for (const i in keyValues) {
+                  const keyValue = keyValues[i];
+                  const arr = keyValue.split("=");
                   if (arr.length !== 2) {
                       throw Error("A query has unexpected key-value.");
                   }
@@ -3275,15 +3275,15 @@
           this.parsedHostAndPort = (urlString) => {
               // host
               const slasher = "://";
-              let index = urlString.indexOf(slasher);
-              let afterScheme = urlString.substr(index + slasher.length);
+              const index = urlString.indexOf(slasher);
+              const afterScheme = urlString.substr(index + slasher.length);
               // "/" terminate
-              let indexS = afterScheme.indexOf("/");
+              const indexS = afterScheme.indexOf("/");
               if (indexS !== -1) {
                   return afterScheme.substr(0, indexS);
               }
               // "?" terminate
-              let indexQ = afterScheme.indexOf("?");
+              const indexQ = afterScheme.indexOf("?");
               if (indexQ !== -1) {
                   return afterScheme.substr(0, indexQ);
               }
@@ -3292,9 +3292,9 @@
           };
           this.splitHostAndPort = (hostWithPort) => {
               // port
-              let indexC = hostWithPort.indexOf(":");
+              const indexC = hostWithPort.indexOf(":");
               if (indexC !== -1) {
-                  let splitted = hostWithPort.split(":");
+                  const splitted = hostWithPort.split(":");
                   if (splitted.length === 2) {
                       return { host: splitted[0], port: Number(splitted[1]) };
                   }
@@ -3321,17 +3321,17 @@
                   if (location.hash === null || location.hash.length === 0) {
                       throw Error("location is empty.");
                   }
-                  let url = new HTTPURLParser().parse(location.href);
-                  let path = url.path;
+                  const url = new HTTPURLParser().parse(location.href);
+                  const path = url.path;
                   if (path === null) {
                       throw Error("A path is empty.");
                   }
-                  let index = path.indexOf("#/");
+                  const index = path.indexOf("#/");
                   if (index === -1) {
                       throw Error("hashbang is not found.");
                   }
-                  let str = path.substr(index + 2).replace(/\/$/, "");
-                  let splited = str.split("/");
+                  const str = path.substr(index + 2).replace(/\/$/, "");
+                  const splited = str.split("/");
                   if (splited.length < 1) {
                       throw Error("A path is not splittable.");
                   }
@@ -3362,9 +3362,10 @@
   class ApplicationUseCase {
       constructor() {
           this.scenes = [];
+          // Public
           this.initialize = (completion) => {
               // Download application settings.
-              let requestSettings = fetch("assets/json/settings.json")
+              const requestSettings = fetch("assets/json/settings.json")
                   .then((res) => { return res.json(); })
                   .then((json) => {
                   Settings.shared().set(json);
@@ -3383,46 +3384,90 @@
                   completion(error);
               });
           };
+          /** Set the scenes. */
           this.setScenes = (scenes) => {
               this.scenes = scenes;
           };
-          this.setHome = (name, component) => {
-              this.homeScene = { name: name, component: component, filter: "/" };
+          /** Home scene filter is ignored */
+          this.setHomeScene = (scene) => {
+              this.homeScene = scene;
           };
-          this.setNotFoundScene = (scene) => {
-              this.notFoundScene = scene;
+          /** RiotComponent in error scene is must accept 'message' props. */
+          this.setErrorScene = (scene) => {
+              this.errorScene = scene;
           };
+          /** MainViewSelector is Must be set */
           this.setMainViewSelector = (selector) => {
               this.mainViewSelector = selector;
           };
+          /** Must be running before showMainView() */
           this.routing = () => {
-              // register view controllers
-              this.scenes.forEach(scene => register(scene.name, scene.component)); // register() does not allow duplicate register.
-              // Setup routing
+              // register normal view controllers
+              this.scenes.forEach(scene => register(scene.name, scene.component)); // memo: register() does not allow duplicate register.
+              // register error view controller
+              if (this.errorScene) {
+                  register(this.errorScene.name, this.errorScene.component);
+              }
+              // Start routing
               route.start();
-              this.scenes.forEach(scene => this.setRoute(this.mainViewSelector, scene));
-              this.setRoute(this.mainViewSelector, this.homeScene);
-          };
-          this.showMainView = () => {
-              // Decide what to mount
-              let loc = SPALocation.shared();
-              let sceneName = loc.scene() ? loc.scene() : "articles";
-              let filterd = this.scenes.filter(scene => scene.name === sceneName);
-              let scene = (filterd.length > 0) ? filterd[0] : this.notFoundScene;
-              mount(this.mainViewSelector, scene.props, scene.name);
-          };
-          this.setRoute = (selector, scene) => {
-              if (scene.filter != null) {
+              // Routing normal
+              let selector = this.mainViewSelector;
+              this.scenes.forEach(scene => {
                   route(scene.filter, () => {
                       unmount(selector, true);
-                      mount(selector, scene.props, scene.name);
+                      this.catchableMount(selector, scene.props, scene.name);
                   });
+              });
+              // Routing notfound
+              route(() => {
+                  unmount(selector, true);
+                  this.showError(selector, "Your order is not found.", this.errorScene);
+              });
+              // Routing home
+              route("/", () => {
+                  unmount(selector, true);
+                  this.catchableMount(selector, this.homeScene.props, this.homeScene.name);
+              });
+          };
+          /** Show mainView. Please execute it after all preparations are completed. */
+          this.showMainView = () => {
+              // Decide what to mount
+              const location = SPALocation.shared();
+              let scene;
+              // Is there an ordered scene?
+              if (location.scene()) {
+                  const filterd = this.scenes.filter(scene => scene.name === location.scene());
+                  if (filterd.length > 0) {
+                      scene = filterd[0];
+                  }
+              }
+              // If not, use the home scene. But home scene may not be registered
+              if (scene == null) {
+                  scene = this.homeScene;
+              }
+              // Have you decided which scene to show?
+              if (scene) {
+                  this.catchableMount(this.mainViewSelector, scene.props, scene.name);
               }
               else {
-                  route(() => {
-                      unmount(selector, true);
-                      mount(selector, scene.props, scene.name);
-                  });
+                  this.showError(this.mainViewSelector, "Your order is not found.", this.errorScene);
+              }
+          };
+          // Private
+          this.catchableMount = (selector, props, componentName) => {
+              try {
+                  mount(selector, props, componentName);
+              }
+              catch (error) {
+                  this.showError(selector, error.message, this.errorScene);
+              }
+          };
+          this.showError = (selector, message, errorScene) => {
+              if (errorScene) {
+                  mount(selector, { message: message }, errorScene.name);
+              }
+              else {
+                  console.log("Failed mount view controller. error message = " + message);
               }
           };
       }
@@ -3685,8 +3730,8 @@
                   successHandler(yield response.json());
               }
               else if (response.status === 422) {
-                  let json = yield response.json();
-                  let errors = Object.keys(json.errors).map(key => new ServerError(key, json.errors[key]));
+                  const json = yield response.json();
+                  const errors = Object.keys(json.errors).map(key => new ServerError(key, json.errors[key]));
                   failureHandler(errors.map((error) => new Error(error.subject + " " + error.concatObjects())));
               }
               else {
@@ -3694,7 +3739,7 @@
               }
           });
           this.fetchingPromise = (path, method, headers, body) => {
-              let init = { "method": method };
+              const init = { "method": method };
               if (headers != null) {
                   init["headers"] = headers;
               }
@@ -3807,15 +3852,15 @@
   class UserLocalStorageRepository {
       constructor() {
           this.user = () => {
-              let value = localStorage.getItem("user");
+              const value = localStorage.getItem("user");
               if (value == null) {
                   return null;
               }
               const user = User.init(JSON.parse(value));
               // check expired
-              let decoded = lib(user.token);
-              let now = Date.now() / 1000; // mili sec
-              let exp = Number(decoded["exp"]); // sec
+              const decoded = lib(user.token);
+              const now = Date.now() / 1000; // mili sec
+              const exp = Number(decoded["exp"]); // sec
               if (now > exp) {
                   this.setUser(null);
                   return null;
@@ -3845,7 +3890,7 @@
               return this.sceneString() + this.pathString() + this.keyValueStrings();
           };
           this.fullPath = () => {
-              let url = new HTTPURLParser().parse(location.href);
+              const url = new HTTPURLParser().parse(location.href);
               return url.scheme + "://" + this.hostAndPort(url.host, url.port) + (this.path() === "" ? "" : "/" + this.path());
           };
           this.hostAndPort = (host, port) => {
@@ -3931,10 +3976,10 @@
           this.storage = new UserLocalStorageRepository();
           this.container = null;
           this.requestArticles = () => {
-              let limit = Settings.shared().valueForKey("countOfArticleInView");
-              let offset = this.state.page == null ? null : (this.state.page - 1) * limit;
-              let nextProcess = (c) => { this.container = c; return c; };
-              let token = this.storage.user() === null ? null : this.storage.user().token;
+              const limit = Settings.shared().valueForKey("countOfArticleInView");
+              const offset = this.state.page == null ? null : (this.state.page - 1) * limit;
+              const nextProcess = (c) => { this.container = c; return c; };
+              const token = this.storage.user() === null ? null : this.storage.user().token;
               switch (this.state.kind) {
                   case "your":
                       return this.conduit.getArticlesByFollowingUser(token, limit, offset).then(nextProcess);
@@ -3958,7 +4003,7 @@
               if (this.container == null || this.container.count === 0) {
                   return 0;
               }
-              let limit = Settings.shared().valueForKey("countOfArticleInView");
+              const limit = Settings.shared().valueForKey("countOfArticleInView");
               return Math.floor(this.container.count / limit);
           };
           this.currentPage = () => {
@@ -3968,7 +4013,7 @@
               return new MenuItemsBuilder().items(this.state.scene, this.storage.user());
           };
           this.tabItems = () => {
-              let tabs = [];
+              const tabs = [];
               // Add "Your feed" ?
               if (this.isLoggedIn()) {
                   tabs.push(new ArticleTabItem("your", "Your Feed", (this.state.kind === "your")));
@@ -3985,11 +4030,11 @@
               return tabs;
           };
           this.jumpPage = (page) => {
-              let path = new SPAPathBuilder(this.state.scene, SPALocation.shared().paths(), { "page": String(page) }).fullPath();
+              const path = new SPAPathBuilder(this.state.scene, SPALocation.shared().paths(), { "page": String(page) }).fullPath();
               location.href = path;
           };
           this.jumpToSubPath = (path) => {
-              let full = new SPAPathBuilder(this.state.scene, [path]).fullPath();
+              const full = new SPAPathBuilder(this.state.scene, [path]).fullPath();
               location.href = full;
           };
           this.jumpToProfileScene = (profile) => {
@@ -4002,7 +4047,7 @@
               if (article === null) {
                   throw Error("Article is empty.");
               }
-              let user = this.storage.user();
+              const user = this.storage.user();
               if (user === null) {
                   return new Promise((resolve, _) => __awaiter(this, void 0, void 0, function* () { resolve(null); }));
               }
@@ -4024,8 +4069,8 @@
           // scene
           this.scene = location.scene() ? location.scene() : "articles";
           // kind
-          let paths = location.paths() ? location.paths() : [];
-          let kind = (paths.length >= 1) ? paths[0] : "global";
+          const paths = location.paths() ? location.paths() : [];
+          const kind = (paths.length >= 1) ? paths[0] : "global";
           this.kind = kind;
           // tag
           if (kind === "tag" && paths.length >= 2) {
@@ -4038,7 +4083,7 @@
                   this.page = 1;
                   break;
               default:
-                  let page = location.query()["page"];
+                  const page = location.query()["page"];
                   if (page === undefined || page == null) {
                       this.page = 1;
                   }
@@ -4055,7 +4100,7 @@
           this.useCase = new ArticlesUseCase();
           // Lifecycle
           this.viewWillAppear = () => {
-              console.log("viewWillAppear");
+              // console.log("viewWillAppear")  // No action
           };
           this.viewDidAppear = () => {
               this.headerView.setItems(this.useCase.menuItems());
@@ -4356,16 +4401,16 @@
     },
 
     'template': function(template, expressionTypes, bindingTypes, getComponent) {
-      return template('<div expr28="expr28" class="article-preview"></div>', [{
+      return template('<div expr30="expr30" class="article-preview"></div>', [{
         'type': bindingTypes.EACH,
         'getKey': null,
         'condition': null,
 
         'template': template(
-          '<div class="article-meta"><a expr29="expr29"><img expr30="expr30"/></a><div class="info"><a expr31="expr31" class="author author-link"><!----></a><span class="date">January 20th</span></div><button expr32="expr32"><i class="ion-heart"></i><!----></button></div><a expr33="expr33" class="preview-link"><h1 expr34="expr34"><!----></h1><p expr35="expr35"><!----></p><span>Read more...</span><ul class="tag-list"><li expr36="expr36" class="tag-default tag-pill tag-outline"></li></ul></a>',
+          '<div class="article-meta"><a expr31="expr31"><img expr32="expr32"/></a><div class="info"><a expr33="expr33" class="author author-link"><!----></a><span class="date">January 20th</span></div><button expr34="expr34"><i class="ion-heart"></i><!----></button></div><a expr35="expr35" class="preview-link"><h1 expr36="expr36"><!----></h1><p expr37="expr37"><!----></p><span>Read more...</span><ul class="tag-list"><li expr38="expr38" class="tag-default tag-pill tag-outline"></li></ul></a>',
           [{
-            'redundantAttribute': 'expr29',
-            'selector': '[expr29]',
+            'redundantAttribute': 'expr31',
+            'selector': '[expr31]',
 
             'expressions': [{
               'type': expressionTypes.EVENT,
@@ -4376,8 +4421,8 @@
               }
             }]
           }, {
-            'redundantAttribute': 'expr30',
-            'selector': '[expr30]',
+            'redundantAttribute': 'expr32',
+            'selector': '[expr32]',
 
             'expressions': [{
               'type': expressionTypes.ATTRIBUTE,
@@ -4388,8 +4433,8 @@
               }
             }]
           }, {
-            'redundantAttribute': 'expr31',
-            'selector': '[expr31]',
+            'redundantAttribute': 'expr33',
+            'selector': '[expr33]',
 
             'expressions': [{
               'type': expressionTypes.TEXT,
@@ -4407,8 +4452,8 @@
               }
             }]
           }, {
-            'redundantAttribute': 'expr32',
-            'selector': '[expr32]',
+            'redundantAttribute': 'expr34',
+            'selector': '[expr34]',
 
             'expressions': [{
               'type': expressionTypes.TEXT,
@@ -4433,8 +4478,8 @@
               }
             }]
           }, {
-            'redundantAttribute': 'expr33',
-            'selector': '[expr33]',
+            'redundantAttribute': 'expr35',
+            'selector': '[expr35]',
 
             'expressions': [{
               'type': expressionTypes.EVENT,
@@ -4445,8 +4490,8 @@
               }
             }]
           }, {
-            'redundantAttribute': 'expr34',
-            'selector': '[expr34]',
+            'redundantAttribute': 'expr36',
+            'selector': '[expr36]',
 
             'expressions': [{
               'type': expressionTypes.TEXT,
@@ -4457,8 +4502,8 @@
               }
             }]
           }, {
-            'redundantAttribute': 'expr35',
-            'selector': '[expr35]',
+            'redundantAttribute': 'expr37',
+            'selector': '[expr37]',
 
             'expressions': [{
               'type': expressionTypes.TEXT,
@@ -4484,8 +4529,8 @@
               }]
             }]),
 
-            'redundantAttribute': 'expr36',
-            'selector': '[expr36]',
+            'redundantAttribute': 'expr38',
+            'selector': '[expr38]',
             'itemName': 'tagWord',
             'indexName': null,
 
@@ -4495,8 +4540,8 @@
           }]
         ),
 
-        'redundantAttribute': 'expr28',
-        'selector': '[expr28]',
+        'redundantAttribute': 'expr30',
+        'selector': '[expr30]',
         'itemName': 'article',
         'indexName': null,
 
@@ -4521,7 +4566,7 @@
 
     'template': function(template, expressionTypes, bindingTypes, getComponent) {
       return template(
-        '<div class="sidebar"><p>Popular Tags</p><div class="tag-list"><a expr37="expr37" class="tag-pill tag-default"></a></div></div>',
+        '<div class="sidebar"><p>Popular Tags</p><div class="tag-list"><a expr39="expr39" class="tag-pill tag-default"></a></div></div>',
         [{
           'type': bindingTypes.EACH,
           'getKey': null,
@@ -4545,8 +4590,8 @@
             }]
           }]),
 
-          'redundantAttribute': 'expr37',
-          'selector': '[expr37]',
+          'redundantAttribute': 'expr39',
+          'selector': '[expr39]',
           'itemName': 'tag',
           'indexName': null,
 
@@ -4589,12 +4634,12 @@
     },
 
     'template': function(template, expressionTypes, bindingTypes, getComponent) {
-      return template('<ul class="pagination"><li expr38="expr38"></li></ul>', [{
+      return template('<ul class="pagination"><li expr28="expr28"></li></ul>', [{
         'type': bindingTypes.EACH,
         'getKey': null,
         'condition': null,
 
-        'template': template('<a expr39="expr39" class="page-link"><!----></a>', [{
+        'template': template('<a expr29="expr29" class="page-link"><!----></a>', [{
           'expressions': [{
             'type': expressionTypes.ATTRIBUTE,
             'name': 'class',
@@ -4604,8 +4649,8 @@
             }
           }]
         }, {
-          'redundantAttribute': 'expr39',
-          'selector': '[expr39]',
+          'redundantAttribute': 'expr29',
+          'selector': '[expr29]',
 
           'expressions': [{
             'type': expressionTypes.TEXT,
@@ -4624,8 +4669,8 @@
           }]
         }]),
 
-        'redundantAttribute': 'expr38',
-        'selector': '[expr38]',
+        'redundantAttribute': 'expr28',
+        'selector': '[expr28]',
         'itemName': 'page',
         'indexName': null,
 
@@ -4699,6 +4744,7 @@
           this.storage = new UserLocalStorageRepository();
           this._article = null;
           this._comments = [];
+          // Public
           this.isLoggedIn = () => {
               return this.storage.isLoggedIn();
           };
@@ -4712,14 +4758,11 @@
               return this.storage.user().profile();
           };
           this.requestArticle = () => {
-              let slug = SPALocation.shared().paths()[0];
-              let token = this.storage.user() == null ? null : this.storage.user().token;
-              if (slug !== null) {
-                  return this.conduit.getArticle(slug, token).then((article) => {
-                      this._article = article;
-                      return article;
-                  });
-              }
+              const token = this.storage.user() == null ? null : this.storage.user().token;
+              return this.conduit.getArticle(this.state.slug, token).then((article) => {
+                  this._article = article;
+                  return article;
+              });
           };
           this.currentArticle = () => {
               return this._article;
@@ -4728,60 +4771,55 @@
               return this._comments;
           };
           this.requestComments = () => {
-              let slug = SPALocation.shared().paths()[0];
-              return this.conduit.getComments(slug).then((comments) => {
+              return this.conduit.getComments(this.state.slug).then((comments) => {
                   this._comments = comments;
                   return comments;
               });
           };
           this.toggleFollowing = () => {
-              let article = this._article;
+              const article = this._article;
               if (article === null) {
                   throw Error("An article is empty.");
               }
               // follow/unfollow
-              let token = this.storage.user().token;
-              let username = article.author.username;
-              let process = (p) => { this._article.author = p; return p; };
+              const token = this.storage.user().token;
+              const username = article.author.username;
+              const process = (p) => { this._article.author = p; return p; };
               switch (article.author.following) {
                   case true: return this.conduit.unfollow(token, username).then(process);
                   case false: return this.conduit.follow(token, username).then(process);
               }
           };
           this.toggleFavorite = () => {
-              let article = this._article;
+              const article = this._article;
               if (article === null) {
-                  throw Error("Article is empty.");
+                  throw Error("An article is empty.");
               }
-              let token = this.storage.user().token;
-              let slug = SPALocation.shared().paths()[0];
-              let process = (a) => { this._article = a; return a; };
-              let favorited = article.favorited;
+              const token = this.storage.user().token;
+              const process = (a) => { this._article = a; return a; };
+              const favorited = article.favorited;
               switch (favorited) {
-                  case true: return this.conduit.unfavorite(token, slug).then(process);
-                  case false: return this.conduit.favorite(token, slug).then(process);
+                  case true: return this.conduit.unfavorite(token, this.state.slug).then(process);
+                  case false: return this.conduit.favorite(token, this.state.slug).then(process);
               }
           };
           this.postComment = (comment) => {
-              let token = this.storage.user().token;
-              let slug = SPALocation.shared().paths()[0];
-              return this.conduit.postComment(token, slug, comment).then((comment) => {
+              const token = this.storage.user().token;
+              return this.conduit.postComment(token, this.state.slug, comment).then((comment) => {
                   this._comments.unshift(comment);
                   return comment;
               });
           };
           this.deleteComment = (commentId) => {
-              let token = this.storage.user().token;
-              let slug = SPALocation.shared().paths()[0];
-              return this.conduit.deleteComment(token, slug, commentId).then(() => {
+              const token = this.storage.user().token;
+              return this.conduit.deleteComment(token, this.state.slug, commentId).then(() => {
                   let index = this._comments.findIndex((target) => target.id === commentId);
                   this._comments.splice(index, 1);
               });
           };
           this.deleteArticle = () => {
-              let token = this.storage.user().token;
-              let slug = SPALocation.shared().paths()[0];
-              return this.conduit.deleteArticle(token, slug);
+              const token = this.storage.user().token;
+              return this.conduit.deleteArticle(token, this.state.slug);
           };
           this.jumpToEditerScene = () => {
               location.href = new SPAPathBuilder("editer", [this._article.slug]).fullPath();
@@ -4796,6 +4834,8 @@
       constructor(location) {
           // scene
           this.scene = location.scene();
+          // slug
+          this.slug = location.paths()[0];
       }
   }
 
@@ -4805,7 +4845,7 @@
           this.useCase = new ArticleUseCase();
           // Lifecycle
           this.viewWillAppear = () => {
-              console.log("viewWillAppear");
+              // console.log("viewWillAppear")  // No action
           };
           this.viewDidAppear = () => {
               // setup header
@@ -11452,18 +11492,18 @@
     },
 
     'template': function(template, expressionTypes, bindingTypes, getComponent) {
-      return template('<template expr63="expr63"></template>', [{
+      return template('<template expr58="expr58"></template>', [{
         'type': bindingTypes.IF,
 
         'evaluate': function(scope) {
           return scope.state.article != null;
         },
 
-        'redundantAttribute': 'expr63',
-        'selector': '[expr63]',
+        'redundantAttribute': 'expr58',
+        'selector': '[expr58]',
 
         'template': template(
-          '<div id="articleBodyField"></div><ul class="tag-list"><li expr64="expr64" class="tag-default tag-pill tag-outline"></li></ul>',
+          '<div id="articleBodyField"></div><ul class="tag-list"><li expr59="expr59" class="tag-default tag-pill tag-outline"></li></ul>',
           [{
             'type': bindingTypes.EACH,
             'getKey': null,
@@ -11480,8 +11520,8 @@
               }]
             }]),
 
-            'redundantAttribute': 'expr64',
-            'selector': '[expr64]',
+            'redundantAttribute': 'expr59',
+            'selector': '[expr59]',
             'itemName': 'tagWord',
             'indexName': null,
 
@@ -11518,7 +11558,7 @@
 
     'template': function(template, expressionTypes, bindingTypes, getComponent) {
       return template(
-        '<form class="card comment-form"><div class="card-block"><textarea id="commentArea" class="form-control" placeholder="Write a comment..." rows="3"></textarea></div><div class="card-footer"><template expr52="expr52"></template><button expr54="expr54" type="button" class="btn btn-sm btn-primary">\n        Post Comment\n        </button></div></form>',
+        '<form class="card comment-form"><div class="card-block"><textarea id="commentArea" class="form-control" placeholder="Write a comment..." rows="3"></textarea></div><div class="card-footer"><template expr68="expr68"></template><button expr70="expr70" type="button" class="btn btn-sm btn-primary">\n        Post Comment\n        </button></div></form>',
         [{
           'type': bindingTypes.IF,
 
@@ -11526,12 +11566,12 @@
             return scope.state.profile != null;
           },
 
-          'redundantAttribute': 'expr52',
-          'selector': '[expr52]',
+          'redundantAttribute': 'expr68',
+          'selector': '[expr68]',
 
-          'template': template('<img expr53="expr53" class="comment-author-img"/>', [{
-            'redundantAttribute': 'expr53',
-            'selector': '[expr53]',
+          'template': template('<img expr69="expr69" class="comment-author-img"/>', [{
+            'redundantAttribute': 'expr69',
+            'selector': '[expr69]',
 
             'expressions': [{
               'type': expressionTypes.ATTRIBUTE,
@@ -11543,8 +11583,8 @@
             }]
           }])
         }, {
-          'redundantAttribute': 'expr54',
-          'selector': '[expr54]',
+          'redundantAttribute': 'expr70',
+          'selector': '[expr70]',
 
           'expressions': [{
             'type': expressionTypes.EVENT,
@@ -11598,16 +11638,16 @@
     },
 
     'template': function(template, expressionTypes, bindingTypes, getComponent) {
-      return template('<div expr55="expr55" class="card"></div>', [{
+      return template('<div expr60="expr60" class="card"></div>', [{
         'type': bindingTypes.EACH,
         'getKey': null,
         'condition': null,
 
         'template': template(
-          '<div class="card-block"><p class="card-text"><div expr56="expr56" class="comment_body_view"></div></p></div><div class="card-footer"><a expr57="expr57" class="comment-author"><img expr58="expr58" class="comment-author-img"/></a>\n        &nbsp;\n        <a expr59="expr59" class="comment-author"><!----></a><span expr60="expr60" class="date-posted"><!----></span><template expr61="expr61"></template></div>',
+          '<div class="card-block"><p class="card-text"><div expr61="expr61" class="comment_body_view"></div></p></div><div class="card-footer"><a expr62="expr62" class="comment-author"><img expr63="expr63" class="comment-author-img"/></a>\n        &nbsp;\n        <a expr64="expr64" class="comment-author"><!----></a><span expr65="expr65" class="date-posted"><!----></span><template expr66="expr66"></template></div>',
           [{
-            'redundantAttribute': 'expr56',
-            'selector': '[expr56]',
+            'redundantAttribute': 'expr61',
+            'selector': '[expr61]',
 
             'expressions': [{
               'type': expressionTypes.ATTRIBUTE,
@@ -11618,8 +11658,8 @@
               }
             }]
           }, {
-            'redundantAttribute': 'expr57',
-            'selector': '[expr57]',
+            'redundantAttribute': 'expr62',
+            'selector': '[expr62]',
 
             'expressions': [{
               'type': expressionTypes.ATTRIBUTE,
@@ -11630,8 +11670,8 @@
               }
             }]
           }, {
-            'redundantAttribute': 'expr58',
-            'selector': '[expr58]',
+            'redundantAttribute': 'expr63',
+            'selector': '[expr63]',
 
             'expressions': [{
               'type': expressionTypes.ATTRIBUTE,
@@ -11642,8 +11682,8 @@
               }
             }]
           }, {
-            'redundantAttribute': 'expr59',
-            'selector': '[expr59]',
+            'redundantAttribute': 'expr64',
+            'selector': '[expr64]',
 
             'expressions': [{
               'type': expressionTypes.TEXT,
@@ -11661,8 +11701,8 @@
               }
             }]
           }, {
-            'redundantAttribute': 'expr60',
-            'selector': '[expr60]',
+            'redundantAttribute': 'expr65',
+            'selector': '[expr65]',
 
             'expressions': [{
               'type': expressionTypes.TEXT,
@@ -11679,14 +11719,14 @@
               return scope.isDeletable( scope.comment );
             },
 
-            'redundantAttribute': 'expr61',
-            'selector': '[expr61]',
+            'redundantAttribute': 'expr66',
+            'selector': '[expr66]',
 
             'template': template(
-              '<span class="mod-options"><i expr62="expr62" class="ion-trash-a"></i></span>',
+              '<span class="mod-options"><i expr67="expr67" class="ion-trash-a"></i></span>',
               [{
-                'redundantAttribute': 'expr62',
-                'selector': '[expr62]',
+                'redundantAttribute': 'expr67',
+                'selector': '[expr67]',
 
                 'expressions': [{
                   'type': expressionTypes.EVENT,
@@ -11701,8 +11741,8 @@
           }]
         ),
 
-        'redundantAttribute': 'expr55',
-        'selector': '[expr55]',
+        'redundantAttribute': 'expr60',
+        'selector': '[expr60]',
         'itemName': 'comment',
         'indexName': null,
 
@@ -11767,10 +11807,10 @@
 
     'template': function(template, expressionTypes, bindingTypes, getComponent) {
       return template(
-        '<div id="headerView"></div><div class="article-page"><div class="banner"><div class="container"><h1 expr0="expr0"><!----></h1><div id="aboveArticleWidgetView"></div></div></div><div class="container page"><div class="row article-content"><div class="col-md-12"><div id="articleView"></div></div></div></div><hr/><div class="article-actions"><div id="belowArticleWidgetView"></div></div><div class="row"><div class="col-xs-12 col-md-8 offset-md-2"><div id="commentFormView"></div><div id="commentTableView"></div></div></div></div><div id="footerView"></div>',
+        '<div id="headerView"></div><div class="article-page"><div class="banner"><div class="container"><h1 expr18="expr18"><!----></h1><div id="aboveArticleWidgetView"></div></div></div><div class="container page"><div class="row article-content"><div class="col-md-12"><div id="articleView"></div></div></div></div><hr/><div class="article-actions"><div id="belowArticleWidgetView"></div></div><div class="row"><div class="col-xs-12 col-md-8 offset-md-2"><div id="commentFormView"></div><div id="commentTableView"></div></div></div></div><div id="footerView"></div>',
         [{
-          'redundantAttribute': 'expr0',
-          'selector': '[expr0]',
+          'redundantAttribute': 'expr18',
+          'selector': '[expr18]',
 
           'expressions': [{
             'type': expressionTypes.TEXT,
@@ -11815,7 +11855,7 @@
           this.useCase = new LoginUseCase();
           // Lifecycle
           this.viewWillAppear = () => {
-              console.log("viewWillAppear");
+              // console.log("viewWillAppear")  // No action
           };
           this.viewDidAppear = () => {
               this.headerView.setItems(this.useCase.menuItems());
@@ -11876,7 +11916,7 @@
 
     'template': function(template, expressionTypes, bindingTypes, getComponent) {
       return template(
-        '<div id="headerView"></div><div class="auth-page"><div class="container page"><div class="row"><div class="col-md-6 offset-md-3 col-xs-12"><h1 class="text-xs-center">Sign In</h1><p class="text-xs-center"><a href="#/register">Need an account?</a></p><ul expr1="expr1" class="error-messages"></ul><fieldset class="form-group"><input expr3="expr3" id="emailField" class="form-control form-control-lg" type="text" placeholder="Email"/></fieldset><fieldset class="form-group"><input expr4="expr4" id="passwordField" class="form-control form-control-lg" type="password" placeholder="Password"/></fieldset><button expr5="expr5" id="submitButton" class="btn btn-lg btn-primary pull-xs-right" disabled>\n                Sign in\n            </button></div></div></div></div><div id="footerView"></div>',
+        '<div id="headerView"></div><div class="auth-page"><div class="container page"><div class="row"><div class="col-md-6 offset-md-3 col-xs-12"><h1 class="text-xs-center">Sign In</h1><p class="text-xs-center"><a href="#/register">Need an account?</a></p><ul expr9="expr9" class="error-messages"></ul><fieldset class="form-group"><input expr11="expr11" id="emailField" class="form-control form-control-lg" type="text" placeholder="Email"/></fieldset><fieldset class="form-group"><input expr12="expr12" id="passwordField" class="form-control form-control-lg" type="password" placeholder="Password"/></fieldset><button expr13="expr13" id="submitButton" class="btn btn-lg btn-primary pull-xs-right" disabled>\n                Sign in\n            </button></div></div></div></div><div id="footerView"></div>',
         [{
           'type': bindingTypes.IF,
 
@@ -11884,10 +11924,10 @@
             return scope.state.errorMessages != null;
           },
 
-          'redundantAttribute': 'expr1',
-          'selector': '[expr1]',
+          'redundantAttribute': 'expr9',
+          'selector': '[expr9]',
 
-          'template': template('<li expr2="expr2"></li>', [{
+          'template': template('<li expr10="expr10"></li>', [{
             'type': bindingTypes.EACH,
             'getKey': null,
             'condition': null,
@@ -11903,8 +11943,8 @@
               }]
             }]),
 
-            'redundantAttribute': 'expr2',
-            'selector': '[expr2]',
+            'redundantAttribute': 'expr10',
+            'selector': '[expr10]',
             'itemName': 'message',
             'indexName': null,
 
@@ -11913,8 +11953,8 @@
             }
           }])
         }, {
-          'redundantAttribute': 'expr3',
-          'selector': '[expr3]',
+          'redundantAttribute': 'expr11',
+          'selector': '[expr11]',
 
           'expressions': [{
             'type': expressionTypes.EVENT,
@@ -11925,8 +11965,8 @@
             }
           }]
         }, {
-          'redundantAttribute': 'expr4',
-          'selector': '[expr4]',
+          'redundantAttribute': 'expr12',
+          'selector': '[expr12]',
 
           'expressions': [{
             'type': expressionTypes.EVENT,
@@ -11937,8 +11977,8 @@
             }
           }]
         }, {
-          'redundantAttribute': 'expr5',
-          'selector': '[expr5]',
+          'redundantAttribute': 'expr13',
+          'selector': '[expr13]',
 
           'expressions': [{
             'type': expressionTypes.EVENT,
@@ -11983,7 +12023,7 @@
           this.useCase = new RegisterUseCase();
           // Lifecycle
           this.viewWillAppear = () => {
-              console.log("viewWillAppear");
+              // console.log("viewWillAppear")  // No action
           };
           this.viewDidAppear = () => {
               this.headerView.setItems(this.useCase.menuItems());
@@ -12048,7 +12088,7 @@
 
     'template': function(template, expressionTypes, bindingTypes, getComponent) {
       return template(
-        '<div id="headerView"></div><div class="auth-page"><div class="container page"><div class="row"><div class="col-md-6 offset-md-3 col-xs-12"><h1 class="text-xs-center">Sign Up</h1><p class="text-xs-center"><a href="#/login">Have an account?</a></p><ul expr6="expr6" class="error-messages"></ul><fieldset class="form-group"><input expr8="expr8" id="usernameField" class="form-control form-control-lg" type="text" placeholder="Username"/></fieldset><fieldset class="form-group"><input expr9="expr9" id="emailField" class="form-control form-control-lg" type="text" placeholder="Email"/></fieldset><fieldset class="form-group"><input expr10="expr10" id="passwordField" class="form-control form-control-lg" type="password" placeholder="Password"/></fieldset><button expr11="expr11" id="submitButton" class="btn btn-lg btn-primary pull-xs-right" disabled>\n                Sign up\n            </button></div></div></div></div><div id="footerView"></div>',
+        '<div id="headerView"></div><div class="auth-page"><div class="container page"><div class="row"><div class="col-md-6 offset-md-3 col-xs-12"><h1 class="text-xs-center">Sign Up</h1><p class="text-xs-center"><a href="#/login">Have an account?</a></p><ul expr0="expr0" class="error-messages"></ul><fieldset class="form-group"><input expr2="expr2" id="usernameField" class="form-control form-control-lg" type="text" placeholder="Username"/></fieldset><fieldset class="form-group"><input expr3="expr3" id="emailField" class="form-control form-control-lg" type="text" placeholder="Email"/></fieldset><fieldset class="form-group"><input expr4="expr4" id="passwordField" class="form-control form-control-lg" type="password" placeholder="Password"/></fieldset><button expr5="expr5" id="submitButton" class="btn btn-lg btn-primary pull-xs-right" disabled>\n                Sign up\n            </button></div></div></div></div><div id="footerView"></div>',
         [{
           'type': bindingTypes.IF,
 
@@ -12056,10 +12096,10 @@
             return scope.state.errorMessages != null;
           },
 
-          'redundantAttribute': 'expr6',
-          'selector': '[expr6]',
+          'redundantAttribute': 'expr0',
+          'selector': '[expr0]',
 
-          'template': template('<li expr7="expr7"></li>', [{
+          'template': template('<li expr1="expr1"></li>', [{
             'type': bindingTypes.EACH,
             'getKey': null,
             'condition': null,
@@ -12075,8 +12115,8 @@
               }]
             }]),
 
-            'redundantAttribute': 'expr7',
-            'selector': '[expr7]',
+            'redundantAttribute': 'expr1',
+            'selector': '[expr1]',
             'itemName': 'message',
             'indexName': null,
 
@@ -12085,8 +12125,8 @@
             }
           }])
         }, {
-          'redundantAttribute': 'expr8',
-          'selector': '[expr8]',
+          'redundantAttribute': 'expr2',
+          'selector': '[expr2]',
 
           'expressions': [{
             'type': expressionTypes.EVENT,
@@ -12097,8 +12137,8 @@
             }
           }]
         }, {
-          'redundantAttribute': 'expr9',
-          'selector': '[expr9]',
+          'redundantAttribute': 'expr3',
+          'selector': '[expr3]',
 
           'expressions': [{
             'type': expressionTypes.EVENT,
@@ -12109,8 +12149,8 @@
             }
           }]
         }, {
-          'redundantAttribute': 'expr10',
-          'selector': '[expr10]',
+          'redundantAttribute': 'expr4',
+          'selector': '[expr4]',
 
           'expressions': [{
             'type': expressionTypes.EVENT,
@@ -12121,8 +12161,8 @@
             }
           }]
         }, {
-          'redundantAttribute': 'expr11',
-          'selector': '[expr11]',
+          'redundantAttribute': 'expr5',
+          'selector': '[expr5]',
 
           'expressions': [{
             'type': expressionTypes.EVENT,
@@ -12197,7 +12237,7 @@
           // scene
           this.scene = location.scene();
           // slug
-          let paths = location.paths() ? location.paths() : [];
+          const paths = location.paths() ? location.paths() : [];
           this.slug = (paths.length >= 1) ? paths[0] : null;
       }
   }
@@ -12288,7 +12328,7 @@
 
     'template': function(template, expressionTypes, bindingTypes, getComponent) {
       return template(
-        '<div id="headerView"></div><div class="editor-page"><div class="container page"><div class="row"><div class="col-md-10 offset-md-1 col-xs-12"><ul expr12="expr12" class="error-messages"></ul><form><fieldset><fieldset class="form-group"><input id="titleField" type="text" class="form-control form-control-lg" placeholder="Article Title"/></fieldset><fieldset class="form-group"><input id="descriptionField" type="text" class="form-control" placeholder="What\'s this article about?"/></fieldset><fieldset class="form-group"><textarea id="bodyField" class="form-control" rows="8" placeholder="Write your article (in markdown)"></textarea></fieldset><fieldset class="form-group"><input id="tagListField" type="text" class="form-control" placeholder="Enter tags"/><div class="tag-list"></div></fieldset><button expr14="expr14" class="btn btn-lg pull-xs-right btn-primary" type="button"><!----></button></fieldset></form></div></div></div></div><div id="footerView"></div>',
+        '<div id="headerView"></div><div class="editor-page"><div class="container page"><div class="row"><div class="col-md-10 offset-md-1 col-xs-12"><ul expr6="expr6" class="error-messages"></ul><form><fieldset><fieldset class="form-group"><input id="titleField" type="text" class="form-control form-control-lg" placeholder="Article Title"/></fieldset><fieldset class="form-group"><input id="descriptionField" type="text" class="form-control" placeholder="What\'s this article about?"/></fieldset><fieldset class="form-group"><textarea id="bodyField" class="form-control" rows="8" placeholder="Write your article (in markdown)"></textarea></fieldset><fieldset class="form-group"><input id="tagListField" type="text" class="form-control" placeholder="Enter tags"/><div class="tag-list"></div></fieldset><button expr8="expr8" class="btn btn-lg pull-xs-right btn-primary" type="button"><!----></button></fieldset></form></div></div></div></div><div id="footerView"></div>',
         [{
           'type': bindingTypes.IF,
 
@@ -12296,10 +12336,10 @@
             return scope.state.errorMessages != null;
           },
 
-          'redundantAttribute': 'expr12',
-          'selector': '[expr12]',
+          'redundantAttribute': 'expr6',
+          'selector': '[expr6]',
 
-          'template': template('<li expr13="expr13"></li>', [{
+          'template': template('<li expr7="expr7"></li>', [{
             'type': bindingTypes.EACH,
             'getKey': null,
             'condition': null,
@@ -12315,8 +12355,8 @@
               }]
             }]),
 
-            'redundantAttribute': 'expr13',
-            'selector': '[expr13]',
+            'redundantAttribute': 'expr7',
+            'selector': '[expr7]',
             'itemName': 'message',
             'indexName': null,
 
@@ -12325,8 +12365,8 @@
             }
           }])
         }, {
-          'redundantAttribute': 'expr14',
-          'selector': '[expr14]',
+          'redundantAttribute': 'expr8',
+          'selector': '[expr8]',
 
           'expressions': [{
             'type': expressionTypes.TEXT,
@@ -12369,24 +12409,24 @@
               return new MenuItemsBuilder().items(this.state.scene, this.storage.user());
           };
           this.isOwnedProfile = () => {
-              let user = this.storage.user();
+              const user = this.storage.user();
               if (user == null) {
                   return false;
               }
               return user.username === this.profile.username;
           };
           this.requestProfile = () => {
-              let token = this.storage.user() != null ? this.storage.user().token : null;
+              const token = this.storage.user() != null ? this.storage.user().token : null;
               return this.conduit.getProfile(this.state.username, token).then((p) => { this.profile = p; return p; });
           };
           this.requestArticles = () => {
               // calc offset
-              let limit = Settings.shared().valueForKey("countOfArticleInView");
-              let page = this.currentPage();
-              let offset = page == null ? null : (page - 1) * limit;
+              const limit = Settings.shared().valueForKey("countOfArticleInView");
+              const page = this.currentPage();
+              const offset = page == null ? null : (page - 1) * limit;
               // prepare request
-              let token = this.storage.user() != null ? this.storage.user().token : null;
-              let nextProcess = (c) => { this.container = c; return c; };
+              const token = this.storage.user() != null ? this.storage.user().token : null;
+              const nextProcess = (c) => { this.container = c; return c; };
               // request
               switch (this.state.articleKind) {
                   case "favorite_articles":
@@ -12401,39 +12441,39 @@
               if (this.container == null || this.container.count === 0) {
                   return 0;
               }
-              let limit = Settings.shared().valueForKey("countOfArticleInView");
+              const limit = Settings.shared().valueForKey("countOfArticleInView");
               return Math.floor(this.container.count / limit);
           };
           this.currentPage = () => {
               return this.state.page;
           };
           this.tabItems = () => {
-              let tabs = [
+              const tabs = [
                   new ArticleTabItem("my_articles", "My Articles", (this.state.articleKind === "my_articles")),
                   new ArticleTabItem("favorite_articles", "Favorite Articles", (this.state.articleKind === "favorite_articles"))
               ];
               return tabs;
           };
           this.toggleFollowing = () => {
-              let profile = this.profile;
+              const profile = this.profile;
               if (profile === null) {
                   throw Error("A profile is empty.");
               }
               // follow/unfollow
-              let token = this.storage.user().token;
-              let username = profile.username;
-              let process = (p) => { this.profile = p; return p; };
+              const token = this.storage.user().token;
+              const username = profile.username;
+              const process = (p) => { this.profile = p; return p; };
               switch (profile.following) {
                   case true: return this.conduit.unfollow(token, username).then(process);
                   case false: return this.conduit.follow(token, username).then(process);
               }
           };
           this.jumpPage = (page) => {
-              let pathBuilder = new SPAPathBuilder(this.state.scene, [this.state.username, this.state.articleKind], { "page": String(page) });
+              const pathBuilder = new SPAPathBuilder(this.state.scene, [this.state.username, this.state.articleKind], { "page": String(page) });
               location.href = pathBuilder.fullPath();
           };
           this.jumpToSubPath = (path) => {
-              let pathBuilder = new SPAPathBuilder(this.state.scene, [this.state.username, path]);
+              const pathBuilder = new SPAPathBuilder(this.state.scene, [this.state.username, path]);
               location.href = pathBuilder.fullPath();
           };
           this.jumpToSettingScene = () => {
@@ -12449,13 +12489,13 @@
               if (article === null) {
                   throw Error("Article is empty.");
               }
-              let user = this.storage.user();
+              const user = this.storage.user();
               if (user === null) {
                   return new Promise((resolve, _) => __awaiter(this, void 0, void 0, function* () { resolve(null); }));
               }
-              let process = (article) => {
-                  let filtered = this.container.articles.filter(a => a.slug === article.slug)[0];
-                  let index = this.container.articles.indexOf(filtered);
+              const process = (article) => {
+                  const filtered = this.container.articles.filter(a => a.slug === article.slug)[0];
+                  const index = this.container.articles.indexOf(filtered);
                   this.container.articles.splice(index, 1, article);
                   return this.container.articles;
               };
@@ -12472,7 +12512,7 @@
           // scene
           this.scene = location.scene();
           // username
-          let paths = location.paths();
+          const paths = location.paths();
           if (paths.length >= 1) {
               this.username = paths[0];
           }
@@ -12491,7 +12531,7 @@
                   this.page = 1;
                   break;
               default:
-                  let page = location.query()["page"];
+                  const page = location.query()["page"];
                   if (page === undefined || page == null) {
                       this.page = 1;
                   }
@@ -12508,7 +12548,7 @@
           this.useCase = new ProfileUseCase();
           // Lifecycle
           this.viewWillAppear = () => {
-              console.log("viewWillAppear");
+              // console.log("viewWillAppear")  // No action
           };
           this.viewDidAppear = () => {
               this.headerView.setItems(this.useCase.menuItems());
@@ -12592,21 +12632,21 @@
     },
 
     'template': function(template, expressionTypes, bindingTypes, getComponent) {
-      return template('<template expr65="expr65"></template>', [{
+      return template('<template expr52="expr52"></template>', [{
         'type': bindingTypes.IF,
 
         'evaluate': function(scope) {
           return scope.state.profile != null;
         },
 
-        'redundantAttribute': 'expr65',
-        'selector': '[expr65]',
+        'redundantAttribute': 'expr52',
+        'selector': '[expr52]',
 
         'template': template(
-          '<img expr66="expr66" class="user-img"/><h4 expr67="expr67"><!----></h4><p expr68="expr68"><!----></p><button expr69="expr69"><i expr70="expr70"></i><!----></button>',
+          '<img expr53="expr53" class="user-img"/><h4 expr54="expr54"><!----></h4><p expr55="expr55"><!----></p><button expr56="expr56"><i expr57="expr57"></i><!----></button>',
           [{
-            'redundantAttribute': 'expr66',
-            'selector': '[expr66]',
+            'redundantAttribute': 'expr53',
+            'selector': '[expr53]',
 
             'expressions': [{
               'type': expressionTypes.ATTRIBUTE,
@@ -12617,8 +12657,8 @@
               }
             }]
           }, {
-            'redundantAttribute': 'expr67',
-            'selector': '[expr67]',
+            'redundantAttribute': 'expr54',
+            'selector': '[expr54]',
 
             'expressions': [{
               'type': expressionTypes.TEXT,
@@ -12629,8 +12669,8 @@
               }
             }]
           }, {
-            'redundantAttribute': 'expr68',
-            'selector': '[expr68]',
+            'redundantAttribute': 'expr55',
+            'selector': '[expr55]',
 
             'expressions': [{
               'type': expressionTypes.TEXT,
@@ -12641,8 +12681,8 @@
               }
             }]
           }, {
-            'redundantAttribute': 'expr69',
-            'selector': '[expr69]',
+            'redundantAttribute': 'expr56',
+            'selector': '[expr56]',
 
             'expressions': [{
               'type': expressionTypes.TEXT,
@@ -12667,8 +12707,8 @@
               }
             }]
           }, {
-            'redundantAttribute': 'expr70',
-            'selector': '[expr70]',
+            'redundantAttribute': 'expr57',
+            'selector': '[expr57]',
 
             'expressions': [{
               'type': expressionTypes.ATTRIBUTE,
@@ -12890,7 +12930,7 @@
 
     'template': function(template, expressionTypes, bindingTypes, getComponent) {
       return template(
-        '<div id="headerView"></div><div class="settings-page"><div class="container page"><div class="row"><div class="col-md-6 offset-md-3 col-xs-12"><h1 class="text-xs-center">Your Settings</h1><ul expr15="expr15" class="error-messages"></ul><form><fieldset><fieldset class="form-group"><input id="iconUrlField" class="form-control" type="text" placeholder="URL of profile picture"/></fieldset><fieldset class="form-group"><input id="usernameField" class="form-control form-control-lg" type="text" placeholder="Your Name"/></fieldset><fieldset class="form-group"><textarea id="bioField" class="form-control form-control-lg" rows="8" placeholder="Short bio about you"></textarea></fieldset><fieldset class="form-group"><input id="emailField" class="form-control form-control-lg" type="text" placeholder="Email"/></fieldset><fieldset class="form-group"><input id="passwordField" class="form-control form-control-lg" type="password" placeholder="Password"/></fieldset><button expr17="expr17" class="btn btn-lg btn-primary pull-xs-right" type="button">\n                        Update Settings\n                    </button></fieldset></form><hr/><button expr18="expr18" class="btn btn-outline-danger"> Or click here to logout. </button></div></div></div></div><div id="footerView"></div>',
+        '<div id="headerView"></div><div class="settings-page"><div class="container page"><div class="row"><div class="col-md-6 offset-md-3 col-xs-12"><h1 class="text-xs-center">Your Settings</h1><ul expr14="expr14" class="error-messages"></ul><form><fieldset><fieldset class="form-group"><input id="iconUrlField" class="form-control" type="text" placeholder="URL of profile picture"/></fieldset><fieldset class="form-group"><input id="usernameField" class="form-control form-control-lg" type="text" placeholder="Your Name"/></fieldset><fieldset class="form-group"><textarea id="bioField" class="form-control form-control-lg" rows="8" placeholder="Short bio about you"></textarea></fieldset><fieldset class="form-group"><input id="emailField" class="form-control form-control-lg" type="text" placeholder="Email"/></fieldset><fieldset class="form-group"><input id="passwordField" class="form-control form-control-lg" type="password" placeholder="Password"/></fieldset><button expr16="expr16" class="btn btn-lg btn-primary pull-xs-right" type="button">\n                        Update Settings\n                    </button></fieldset></form><hr/><button expr17="expr17" class="btn btn-outline-danger"> Or click here to logout. </button></div></div></div></div><div id="footerView"></div>',
         [{
           'type': bindingTypes.IF,
 
@@ -12898,10 +12938,10 @@
             return scope.state.errorMessages != null;
           },
 
-          'redundantAttribute': 'expr15',
-          'selector': '[expr15]',
+          'redundantAttribute': 'expr14',
+          'selector': '[expr14]',
 
-          'template': template('<li expr16="expr16"></li>', [{
+          'template': template('<li expr15="expr15"></li>', [{
             'type': bindingTypes.EACH,
             'getKey': null,
             'condition': null,
@@ -12917,8 +12957,8 @@
               }]
             }]),
 
-            'redundantAttribute': 'expr16',
-            'selector': '[expr16]',
+            'redundantAttribute': 'expr15',
+            'selector': '[expr15]',
             'itemName': 'message',
             'indexName': null,
 
@@ -12927,8 +12967,8 @@
             }
           }])
         }, {
-          'redundantAttribute': 'expr17',
-          'selector': '[expr17]',
+          'redundantAttribute': 'expr16',
+          'selector': '[expr16]',
 
           'expressions': [{
             'type': expressionTypes.EVENT,
@@ -12939,8 +12979,8 @@
             }
           }]
         }, {
-          'redundantAttribute': 'expr18',
-          'selector': '[expr18]',
+          'redundantAttribute': 'expr17',
+          'selector': '[expr17]',
 
           'expressions': [{
             'type': expressionTypes.EVENT,
@@ -12997,7 +13037,7 @@
           this.useCase = new ApplicationUseCase();
           this.willFinishLaunching = () => {
               // Setup usecase
-              const notFoundScene = { name: "show_error", component: ShowErrorComponent, filter: null, props: { message: "Your order is not found." } }; // Not found
+              const errorScene = { name: "show_error", component: ShowErrorComponent, filter: null }; // Not found
               this.useCase.setMainViewSelector("div#mainView");
               this.useCase.setScenes([
                   { name: "login", component: LoginComponent, filter: "/login" },
@@ -13006,11 +13046,10 @@
                   { name: "article", component: ArticleComponent, filter: "/article.." },
                   { name: "editer", component: EditerComponent, filter: "/editer.." },
                   { name: "profile", component: ProfileComponent, filter: "/profile.." },
-                  { name: "register", component: RegisterComponent, filter: "/register" },
-                  notFoundScene
+                  { name: "register", component: RegisterComponent, filter: "/register" }
               ]);
-              this.useCase.setHome("articles", ArticlesComponent);
-              this.useCase.setNotFoundScene(notFoundScene);
+              this.useCase.setHomeScene({ name: "articles", component: ArticlesComponent });
+              this.useCase.setErrorScene(errorScene);
           };
           this.didFinishLaunching = () => {
               const useCase = this.useCase;
