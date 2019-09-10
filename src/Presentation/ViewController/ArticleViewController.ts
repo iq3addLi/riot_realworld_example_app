@@ -59,23 +59,29 @@ export default class ArticleViewController {
             this.setArticleForWidgets( this.useCase.currentArticle() )
         })
     }
-    didFavoriteHandler = () => {
+    didArticleFavoriteHandler = () => {
         this.useCase.toggleFavorite().then( () => {
             this.setArticleForWidgets( this.useCase.currentArticle() )
         })
     }
-    didEditingHandler = () => {
+    didArticleEditingHandler = () => {
         this.useCase.jumpToEditerScene()
     }
-    didDeleteHandler = () => {
+    didArticleDeleteHandler = () => {
         this.useCase.deleteArticle().then( () => {
             this.useCase.jumpToHome()
         })
     }
-    didSubmitHandler = ( comment: string ) => {
+
+    didCommentSubmitHandler = ( comment: string ) => {
         this.useCase.postComment( comment ).then( () => {
             this.commentTableView.setComments( this.useCase.currentComments() )
             this.commentFormView.clearComment()
+        })
+    }
+    didCommentDeleteHandler = ( commentId: number ) => {
+        this.useCase.deleteComment( commentId ).then( () => {
+            this.commentTableView.setComments( this.useCase.currentComments() )
         })
     }
 

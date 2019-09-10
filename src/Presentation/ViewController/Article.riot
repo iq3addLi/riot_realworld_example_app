@@ -26,22 +26,22 @@ export default{
         component(FooterView)( this.$("#footerView") ) 
         let aboveWidgetView = component(ArticleWidgetView)( this.$("#aboveArticleWidgetView"),{
             didFollowHandler: owner.didFollowHandler,
-            didFavoriteHandler: owner.didFavoriteHandler,
-            didEditingHandler: owner.didEditingHandler,
-            didDeleteHandler: owner.didDeleteHandler
+            didFavoriteHandler: owner.didArticleFavoriteHandler,
+            didEditingHandler: owner.didArticleEditingHandler,
+            didDeleteHandler: owner.didArticleDeleteHandler
         })
         let belowWidgetView = component(ArticleWidgetView)( this.$("#belowArticleWidgetView"),{
             didFollowHandler: owner.didFollowHandler,
-            didFavoriteHandler: owner.didFavoriteHandler,
-            didEditingHandler: owner.didEditingHandler,
-            didDeleteHandler: owner.didDeleteHandler
+            didFavoriteHandler: owner.didArticleFavoriteHandler,
+            didEditingHandler: owner.didArticleEditingHandler,
+            didDeleteHandler: owner.didArticleDeleteHandler
         })
         let articleView = component(ArticleView)( this.$("#articleView") )
         let commentFormView = component(CommentFormView)(  this.$("#commentFormView"), {
-            didSubmitHandler: owner.didSubmitHandler
+            didSubmitHandler: owner.didCommentSubmitHandler
         })
         let commentTableView = component(CommentTableView)(  this.$("#commentTableView"), {
-            didDeleteHandler: owner.didDeleteHandler
+            didDeleteHandler: owner.didCommentDeleteHandler
         })
 
         // Connect outlet

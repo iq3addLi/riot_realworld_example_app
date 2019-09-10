@@ -1,7 +1,7 @@
 <comment_table_view>
 
 <script>
-import { component } from "riot"
+import { component,unmount } from "riot"
 import moment from "moment"
 import MarkdownView from "./MarkdownView.riot"
 export default{
@@ -28,7 +28,7 @@ export default{
         return comment.author.username == ( this.state.loggedUserProfile ? this.state.loggedUserProfile.username : false )
     },
     actionOfTrashButton( commentId ){
-        if (this.props.didDeleteHandler) { this.props.didDeleteHandler() }
+        if (this.props.didDeleteHandler) { this.props.didDeleteHandler( commentId ) }
     }
 }
 
