@@ -70,7 +70,7 @@ class EditerState {
         this.scene = location.scene()
 
         // slug
-        let paths = location.paths() ? location.paths() : []
+        const paths = location.paths() ? location.paths() : []
         this.slug = ( paths.length >= 1 ) ? paths[0] : null
     }
 }

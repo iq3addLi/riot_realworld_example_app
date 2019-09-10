@@ -10,11 +10,11 @@ export default class HTTPURLParser {
 
     parse = ( urlString: string ): HTTPURL|null =>  {
         try {
-            let scheme = this.parsedScheme(urlString)
-            let host = this.parsedHost(urlString)
-            let port = this.parsedPort(urlString)
-            let path = this.parsedPath(urlString)
-            let query = this.parsedQuery(urlString)
+            const scheme = this.parsedScheme(urlString)
+            const host = this.parsedHost(urlString)
+            const port = this.parsedPort(urlString)
+            const path = this.parsedPath(urlString)
+            const query = this.parsedQuery(urlString)
             if ( scheme == null || host == null || Number.isNaN(port) || (path === null && query !== null) ) {
                 throw Error("urlString is not HTTPURL.")
             }
@@ -32,7 +32,7 @@ export default class HTTPURLParser {
     private parsedScheme = (urlString: string) => {
         // scheme
         const slasher = "://"
-        let index = urlString.indexOf(slasher)
+        const index = urlString.indexOf(slasher)
         if (index === -1) {
             return null // not url
         }
@@ -49,40 +49,40 @@ export default class HTTPURLParser {
 
     private parsedPath = (urlString: string) => {
         const slasher = "://"
-        let index = urlString.indexOf(slasher)
+        const index = urlString.indexOf(slasher)
         if (index === -1) {
             return null // not url
         }
-        let indexS = urlString.indexOf("/", index + slasher.length)
+        const indexS = urlString.indexOf("/", index + slasher.length)
         if (indexS === -1) {
             return null // path is not found
         }
         // "?" terminate
-        let indexQ = urlString.indexOf("?", indexS)
+        const indexQ = urlString.indexOf("?", indexS)
         if (indexQ !== -1) {
-            let path = urlString.substr(indexS + 1, indexQ - indexS - 1)
+            const path = urlString.substr(indexS + 1, indexQ - indexS - 1)
             return path.length === 0 ? null : path
         }
         // path only
-        let path = urlString.substr(indexS + 1)
+        const path = urlString.substr(indexS + 1)
         return path.length === 0 ? null : path
     }
 
     private parsedQuery = (urlString: string) => {
         // query
-        let indexQ = urlString.indexOf("?")
-        let query: { [key: string]: string} = {}
+        const indexQ = urlString.indexOf("?")
+        const query: { [key: string]: string} = {}
         if (indexQ === -1) {
             return null // query not found
         }
         if (urlString.split("?").length !== 2) {
             throw Error("Unexpected query.")
         }
-        let queryString = urlString.split("?")[1]
-        let keyValues = queryString.split("&")
-        for (let i in keyValues) {
-            let keyValue = keyValues[i]
-            let arr = keyValue.split("=")
+        const queryString = urlString.split("?")[1]
+        const keyValues = queryString.split("&")
+        for (const i in keyValues) {
+            const keyValue = keyValues[i]
+            const arr = keyValue.split("=")
             if (arr.length !== 2) {
                 throw Error("A query has unexpected key-value.")
             }
@@ -94,16 +94,16 @@ export default class HTTPURLParser {
     private parsedHostAndPort = (urlString: string) => {
         // host
         const slasher = "://"
-        let index = urlString.indexOf(slasher)
-        let afterScheme = urlString.substr(index + slasher.length)
+        const index = urlString.indexOf(slasher)
+        const afterScheme = urlString.substr(index + slasher.length)
 
         // "/" terminate
-        let indexS = afterScheme.indexOf("/")
+        const indexS = afterScheme.indexOf("/")
         if (indexS !== -1) {
             return afterScheme.substr(0, indexS)
         }
         // "?" terminate
-        let indexQ = afterScheme.indexOf("?")
+        const indexQ = afterScheme.indexOf("?")
         if (indexQ !== -1) {
             return afterScheme.substr(0, indexQ)
         }
@@ -115,9 +115,9 @@ export default class HTTPURLParser {
     private splitHostAndPort = (hostWithPort: string): HostAndPort => {
 
       // port
-      let indexC = hostWithPort.indexOf(":")
+      const indexC = hostWithPort.indexOf(":")
       if ( indexC !== -1 ) {
-        let splitted = hostWithPort.split(":")
+        const splitted = hostWithPort.split(":")
         if (splitted.length === 2) {
             return { host: splitted[0], port: Number(splitted[1]) }
         }

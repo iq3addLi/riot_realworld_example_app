@@ -17,7 +17,7 @@ export default class SPAPathBuilder {
     }
 
     fullPath = () => {
-        let url = new HTTPURLParser().parse(location.href)
+        const url = new HTTPURLParser().parse(location.href)
         return url.scheme + "://" + this.hostAndPort(url.host, url.port) + (this.path() === "" ? "" : "/" + this.path())
     }
 

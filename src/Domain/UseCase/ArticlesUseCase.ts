@@ -23,10 +23,10 @@ export default class ArticlesUseCase {
     }
 
     requestArticles = () => {
-        let limit: number = Settings.shared().valueForKey("countOfArticleInView")
-        let offset = this.state.page == null ? null : (this.state.page - 1) * limit
-        let nextProcess = (c) => { this.container = c; return c }
-        let token = this.storage.user() === null ? null : this.storage.user().token
+        const limit: number = Settings.shared().valueForKey("countOfArticleInView")
+        const offset = this.state.page == null ? null : (this.state.page - 1) * limit
+        const nextProcess = (c) => { this.container = c; return c }
+        const token = this.storage.user() === null ? null : this.storage.user().token
 
         switch (this.state.kind) {
         case "your":
@@ -55,7 +55,7 @@ export default class ArticlesUseCase {
         if (this.container == null || this.container.count === 0) {
             return 0
         }
-        let limit: number = Settings.shared().valueForKey("countOfArticleInView")
+        const limit: number = Settings.shared().valueForKey("countOfArticleInView")
         return Math.floor(this.container.count / limit)
     }
 
@@ -68,7 +68,7 @@ export default class ArticlesUseCase {
     }
 
     tabItems = () => {
-        let tabs: ArticleTabItem[] = []
+        const tabs: ArticleTabItem[] = []
 
         // Add "Your feed" ?
         if ( this.isLoggedIn() ) {
@@ -88,12 +88,12 @@ export default class ArticlesUseCase {
     }
 
     jumpPage = (page: number) => {
-        let path = new SPAPathBuilder( this.state.scene, SPALocation.shared().paths(), { "page" : String(page) } ).fullPath()
+        const path = new SPAPathBuilder( this.state.scene, SPALocation.shared().paths(), { "page" : String(page) } ).fullPath()
         location.href = path
     }
 
     jumpToSubPath = (path: string) => {
-        let full = new SPAPathBuilder( this.state.scene, [path]).fullPath()
+        const full = new SPAPathBuilder( this.state.scene, [path]).fullPath()
         location.href = full
     }
 
@@ -107,7 +107,7 @@ export default class ArticlesUseCase {
 
     toggleFavorite = ( article: Article ): Promise<Article[]> => {
         if ( article === null ) { throw Error("Article is empty.")  }
-        let user = this.storage.user()
+        const user = this.storage.user()
         if ( user === null ) {
             return new Promise<Article[]>( async (resolve, _) => { resolve(null) } )
         }
@@ -136,8 +136,8 @@ class ArticlesState {
         this.scene = location.scene() ? location.scene() : "articles"
 
         // kind
-        let paths = location.paths() ? location.paths() : []
-        let kind = ( paths.length >= 1 ) ? paths[0] : "global"
+        const paths = location.paths() ? location.paths() : []
+        const kind = ( paths.length >= 1 ) ? paths[0] : "global"
         this.kind = kind
 
         // tag
@@ -149,7 +149,7 @@ class ArticlesState {
         switch ( location.query() ) {
         case undefined: case null: this.page = 1; break
         default:
-            let page = location.query()["page"]
+            const page = location.query()["page"]
             if ( page === undefined || page == null ) { this.page = 1 }
             else { this.page = Number(page) }
         }

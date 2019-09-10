@@ -11,16 +11,14 @@ export default class RegisterViewController {
     private useCase = new RegisterUseCase()
 
     // Lifecycle
-
     viewWillAppear = () => {
-        console.log("viewWillAppear")
+        // console.log("viewWillAppear")  // No action
     }
     viewDidAppear = () => {
         this.headerView.setItems( this.useCase.menuItems() )
     }
 
     // Public
-
     register = ( username: string, email: string, password: string ) => {
         this.useCase.register( username, email, password ).then( () => {
             // success

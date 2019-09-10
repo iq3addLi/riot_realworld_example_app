@@ -19,7 +19,7 @@ export default class ProfileViewController {
 
     // Lifecycle
     viewWillAppear = () => {
-        console.log("viewWillAppear")
+        // console.log("viewWillAppear")  // No action
     }
     viewDidAppear = () => {
         this.headerView.setItems( this.useCase.menuItems() )

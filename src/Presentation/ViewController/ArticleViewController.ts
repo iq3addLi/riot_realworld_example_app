@@ -1,5 +1,6 @@
 import { RiotCoreComponent } from "riot"
 import ArticleUseCase from "../../Domain/UseCase/ArticleUseCase"
+import Article from "../../Domain/Model/Article"
 
 export default class ArticleViewController {
 
@@ -13,13 +14,11 @@ export default class ArticleViewController {
     commentTableView: RiotCoreComponent|any
 
     // Usecase
-
     private useCase = new ArticleUseCase()
 
     // Lifecycle
-
     viewWillAppear = () => {
-        console.log("viewWillAppear")
+        // console.log("viewWillAppear")  // No action
     }
     viewDidAppear = () => {
         // setup header
@@ -49,7 +48,6 @@ export default class ArticleViewController {
     }
 
     // Public
-
     currentArticleTitle = () => {
         let article = this.useCase.currentArticle()
         return article !== null ? article.title : ""
@@ -74,7 +72,7 @@ export default class ArticleViewController {
             this.useCase.jumpToHome()
         })
     }
-    didSubmitHandler = ( comment ) => {
+    didSubmitHandler = ( comment: string ) => {
         this.useCase.postComment( comment ).then( () => {
             this.commentTableView.setComments( this.useCase.currentComments() )
             this.commentFormView.clearComment()
@@ -82,7 +80,7 @@ export default class ArticleViewController {
     }
 
     // Private
-    private setArticleForWidgets = (article) => {
+    private setArticleForWidgets = ( article: Article ) => {
         this.aboveWidgetView.setArticle( article )
         this.belowWidgetView.setArticle( article )
     }

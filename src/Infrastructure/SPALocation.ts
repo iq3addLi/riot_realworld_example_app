@@ -1,4 +1,3 @@
-
 import HTTPURLParser from "./HTTPURLParser"
 
 /**
@@ -36,17 +35,17 @@ export default class SPALocation {
             if (location.hash === null || location.hash.length === 0 ) {
                 throw Error("location is empty.")
             }
-            let url = new HTTPURLParser().parse(location.href)
-            let path = url.path
+            const url = new HTTPURLParser().parse(location.href)
+            const path = url.path
             if ( path === null ) {
                 throw Error("A path is empty.")
             }
-            let index = path.indexOf("#/")
+            const index = path.indexOf("#/")
             if ( index === -1 ) {
                 throw Error("hashbang is not found.")
             }
-            let str = path.substr( index + 2 ).replace(/\/$/, "")
-            let splited = str.split("/")
+            const str = path.substr( index + 2 ).replace(/\/$/, "")
+            const splited = str.split("/")
             if ( splited.length < 1 ) {
                 throw Error("A path is not splittable.")
             }

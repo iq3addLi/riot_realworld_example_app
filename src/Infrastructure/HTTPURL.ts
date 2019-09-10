@@ -19,8 +19,8 @@ export default class HTTPURL {
     }
 
     debugDescription = () => {
-      for (let key in this) {
-        let value: any = this[key]
+      for (const key in this) {
+        const value: any = this[key]
         switch (typeof value) {
         case "object":
           console.log( key + " = " + JSON.stringify(value))

@@ -20,7 +20,7 @@ export default class ArticlesViewController {
 
     // Lifecycle
     viewWillAppear = () => {
-        console.log("viewWillAppear")
+        // console.log("viewWillAppear")  // No action
     }
 
     viewDidAppear = () => {

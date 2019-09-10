@@ -151,16 +151,16 @@ export default class ConduitProductionRepository implements ConduitRepository {
         if ( response.status === 200 ) {
             successHandler( await response.json() )
         } else if ( response.status === 422 ) {
-            let json = await response.json()
-            let errors = Object.keys(json.errors).map(key => new ServerError(key, json.errors[key]))
+            const json = await response.json()
+            const errors = Object.keys(json.errors).map(key => new ServerError(key, json.errors[key]))
             failureHandler( errors.map((error) => new Error( error.subject + " " + error.concatObjects() )) )
         } else {
-            failureHandler( new Error("Unexpected error.　code=" + response.status ) )
+            failureHandler( new Error("Unexpected error. code=" + response.status ) )
         }
     }
 
     private fetchingPromise = (path: string, method: string, headers?: {[key: string]: string }, body?: object ) => {
-        let init = { "method": method }
+        const init = { "method": method }
         if ( headers != null ) { init["headers"] = headers }
         if ( body != null ) { init["body"] = JSON.stringify(body) }
         return new Promise<any>( async (resolve, reject) => {

@@ -35,25 +35,25 @@ export default class ProfileUseCase {
     }
 
     isOwnedProfile = () => {
-        let user = this.storage.user()
+        const user = this.storage.user()
         if ( user == null ) { return false }
         return user.username === this.profile.username
     }
 
     requestProfile = () => {
-        let token = this.storage.user() != null ? this.storage.user().token : null
+        const token = this.storage.user() != null ? this.storage.user().token : null
         return this.conduit.getProfile( this.state.username, token ).then( ( p ) => { this.profile = p; return p } )
     }
 
     requestArticles = () => {
         // calc offset
-        let limit: number = Settings.shared().valueForKey("countOfArticleInView")
-        let page = this.currentPage()
-        let offset = page == null ? null : (page - 1) * limit
+        const limit: number = Settings.shared().valueForKey("countOfArticleInView")
+        const page = this.currentPage()
+        const offset = page == null ? null : (page - 1) * limit
 
         // prepare request
-        let token = this.storage.user() != null ? this.storage.user().token : null
-        let nextProcess = ( c ) => { this.container = c; return c }
+        const token = this.storage.user() != null ? this.storage.user().token : null
+        const nextProcess = ( c ) => { this.container = c; return c }
 
         // request
         switch (this.state.articleKind) {
@@ -66,7 +66,7 @@ export default class ProfileUseCase {
         if (this.container == null || this.container.count === 0) {
             return 0
         }
-        let limit: number = Settings.shared().valueForKey("countOfArticleInView")
+        const limit: number = Settings.shared().valueForKey("countOfArticleInView")
         return Math.floor(this.container.count / limit)
     }
 
@@ -75,7 +75,7 @@ export default class ProfileUseCase {
     }
 
     tabItems = () => {
-        let tabs: ArticleTabItem[] = [
+        const tabs: ArticleTabItem[] = [
             new ArticleTabItem( "my_articles", "My Articles", (this.state.articleKind === "my_articles")) ,
             new ArticleTabItem( "favorite_articles", "Favorite Articles", (this.state.articleKind  === "favorite_articles"))
         ]
@@ -83,12 +83,12 @@ export default class ProfileUseCase {
     }
 
     toggleFollowing = () => {
-        let profile = this.profile
+        const profile = this.profile
         if ( profile === null ) { throw Error("A profile is empty.") }
         // follow/unfollow
-        let token = this.storage.user().token
-        let username = profile.username
-        let process = ( p ) => { this.profile = p; return p }
+        const token = this.storage.user().token
+        const username = profile.username
+        const process = ( p ) => { this.profile = p; return p }
         switch (profile.following) {
         case true:  return this.conduit.unfollow( token, username ).then( process )
         case false: return this.conduit.follow( token, username ).then( process )
@@ -96,12 +96,12 @@ export default class ProfileUseCase {
     }
 
     jumpPage = (page: number) => {
-        let pathBuilder = new SPAPathBuilder(this.state.scene, [this.state.username, this.state.articleKind], { "page" : String(page) } )
+        const pathBuilder = new SPAPathBuilder(this.state.scene, [this.state.username, this.state.articleKind], { "page" : String(page) } )
         location.href = pathBuilder.fullPath()
     }
 
     jumpToSubPath = (path: string) => {
-        let pathBuilder = new SPAPathBuilder(this.state.scene, [this.state.username, path])
+        const pathBuilder = new SPAPathBuilder(this.state.scene, [this.state.username, path])
         location.href = pathBuilder.fullPath()
     }
 
@@ -119,13 +119,13 @@ export default class ProfileUseCase {
 
     toggleFavorite = ( article: Article ): Promise<Article[]> => {
         if ( article === null ) { throw Error("Article is empty.")  }
-        let user = this.storage.user()
+        const user = this.storage.user()
         if ( user === null ) {
             return new Promise<Article[]>( async (resolve, _) => { resolve(null) } )
         }
-        let process = ( article ) => {
-            let filtered = this.container.articles.filter( a => a.slug === article.slug )[0]
-            let index = this.container.articles.indexOf( filtered )
+        const process = ( article ) => {
+            const filtered = this.container.articles.filter( a => a.slug === article.slug )[0]
+            const index = this.container.articles.indexOf( filtered )
             this.container.articles.splice(index, 1, article)
             return this.container.articles
         }
@@ -149,7 +149,7 @@ class ProfileState {
         this.scene = location.scene()
 
         // username
-        let paths = location.paths()
+        const paths = location.paths()
         if ( paths.length >= 1 ) {
             this.username = paths[0]
         } else {
@@ -166,7 +166,7 @@ class ProfileState {
         switch ( location.query() ) {
         case undefined: case null: this.page = 1; break
         default:
-            let page = location.query()["page"]
+            const page = location.query()["page"]
             if ( page === undefined || page == null ) { this.page = 1 }
             else { this.page = Number(page) }
         }

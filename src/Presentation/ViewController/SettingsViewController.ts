@@ -11,7 +11,6 @@ export default class SettingsViewController {
     private useCase = new SettingsUseCase()
 
     // Lifecycle
-
     viewWillAppear = () => {
         if ( this.useCase.isLoggedIn() === false ) {
             this.useCase.jumpToNotFound()
@@ -27,7 +26,6 @@ export default class SettingsViewController {
     }
 
     // Public
-
     postProfile = ( email: string, username: string, bio: string, image: string, password: string ) => {
         this.useCase.post(email, username, bio, image, password).then( () => {
             // success

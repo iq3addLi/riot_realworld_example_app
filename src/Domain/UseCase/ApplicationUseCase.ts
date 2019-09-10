@@ -16,7 +16,7 @@ export default class ApplicationUseCase {
     initialize = ( completion: (error?: Error) => void ) => {
 
         // Download application settings.
-        let requestSettings = fetch("assets/json/settings.json")
+        const requestSettings = fetch("assets/json/settings.json")
         .then( (res) => { return res.json() })
         .then( (json) => {
             Settings.shared().set( json )

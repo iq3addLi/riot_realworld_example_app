@@ -11,7 +11,6 @@ export default class EditerViewController {
     private useCase = new EditerUseCase()
 
     // Lifecycle
-
     viewWillAppear = () => {
         if ( this.useCase.isLoggedIn() === false ) {
             this.useCase.jumpToNotFound()
