@@ -10,9 +10,10 @@ export default class ApplicationUseCase {
 
     private scenes: Scene[] = []
     private homeScene?: Scene
-    private notFoundScene?: Scene
+    private errorScene?: Scene
     private mainViewSelector!: string
 
+    // Public
     initialize = ( completion: (error?: Error) => void ) => {
 
         // Download application settings.
@@ -35,59 +36,98 @@ export default class ApplicationUseCase {
             // Has error
             completion(error)
         })
-
     }
 
+    /** Set the scenes. */
     setScenes = ( scenes: Scene[] ) => {
         this.scenes = scenes
     }
 
-    setHome = ( name: string, component: RiotComponentShell ) => {
-        this.homeScene = { name: name, component: component, filter: "/" }
+    /** Home scene filter is ignored */
+    setHomeScene = ( scene: Scene ) => {
+        this.homeScene = scene
     }
 
-    setNotFoundScene = ( scene: Scene ) => {
-        this.notFoundScene = scene
+    /** RiotComponent in error scene is must accept 'message' props. */
+    setErrorScene  = ( scene: Scene ) => {
+        this.errorScene = scene
     }
 
+    /** MainViewSelector is Must be set */
     setMainViewSelector = ( selector: string ) => {
         this.mainViewSelector = selector
     }
 
+    /** Must be running before showMainView() */
     routing = () => {
 
-        // register view controllers
-        this.scenes.forEach( scene => register( scene.name, scene.component ) ) // register() does not allow duplicate register.
+        // register normal view controllers
+        this.scenes.forEach( scene => register( scene.name, scene.component ) ) // memo: register() does not allow duplicate register.
+        // register error view controller
+        if ( this.errorScene ) { register( this.errorScene.name, this.errorScene.component ) }
 
-        // Setup routing
+        // Start routing
         route.start()
-        this.scenes.forEach( scene => this.setRoute( this.mainViewSelector, scene ) )
-        this.setRoute( this.mainViewSelector, this.homeScene )
+
+        // Routing normal
+        let selector = this.mainViewSelector
+        this.scenes.forEach( scene => {
+            route( scene.filter, () => {
+                unmount( selector, true )
+                this.catchableMount( selector, scene.props, scene.name )
+            })
+        })
+        // Routing notfound
+        route( () => {
+            unmount( selector, true )
+            this.showError( selector, "Your order is not found.", this.errorScene )
+        })
+        // Routing home
+        route( "/", () => {
+            unmount( selector, true )
+            this.catchableMount( selector, this.homeScene.props, this.homeScene.name )
+        })
     }
 
+    /** Show mainView. Please execute it after all preparations are completed. */
     showMainView = () => {
 
         // Decide what to mount
-        let loc = SPALocation.shared()
-        let sceneName = loc.scene() ? loc.scene() : "articles"
-        let filterd = this.scenes.filter( scene => scene.name === sceneName )
-        let scene = (filterd.length > 0 ) ? filterd[0] : this.notFoundScene
-
-        mount( this.mainViewSelector, scene.props, scene.name )
+        const location  = SPALocation.shared()
+        let scene: Scene
+        // Is there an ordered scene?
+        if ( location.scene() ) {
+            const filterd = this.scenes.filter( scene => scene.name === location.scene() )
+            if (filterd.length > 0 ) {
+                scene = filterd[0]
+            }
+        }
+        // If not, use the home scene. But home scene may not be registered
+        if (scene == null) {
+            scene = this.homeScene
+        }
+        // Have you decided which scene to show?
+        if (scene) {
+            this.catchableMount( this.mainViewSelector, scene.props, scene.name )
+        } else {
+            this.showError( this.mainViewSelector, "Your order is not found.", this.errorScene )
+        }
     }
 
-    private setRoute = ( selector: string, scene: Scene ) => {
+    // Private
+    private catchableMount = ( selector: string, props?: object, componentName?: string) => {
+        try {
+            mount( selector, props, componentName )
+        } catch ( error ) {
+            this.showError( selector, error.message, this.errorScene )
+        }
+    }
 
-        if ( scene.filter != null ) {
-            route( scene.filter, () => {
-                unmount( selector, true)
-                mount( selector, scene.props, scene.name )
-            })
+    private showError = ( selector: string, message: string, errorScene?: Scene ) => {
+        if (errorScene) {
+            mount( selector, { message: message }, errorScene.name )
         } else {
-            route( () => {
-                unmount( selector, true)
-                mount( selector, scene.props, scene.name )
-            })
+            console.log("Failed mount view controller. error message = " + message )
         }
     }
 }

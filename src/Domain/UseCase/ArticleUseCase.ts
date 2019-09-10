@@ -19,6 +19,7 @@ export default class ArticleUseCase {
         this.state = new ArticleState( SPALocation.shared() )
     }
 
+    // Public
     isLoggedIn = () => {
         return this.storage.isLoggedIn()
     }
@@ -36,14 +37,11 @@ export default class ArticleUseCase {
     }
 
     requestArticle = () => {
-        let slug = SPALocation.shared().paths()[0]
-        let token = this.storage.user() == null ? null : this.storage.user().token
-        if (slug !== null) {
-            return this.conduit.getArticle(slug, token).then( (article) => {
-                this._article = article
-                return article
-            })
-        }
+        const token = this.storage.user() == null ? null : this.storage.user().token
+        return this.conduit.getArticle( this.state.slug, token).then( (article) => {
+            this._article = article
+            return article
+        })
     }
 
     currentArticle = () => {
@@ -55,20 +53,19 @@ export default class ArticleUseCase {
     }
 
     requestComments = () => {
-        let slug = SPALocation.shared().paths()[0]
-        return this.conduit.getComments(slug).then( (comments) => {
+        return this.conduit.getComments( this.state.slug ).then( (comments) => {
             this._comments = comments
             return comments
         })
     }
 
     toggleFollowing = () => {
-        let article = this._article
+        const article = this._article
         if ( article === null ) { throw Error("An article is empty.") }
         // follow/unfollow
-        let token = this.storage.user().token
-        let username = article.author.username
-        let process = ( p ) => { this._article.author = p; return p }
+        const token = this.storage.user().token
+        const username = article.author.username
+        const process = ( p ) => { this._article.author = p; return p }
         switch (article.author.following) {
         case true:  return this.conduit.unfollow( token, username ).then( process )
         case false: return this.conduit.follow( token, username ).then( process )
@@ -76,40 +73,36 @@ export default class ArticleUseCase {
     }
 
     toggleFavorite = (): Promise<Article> => {
-        let article = this._article
-        if ( article === null ) { throw Error("Article is empty.")  }
-        let token = this.storage.user().token
-        let slug = SPALocation.shared().paths()[0]
-        let process = ( a ) => { this._article = a; return a }
-        let favorited = article.favorited
+        const article = this._article
+        if ( article === null ) { throw Error("An article is empty.")  }
+        const token = this.storage.user().token
+        const process = ( a ) => { this._article = a; return a }
+        const favorited = article.favorited
         switch (favorited) {
-        case true:  return this.conduit.unfavorite( token, slug ).then( process )
-        case false: return this.conduit.favorite( token, slug ).then( process )
+        case true:  return this.conduit.unfavorite( token, this.state.slug ).then( process )
+        case false: return this.conduit.favorite( token, this.state.slug ).then( process )
         }
     }
 
     postComment = ( comment: string ) => {
-        let token = this.storage.user().token
-        let slug = SPALocation.shared().paths()[0]
-        return this.conduit.postComment( token, slug, comment ).then( (comment) => {
+        const token = this.storage.user().token
+        return this.conduit.postComment( token, this.state.slug, comment ).then( (comment) => {
             this._comments.unshift(comment)
             return comment
         })
     }
 
     deleteComment = ( commentId: number ) => {
-        let token = this.storage.user().token
-        let slug = SPALocation.shared().paths()[0]
-        return this.conduit.deleteComment(token, slug, commentId).then( () => {
+        const token = this.storage.user().token
+        return this.conduit.deleteComment(token, this.state.slug, commentId).then( () => {
             let index = this._comments.findIndex( ( target ) => target.id === commentId )
             this._comments.splice(index, 1)
         })
     }
 
     deleteArticle = () => {
-        let token = this.storage.user().token
-        let slug = SPALocation.shared().paths()[0]
-        return this.conduit.deleteArticle( token, slug )
+        const token = this.storage.user().token
+        return this.conduit.deleteArticle( token, this.state.slug )
     }
 
     jumpToEditerScene = () => {
@@ -123,9 +116,12 @@ export default class ArticleUseCase {
 
 class ArticleState {
     scene: string
+    slug: string
 
     constructor( location: SPALocation ) {
         // scene
         this.scene = location.scene()
+        // slug
+        this.slug = location.paths()[0]
     }
 }

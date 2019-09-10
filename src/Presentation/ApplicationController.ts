@@ -22,7 +22,7 @@ export default class ApplicationController {
     willFinishLaunching = () => {
 
         // Setup usecase
-        const notFoundScene: Scene = { name: "show_error", component: ShowErrorComponent, filter: null, props: { message: "Your order is not found." }} // Not found
+        const errorScene: Scene = { name: "show_error", component: ShowErrorComponent, filter: null } // Not found
         this.useCase.setMainViewSelector("div#mainView")
         this.useCase.setScenes([
             { name: "login", component: LoginComponent, filter: "/login" },
@@ -31,11 +31,10 @@ export default class ApplicationController {
             { name: "article", component: ArticleComponent, filter: "/article.." },
             { name: "editer", component: EditerComponent, filter: "/editer.." },
             { name: "profile", component: ProfileComponent, filter: "/profile.." },
-            { name: "register", component: RegisterComponent, filter: "/register" },
-            notFoundScene
+            { name: "register", component: RegisterComponent, filter: "/register" }
         ])
-        this.useCase.setHome( "articles", ArticlesComponent )
-        this.useCase.setNotFoundScene( notFoundScene )
+        this.useCase.setHomeScene( { name: "articles", component: ArticlesComponent } )
+        this.useCase.setErrorScene( errorScene )
     }
 
     didFinishLaunching = () => {
