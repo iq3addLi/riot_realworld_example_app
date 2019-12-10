@@ -23,38 +23,38 @@ Please see [here](https://riot.js.org) about Riot.js.  Recently I often see what
 
 These will be explained later. Perhaps there is a big difference from the coding of other samples out there. I currently please feedback on the coding of this project on the [discord channel of Riot.js](https://discord.gg/PagXe5Y). It follows the standard expected API usage and guarantees that it is *not tricky*.
 
+[toc]
+
+
+
 
 ## How it works
 
-See [Design policy](#design-policy) and [How this project uses Riot.js](#how-this-project-uses-riotjs).
-
-
-
-## Getting started
+### On local
 
 Same to [v3](https://github.com/iq3addLi/riot_realworld_example_app#getting-started).
 
-### Clone project
+#### Clone project
 
 ```bash
 $ cd << your working directory >>
 $ git clone https://github.com/iq3addLi/riot_v4_realworld_example_app.git
 ```
 
-### Install packages
+#### Install packages
 
 ```bash
 $ cd riot_v4_realworld_example_app
 $ npm install
 ```
 
-### Launch server
+#### Launch server
 
 ```bash
 $ gulp connect
 ```
 
-### Open in browser
+#### Open in browser
 
 ```bash
 $ open http://localhost:8080
@@ -62,15 +62,37 @@ $ open http://localhost:8080
 
 
 
-## How to build
+### How to build
 
-### Build with gulp and rollup
+#### Build with gulp and rollup
 
 ```bash
 $ gulp
 ```
 
 For details, please read [gulpfile](https://github.com/iq3addLi/riot_realworld_example_app/blob/master/gulpfile.js).
+
+
+
+## Getting started
+
+### Entrance
+
+[src/main.ts](src/main.ts) is entrance of code. Follow *import*. Enjoy the contents of the code!
+
+
+
+### Change API Server
+
+[hjson/settings.hjson](hjson/settings.hjson) contains the API server host. Let's change to the API you built.
+
+```json
+    // endpoint of Conduit API ( '/' suffix is unneed )
+    //"endpoint": "https://conduit.productionready.io/api"
+    "endpoint": "http://127.0.0.1:8080"
+```
+
+It changes when you build.
 
 
 

@@ -81,7 +81,8 @@ gulp.task("default",
 var connect = require("gulp-connect")
 gulp.task("connect", function() {
   connect.server({
+    port: 8000,
     root: "./docs",
-    livereload: true
+    livereload: true,
   })
 })
