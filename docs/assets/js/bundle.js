@@ -358,30 +358,57 @@
     self.fetch.polyfill = true;
   })();
 
-  /* Riot v4.5.0, @license MIT */
-  const COMPONENTS_IMPLEMENTATION_MAP = new Map(),
-        DOM_COMPONENT_INSTANCE_PROPERTY = Symbol('riot-component'),
-        PLUGINS_SET = new Set(),
-        IS_DIRECTIVE = 'is',
-        VALUE_ATTRIBUTE = 'value',
-        ATTRIBUTES_KEY_SYMBOL = Symbol('attributes'),
-        TEMPLATE_KEY_SYMBOL = Symbol('template');
+  /* Riot v4.12.0, @license MIT */
+  /**
+   * Convert a string from camel case to dash-case
+   * @param   {string} string - probably a component tag name
+   * @returns {string} component name normalized
+   */
+  function camelToDashCase(string) {
+    return string.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
+  }
+  /**
+   * Convert a string containing dashes to camel case
+   * @param   {string} string - input string
+   * @returns {string} my-string -> myString
+   */
 
-  var globals = /*#__PURE__*/Object.freeze({
-    COMPONENTS_IMPLEMENTATION_MAP: COMPONENTS_IMPLEMENTATION_MAP,
-    DOM_COMPONENT_INSTANCE_PROPERTY: DOM_COMPONENT_INSTANCE_PROPERTY,
-    PLUGINS_SET: PLUGINS_SET,
-    IS_DIRECTIVE: IS_DIRECTIVE,
-    VALUE_ATTRIBUTE: VALUE_ATTRIBUTE,
-    ATTRIBUTES_KEY_SYMBOL: ATTRIBUTES_KEY_SYMBOL,
-    TEMPLATE_KEY_SYMBOL: TEMPLATE_KEY_SYMBOL
-  });
+  function dashToCamelCase(string) {
+    return string.replace(/-(\w)/g, (_, c) => c.toUpperCase());
+  }
 
+  /**
+   * Get all the element attributes as object
+   * @param   {HTMLElement} element - DOM node we want to parse
+   * @returns {Object} all the attributes found as a key value pairs
+   */
+
+  function DOMattributesToObject(element) {
+    return Array.from(element.attributes).reduce((acc, attribute) => {
+      acc[dashToCamelCase(attribute.name)] = attribute.value;
+      return acc;
+    }, {});
+  }
+  /**
+   * Move all the child nodes from a source tag to another
+   * @param   {HTMLElement} source - source node
+   * @param   {HTMLElement} target - target node
+   * @returns {undefined} it's a void method ¯\_(ツ)_/¯
+   */
+  // Ignore this helper because it's needed only for svg tags
+
+  function moveChildren(source, target) {
+    if (source.firstChild) {
+      target.appendChild(source.firstChild);
+      moveChildren(source, target);
+    }
+  }
   /**
    * Remove the child nodes from any DOM node
    * @param   {HTMLElement} node - target node
    * @returns {undefined}
    */
+
   function cleanNode(node) {
     clearChildren(node.childNodes);
   }
@@ -391,9 +418,22 @@
    * @returns {undefined}
    */
 
-
   function clearChildren(children) {
-    Array.from(children).forEach(n => n.parentNode && n.parentNode.removeChild(n));
+    Array.from(children).forEach(removeNode);
+  }
+  /**
+   * Remove a node from the DOM
+   * @param   {HTMLElement} node - target node
+   * @returns {undefined}
+   */
+
+  function removeNode(node) {
+    const {
+      parentNode
+    } = node;
+    if (node.remove) node.remove();
+    /* istanbul ignore else */
+    else if (parentNode) parentNode.removeChild(node);
   }
 
   const EACH = 0;
@@ -408,12 +448,23 @@
     TAG,
     SLOT
   };
+
+  const ATTRIBUTE = 0;
+  const EVENT = 1;
+  const TEXT = 2;
+  const VALUE = 3;
+  var expressionTypes = {
+    ATTRIBUTE,
+    EVENT,
+    TEXT,
+    VALUE
+  };
+
   /**
    * Create the template meta object in case of <template> fragments
    * @param   {TemplateChunk} componentTemplate - template chunk object
    * @returns {Object} the meta property that will be passed to the mount function of the TemplateChunk
    */
-
   function createTemplateMeta(componentTemplate) {
     const fragment = componentTemplate.dom.cloneNode(true);
     return {
@@ -422,15 +473,14 @@
       children: Array.from(fragment.childNodes)
     };
   }
-  /* get rid of the @ungap/essential-map polyfill */
-
 
   const {
-    indexOf: iOF
+    indexOf,
+    slice
   } = [];
 
   const append = (get, parent, children, start, end, before) => {
-    const isSelect = 'selectedIndex' in parent;
+    const isSelect = ('selectedIndex' in parent);
     let noSelection = isSelect;
 
     while (start < end) {
@@ -442,18 +492,15 @@
         let {
           selectedIndex
         } = parent;
-        parent.selectedIndex = selectedIndex < 0 ? start : iOF.call(parent.querySelectorAll('option'), child);
+        parent.selectedIndex = selectedIndex < 0 ? start : indexOf.call(parent.querySelectorAll('option'), child);
       }
 
       start++;
     }
   };
-
   const eqeq = (a, b) => a == b;
-
   const identity = O => O;
-
-  const indexOf = (moreNodes, moreStart, moreEnd, lessNodes, lessStart, lessEnd, compare) => {
+  const indexOf$1 = (moreNodes, moreStart, moreEnd, lessNodes, lessStart, lessEnd, compare) => {
     const length = lessEnd - lessStart;
     /* istanbul ignore if */
 
@@ -474,29 +521,19 @@
 
     return -1;
   };
-
   const isReversed = (futureNodes, futureEnd, currentNodes, currentStart, currentEnd, compare) => {
     while (currentStart < currentEnd && compare(currentNodes[currentStart], futureNodes[futureEnd - 1])) {
       currentStart++;
       futureEnd--;
     }
-
     return futureEnd === 0;
   };
-
   const next = (get, list, i, length, before) => i < length ? get(list[i], 0) : 0 < i ? get(list[i - 1], -0).nextSibling : before;
-
-  const remove = (get, parent, children, start, end) => {
-    if (end - start < 2) parent.removeChild(get(children[start], -1));else {
-      const range = parent.ownerDocument.createRange();
-      range.setStartBefore(get(children[start], -1));
-      range.setEndAfter(get(children[end - 1], -1));
-      range.deleteContents();
-    }
+  const remove = (get, children, start, end) => {
+    while (start < end) drop(get(children[start++], -1));
   }; // - - - - - - - - - - - - - - - - - - -
   // diff related constants and utilities
   // - - - - - - - - - - - - - - - - - - -
-
 
   const DELETION = -1;
   const INSERTION = 1;
@@ -514,14 +551,13 @@
 
     for (let i = 1; i < minLen; i++) tresh[i] = currentEnd;
 
-    const keymap = new Map();
-
-    for (let i = currentStart; i < currentEnd; i++) keymap.set(currentNodes[i], i);
+    const nodes = currentNodes.slice(currentStart, currentEnd);
 
     for (let i = futureStart; i < futureEnd; i++) {
-      const idxInOld = keymap.get(futureNodes[i]);
+      const index = nodes.indexOf(futureNodes[i]);
 
-      if (idxInOld != null) {
+      if (-1 < index) {
+        const idxInOld = index + currentStart;
         k = findK(tresh, minLen, idxInOld);
         /* istanbul ignore else */
 
@@ -652,7 +688,7 @@
   };
 
   const applyDiff = (diff, get, parentNode, futureNodes, futureStart, currentNodes, currentStart, currentLength, before) => {
-    const live = new Map();
+    const live = [];
     const length = diff.length;
     let currentIndex = currentStart;
     let i = 0;
@@ -666,7 +702,7 @@
 
         case INSERTION:
           // TODO: bulk appends for sequential nodes
-          live.set(futureNodes[futureStart], 1);
+          live.push(futureNodes[futureStart]);
           append(get, parentNode, futureNodes, futureStart++, futureStart, currentIndex < currentLength ? get(currentNodes[currentIndex], 0) : before);
           break;
 
@@ -686,7 +722,7 @@
 
         case DELETION:
           // TODO: bulk removes for sequential nodes
-          if (live.has(currentNodes[currentStart])) currentStart++;else remove(get, parentNode, currentNodes, currentStart++, currentStart);
+          if (-1 < live.indexOf(currentNodes[currentStart])) currentStart++;else remove(get, currentNodes, currentStart++, currentStart);
           break;
       }
     }
@@ -707,8 +743,19 @@
   const smartDiff = (get, parentNode, futureNodes, futureStart, futureEnd, futureChanges, currentNodes, currentStart, currentEnd, currentChanges, currentLength, compare, before) => {
     applyDiff(OND(futureNodes, futureStart, futureChanges, currentNodes, currentStart, currentChanges, compare) || HS(futureNodes, futureStart, futureEnd, futureChanges, currentNodes, currentStart, currentEnd, currentChanges), get, parentNode, futureNodes, futureStart, currentNodes, currentStart, currentLength, before);
   };
-  /*! (c) 2018 Andrea Giammarchi (ISC) */
 
+  const drop = node => (node.remove || dropChild).call(node);
+
+  function dropChild() {
+    const {
+      parentNode
+    } = this;
+    /* istanbul ignore else */
+
+    if (parentNode) parentNode.removeChild(this);
+  }
+
+  /*! (c) 2018 Andrea Giammarchi (ISC) */
 
   const domdiff = (parentNode, // where changes happen
   currentNodes, // Array of current items/nodes
@@ -751,7 +798,7 @@
 
 
     if (futureSame && currentStart < currentEnd) {
-      remove(get, parentNode, currentNodes, currentStart, currentEnd);
+      remove(get, currentNodes, currentStart, currentEnd);
       return futureNodes;
     }
 
@@ -760,7 +807,7 @@
     let i = -1; // 2 simple indels: the shortest sequence is a subsequence of the longest
 
     if (currentChanges < futureChanges) {
-      i = indexOf(futureNodes, futureStart, futureEnd, currentNodes, currentStart, currentEnd, compare); // inner diff
+      i = indexOf$1(futureNodes, futureStart, futureEnd, currentNodes, currentStart, currentEnd, compare); // inner diff
 
       if (-1 < i) {
         append(get, parentNode, futureNodes, futureStart, i, get(currentNodes[currentStart], 0));
@@ -770,11 +817,11 @@
     }
     /* istanbul ignore else */
     else if (futureChanges < currentChanges) {
-        i = indexOf(currentNodes, currentStart, currentEnd, futureNodes, futureStart, futureEnd, compare); // outer diff
+        i = indexOf$1(currentNodes, currentStart, currentEnd, futureNodes, futureStart, futureEnd, compare); // outer diff
 
         if (-1 < i) {
-          remove(get, parentNode, currentNodes, currentStart, i);
-          remove(get, parentNode, currentNodes, i + futureChanges, currentEnd);
+          remove(get, currentNodes, currentStart, i);
+          remove(get, currentNodes, i + futureChanges, currentEnd);
           return futureNodes;
         }
       } // common case with one replacement for many nodes
@@ -785,7 +832,7 @@
 
     if (currentChanges < 2 || futureChanges < 2) {
       append(get, parentNode, futureNodes, futureStart, futureEnd, get(currentNodes[currentStart], 0));
-      remove(get, parentNode, currentNodes, currentStart, currentEnd);
+      remove(get, currentNodes, currentStart, currentEnd);
       return futureNodes;
     } // the half match diff part has been skipped in petit-dom
     // https://github.com/yelouafi/petit-dom/blob/bd6f5c919b5ae5297be01612c524c40be45f14a7/src/vdom.js#L391-L397
@@ -805,15 +852,25 @@
     smartDiff(get, parentNode, futureNodes, futureStart, futureEnd, futureChanges, currentNodes, currentStart, currentEnd, currentChanges, currentLength, compare, before);
     return futureNodes;
   };
+
   /**
-   * Check if a value is null or undefined
-   * @param   {*}  value - anything
-   * @returns {boolean} true only for the 'undefined' and 'null' types
+   * Quick type checking
+   * @param   {*} element - anything
+   * @param   {string} type - type definition
+   * @returns {boolean} true if the type corresponds
+   */
+  function checkType(element, type) {
+    return typeof element === type;
+  }
+  /**
+   * Check if an element is part of an svg
+   * @param   {HTMLElement}  el - element to check
+   * @returns {boolean} true if we are in an svg context
    */
 
-
-  function isNil(value) {
-    return value === null || value === undefined;
+  function isSvg(el) {
+    const owner = el.ownerSVGElement;
+    return !!owner || owner === null;
   }
   /**
    * Check if an element is a template tag
@@ -821,27 +878,63 @@
    * @returns {boolean} true if it's a <template>
    */
 
-
   function isTemplate(el) {
     return !isNil(el.content);
   }
+  /**
+   * Check that will be passed if its argument is a function
+   * @param   {*} value - value to check
+   * @returns {boolean} - true if the value is a function
+   */
 
+  function isFunction(value) {
+    return checkType(value, 'function');
+  }
+  /**
+   * Check if a value is a Boolean
+   * @param   {*}  value - anything
+   * @returns {boolean} true only for the value is a boolean
+   */
+
+  function isBoolean(value) {
+    return checkType(value, 'boolean');
+  }
+  /**
+   * Check if a value is an Object
+   * @param   {*}  value - anything
+   * @returns {boolean} true only for the value is an object
+   */
+
+  function isObject(value) {
+    return !isNil(value) && checkType(value, 'object');
+  }
+  /**
+   * Check if a value is null or undefined
+   * @param   {*}  value - anything
+   * @returns {boolean} true only for the 'undefined' and 'null' types
+   */
+
+  function isNil(value) {
+    return value === null || value === undefined;
+  }
+
+  const UNMOUNT_SCOPE = Symbol('unmount');
   const EachBinding = Object.seal({
     // dynamic binding properties
-    childrenMap: null,
-    node: null,
-    root: null,
-    condition: null,
-    evaluate: null,
-    template: null,
-    isTemplateTag: false,
+    // childrenMap: null,
+    // node: null,
+    // root: null,
+    // condition: null,
+    // evaluate: null,
+    // template: null,
+    // isTemplateTag: false,
     nodes: [],
-    getKey: null,
-    indexName: null,
-    itemName: null,
-    afterPlaceholder: null,
-    placeholder: null,
 
+    // getKey: null,
+    // indexName: null,
+    // itemName: null,
+    // afterPlaceholder: null,
+    // placeholder: null,
     // API methods
     mount(scope, parentScope) {
       return this.update(scope, parentScope);
@@ -849,9 +942,11 @@
 
     update(scope, parentScope) {
       const {
-        placeholder
+        placeholder,
+        nodes,
+        childrenMap
       } = this;
-      const collection = this.evaluate(scope);
+      const collection = scope === UNMOUNT_SCOPE ? null : this.evaluate(scope);
       const items = collection ? Array.from(collection) : [];
       const parent = placeholder.parentNode; // prepare the diffing
 
@@ -861,16 +956,10 @@
         futureNodes
       } = createPatch(items, scope, parentScope, this); // patch the DOM only if there are new nodes
 
-      if (futureNodes.length) {
-        domdiff(parent, this.nodes, futureNodes, {
-          before: placeholder,
-          node: patch(Array.from(this.childrenMap.values()), parentScope)
-        });
-      } else {
-        // remove all redundant templates
-        unmountRedundant(this.childrenMap);
-      } // trigger the mounts and the updates
-
+      domdiff(parent, nodes, futureNodes, {
+        before: placeholder,
+        node: patch(Array.from(childrenMap.values()), parentScope)
+      }); // trigger the mounts and the updates
 
       batches.forEach(fn => fn()); // update the children map
 
@@ -880,9 +969,7 @@
     },
 
     unmount(scope, parentScope) {
-      unmountRedundant(this.childrenMap, parentScope);
-      this.childrenMap = new Map();
-      this.nodes = [];
+      this.update(UNMOUNT_SCOPE, parentScope);
       return this;
     }
 
@@ -897,34 +984,21 @@
   function patch(redundant, parentScope) {
     return (item, info) => {
       if (info < 0) {
-        const {
-          template,
-          context
-        } = redundant.pop(); // notice that we pass null as last argument because
-        // the root node and its children will be removed by domdiff
+        const element = redundant.pop();
 
-        template.unmount(context, parentScope, null);
+        if (element) {
+          const {
+            template,
+            context
+          } = element; // notice that we pass null as last argument because
+          // the root node and its children will be removed by domdiff
+
+          template.unmount(context, parentScope, null);
+        }
       }
 
       return item;
     };
-  }
-  /**
-   * Unmount the remaining template instances
-   * @param   {Map} childrenMap - map containing the children template to unmount
-   * @param   {*} parentScope - scope of the parent template
-   * @returns {TemplateChunk[]} collection containing the template chunks unmounted
-   */
-
-
-  function unmountRedundant(childrenMap, parentScope) {
-    return Array.from(childrenMap.values()).map((_ref) => {
-      let {
-        template,
-        context
-      } = _ref;
-      return template.unmount(context, parentScope, true);
-    });
   }
   /**
    * Check whether a template must be filtered from a loop
@@ -948,13 +1022,13 @@
    */
 
 
-  function extendScope(scope, _ref2) {
+  function extendScope(scope, _ref) {
     let {
       itemName,
       indexName,
       index,
       item
-    } = _ref2;
+    } = _ref;
     scope[itemName] = item;
     if (indexName) scope[indexName] = index;
     return scope;
@@ -1008,13 +1082,14 @@
       if (mustMount) {
         batches.push(() => componentTemplate.mount(el, context, parentScope, meta));
       } else {
-        componentTemplate.update(context, parentScope);
+        batches.push(() => componentTemplate.update(context, parentScope));
       } // create the collection of nodes to update or to add
       // in case of template tags we need to add all its children nodes
 
 
       if (isTemplateTag) {
-        futureNodes.push(...(meta.children || componentTemplate.children));
+        const children = meta.children || componentTemplate.children;
+        futureNodes.push(...children);
       } else {
         futureNodes.push(el);
       } // delete the old item from the children map
@@ -1035,7 +1110,7 @@
     };
   }
 
-  function create(node, _ref3) {
+  function create(node, _ref2) {
     let {
       evaluate,
       condition,
@@ -1043,12 +1118,12 @@
       indexName,
       getKey,
       template
-    } = _ref3;
+    } = _ref2;
     const placeholder = document.createTextNode('');
     const parent = node.parentNode;
     const root = node.cloneNode();
     parent.insertBefore(placeholder, node);
-    parent.removeChild(node);
+    removeNode(node);
     return Object.assign({}, EachBinding, {
       childrenMap: new Map(),
       node,
@@ -1063,24 +1138,20 @@
       placeholder
     });
   }
+
   /**
    * Binding responsible for the `if` directive
    */
 
-
   const IfBinding = Object.seal({
     // dynamic binding properties
-    node: null,
-    evaluate: null,
-    parent: null,
-    isTemplateTag: false,
-    placeholder: null,
-    template: null,
-
+    // node: null,
+    // evaluate: null,
+    // isTemplateTag: false,
+    // placeholder: null,
+    // template: null,
     // API methods
     mount(scope, parentScope) {
-      this.parent.insertBefore(this.placeholder, this.node);
-      this.parent.removeChild(this.node);
       return this.update(scope, parentScope);
     },
 
@@ -1091,7 +1162,7 @@
 
       const mount = () => {
         const pristine = this.node.cloneNode();
-        this.parent.insertBefore(pristine, this.placeholder);
+        this.placeholder.parentNode.insertBefore(pristine, this.placeholder);
         this.template = this.template.clone();
         this.template.mount(pristine, scope, parentScope);
       };
@@ -1119,53 +1190,86 @@
     }
 
   });
-
-  function create$1(node, _ref4) {
+  function create$1(node, _ref) {
     let {
       evaluate,
       template
-    } = _ref4;
+    } = _ref;
+    const parent = node.parentNode;
+    const placeholder = document.createTextNode('');
+    parent.insertBefore(placeholder, node);
+    removeNode(node);
     return Object.assign({}, IfBinding, {
       node,
       evaluate,
-      parent: node.parentNode,
-      placeholder: document.createTextNode(''),
+      placeholder,
       template: template.createDOM(node)
     });
   }
 
-  const ATTRIBUTE = 0;
-  const EVENT = 1;
-  const TEXT = 2;
-  const VALUE = 3;
-  var expressionTypes = {
-    ATTRIBUTE,
-    EVENT,
-    TEXT,
-    VALUE
-  };
   /**
-   * Check if a value is a Boolean
-   * @param   {*}  value - anything
-   * @returns {boolean} true only for the value is a boolean
+   * Throw an error with a descriptive message
+   * @param   { string } message - error message
+   * @returns { undefined } hoppla.. at this point the program should stop working
    */
 
-  function isBoolean(value) {
-    return typeof value === 'boolean';
+  function panic(message) {
+    throw new Error(message);
   }
   /**
-   * Check if a value is an Object
-   * @param   {*}  value - anything
-   * @returns {boolean} true only for the value is an object
+   * Returns the memoized (cached) function.
+   * // borrowed from https://www.30secondsofcode.org/js/s/memoize
+   * @param {Function} fn - function to memoize
+   * @returns {Function} memoize function
    */
 
+  function memoize(fn) {
+    const cache = new Map();
 
-  function isObject(value) {
-    return typeof value === 'object';
+    const cached = val => {
+      return cache.has(val) ? cache.get(val) : cache.set(val, fn.call(this, val)) && cache.get(val);
+    };
+
+    cached.cache = cache;
+    return cached;
+  }
+  /**
+   * Evaluate a list of attribute expressions
+   * @param   {Array} attributes - attribute expressions generated by the riot compiler
+   * @returns {Object} key value pairs with the result of the computation
+   */
+
+  function evaluateAttributeExpressions(attributes) {
+    return attributes.reduce((acc, attribute) => {
+      const {
+        value,
+        type
+      } = attribute;
+
+      switch (true) {
+        // spread attribute
+        case !attribute.name && type === ATTRIBUTE:
+          return Object.assign({}, acc, {}, value);
+        // value attribute
+
+        case type === VALUE:
+          acc.value = attribute.value;
+          break;
+        // normal attributes
+
+        default:
+          acc[dashToCamelCase(attribute.name)] = attribute.value;
+      }
+
+      return acc;
+    }, {});
   }
 
   const REMOVE_ATTRIBUTE = 'removeAttribute';
   const SET_ATTIBUTE = 'setAttribute';
+  const ElementProto = typeof Element === 'undefined' ? {} : Element.prototype;
+  const isNativeHtmlProperty = memoize(name => ElementProto.hasOwnProperty(name)); // eslint-disable-line
+
   /**
    * Add all the attributes provided
    * @param   {HTMLElement} node - target node
@@ -1174,8 +1278,8 @@
    */
 
   function setAllAttributes(node, attributes) {
-    Object.entries(attributes).forEach((_ref5) => {
-      let [name, value] = _ref5;
+    Object.entries(attributes).forEach((_ref) => {
+      let [name, value] = _ref;
       return attributeExpression(node, {
         name
       }, value);
@@ -1184,13 +1288,15 @@
   /**
    * Remove all the attributes provided
    * @param   {HTMLElement} node - target node
-   * @param   {Object} attributes - object containing all the attribute names
+   * @param   {Object} newAttributes - object containing all the new attribute names
+   * @param   {Object} oldAttributes - object containing all the old attribute names
    * @returns {undefined} sorry it's a void function :(
    */
 
 
-  function removeAllAttributes(node, attributes) {
-    Object.keys(attributes).forEach(attribute => node.removeAttribute(attribute));
+  function removeAllAttributes(node, newAttributes, oldAttributes) {
+    const newKeys = newAttributes ? Object.keys(newAttributes) : [];
+    Object.keys(oldAttributes).filter(name => !newKeys.includes(name)).forEach(attribute => node.removeAttribute(attribute));
   }
   /**
    * This methods handles the DOM attributes updates
@@ -1203,26 +1309,28 @@
    */
 
 
-  function attributeExpression(node, _ref6, value, oldValue) {
+  function attributeExpression(node, _ref2, value, oldValue) {
     let {
       name
-    } = _ref6;
+    } = _ref2;
 
     // is it a spread operator? {...attributes}
     if (!name) {
-      // is the value still truthy?
+      if (oldValue) {
+        // remove all the old attributes
+        removeAllAttributes(node, value, oldValue);
+      } // is the value still truthy?
+
+
       if (value) {
         setAllAttributes(node, value);
-      } else if (oldValue) {
-        // otherwise remove all the old attributes
-        removeAllAttributes(node, oldValue);
       }
 
       return;
     } // handle boolean attributes
 
 
-    if (isBoolean(value) || isObject(value)) {
+    if (!isNativeHtmlProperty(name) && (isBoolean(value) || isObject(value) || isFunction(value))) {
       node[name] = value;
     }
 
@@ -1234,9 +1342,8 @@
    * @returns {string} the node attribute modifier method name
    */
 
-
   function getMethod(value) {
-    return isNil(value) || value === false || value === '' || isObject(value) ? REMOVE_ATTRIBUTE : SET_ATTIBUTE;
+    return isNil(value) || value === false || value === '' || isObject(value) || isFunction(value) ? REMOVE_ATTRIBUTE : SET_ATTIBUTE;
   }
   /**
    * Get the value as string
@@ -1253,66 +1360,95 @@
   }
 
   const RE_EVENTS_PREFIX = /^on/;
+
+  const getCallbackAndOptions = value => Array.isArray(value) ? value : [value, false]; // see also https://medium.com/@WebReflection/dom-handleevent-a-cross-platform-standard-since-year-2000-5bf17287fd38
+
+
+  const EventListener = {
+    handleEvent(event) {
+      this[event.type](event);
+    }
+
+  };
+  const ListenersWeakMap = new WeakMap();
+
+  const createListener = node => {
+    const listener = Object.create(EventListener);
+    ListenersWeakMap.set(node, listener);
+    return listener;
+  };
   /**
    * Set a new event listener
    * @param   {HTMLElement} node - target node
    * @param   {Object} expression - expression object
    * @param   {string} expression.name - event name
    * @param   {*} value - new expression value
-   * @param   {*} oldValue - old expression value
    * @returns {value} the callback just received
    */
 
-  function eventExpression(node, _ref7, value, oldValue) {
+
+  function eventExpression(node, _ref, value) {
     let {
       name
-    } = _ref7;
+    } = _ref;
     const normalizedEventName = name.replace(RE_EVENTS_PREFIX, '');
+    const eventListener = ListenersWeakMap.get(node) || createListener(node);
+    const [callback, options] = getCallbackAndOptions(value);
+    const handler = eventListener[normalizedEventName];
+    const mustRemoveEvent = handler && !callback;
+    const mustAddEvent = callback && !handler;
 
-    if (oldValue) {
-      node.removeEventListener(normalizedEventName, oldValue);
+    if (mustRemoveEvent) {
+      node.removeEventListener(normalizedEventName, eventListener);
     }
 
-    if (value) {
-      node.addEventListener(normalizedEventName, value, false);
+    if (mustAddEvent) {
+      node.addEventListener(normalizedEventName, eventListener, options);
     }
 
-    return value;
+    eventListener[normalizedEventName] = callback;
   }
-  /**
-   * This methods handles a simple text expression update
-   * @param   {HTMLElement} node - target node
-   * @param   {Object} expression - expression object
-   * @param   {number} expression.childNodeIndex - index to find the text node to update
-   * @param   {*} value - new expression value
-   * @returns {undefined}
-   */
 
-
-  function textExpression(node, _ref8, value) {
-    let {
-      childNodeIndex
-    } = _ref8;
-    const target = node.childNodes[childNodeIndex];
-    const val = normalizeValue$1(value); // replace the target if it's a placeholder comment
-
-    if (target.nodeType === Node.COMMENT_NODE) {
-      const textNode = document.createTextNode(val);
-      node.replaceChild(textNode, target);
-    } else {
-      target.data = normalizeValue$1(val);
-    }
-  }
   /**
    * Normalize the user value in order to render a empty string in case of falsy values
    * @param   {*} value - user input value
    * @returns {string} hopefully a string
    */
 
-
-  function normalizeValue$1(value) {
+  function normalizeStringValue(value) {
     return isNil(value) ? '' : value;
   }
+
+  /**
+   * Get the the target text node to update or create one from of a comment node
+   * @param   {HTMLElement} node - any html element containing childNodes
+   * @param   {number} childNodeIndex - index of the text node in the childNodes list
+   * @returns {HTMLTextNode} the text node to update
+   */
+
+  const getTextNode = (node, childNodeIndex) => {
+    const target = node.childNodes[childNodeIndex];
+
+    if (target.nodeType === Node.COMMENT_NODE) {
+      const textNode = document.createTextNode('');
+      node.replaceChild(textNode, target);
+      return textNode;
+    }
+
+    return target;
+  };
+  /**
+   * This methods handles a simple text expression update
+   * @param   {HTMLElement} node - target node
+   * @param   {Object} data - expression object
+   * @param   {*} value - new expression value
+   * @returns {undefined}
+   */
+
+  function textExpression(node, data, value) {
+    node.data = normalizeStringValue(value);
+  }
+
   /**
    * This methods handles the input fileds value updates
    * @param   {HTMLElement} node - target node
@@ -1321,9 +1457,8 @@
    * @returns {undefined}
    */
 
-
   function valueExpression(node, expression, value) {
-    node.value = value;
+    node.value = normalizeStringValue(value);
   }
 
   var expressions = {
@@ -1332,11 +1467,11 @@
     [TEXT]: textExpression,
     [VALUE]: valueExpression
   };
+
   const Expression = Object.seal({
     // Static props
-    node: null,
-    value: null,
-
+    // node: null,
+    // value: null,
     // API methods
 
     /**
@@ -1394,9 +1529,10 @@
 
   function create$2(node, data) {
     return Object.assign({}, Expression, {}, data, {
-      node
+      node: data.type === TEXT ? getTextNode(node, data.childNodeIndex) : node
     });
   }
+
   /**
    * Create a flat object having as keys a list of methods that if dispatched will propagate
    * on the whole collection
@@ -1405,8 +1541,6 @@
    * @param   {*} context - context returned by the new methods created
    * @returns {Object} a new object to simplify the the nested methods dispatching
    */
-
-
   function flattenCollectionMethods(collection, methods, context) {
     return methods.reduce((acc, method) => {
       return Object.assign({}, acc, {
@@ -1417,44 +1551,115 @@
     }, {});
   }
 
-  function create$3(node, _ref9) {
+  function create$3(node, _ref) {
     let {
       expressions
-    } = _ref9;
+    } = _ref;
     return Object.assign({}, flattenCollectionMethods(expressions.map(expression => create$2(node, expression)), ['mount', 'update', 'unmount']));
   }
 
+  // Riot.js constants that can be used accross more modules
+  const COMPONENTS_IMPLEMENTATION_MAP = new Map(),
+        DOM_COMPONENT_INSTANCE_PROPERTY = Symbol('riot-component'),
+        PLUGINS_SET = new Set(),
+        IS_DIRECTIVE = 'is',
+        VALUE_ATTRIBUTE = 'value',
+        MOUNT_METHOD_KEY = 'mount',
+        UPDATE_METHOD_KEY = 'update',
+        UNMOUNT_METHOD_KEY = 'unmount',
+        SHOULD_UPDATE_KEY = 'shouldUpdate',
+        ON_BEFORE_MOUNT_KEY = 'onBeforeMount',
+        ON_MOUNTED_KEY = 'onMounted',
+        ON_BEFORE_UPDATE_KEY = 'onBeforeUpdate',
+        ON_UPDATED_KEY = 'onUpdated',
+        ON_BEFORE_UNMOUNT_KEY = 'onBeforeUnmount',
+        ON_UNMOUNTED_KEY = 'onUnmounted',
+        PROPS_KEY = 'props',
+        STATE_KEY = 'state',
+        SLOTS_KEY = 'slots',
+        ROOT_KEY = 'root',
+        IS_PURE_SYMBOL = Symbol.for('pure'),
+        PARENT_KEY_SYMBOL = Symbol('parent'),
+        ATTRIBUTES_KEY_SYMBOL = Symbol('attributes'),
+        TEMPLATE_KEY_SYMBOL = Symbol('template');
+
+  var globals = /*#__PURE__*/Object.freeze({
+    __proto__: null,
+    COMPONENTS_IMPLEMENTATION_MAP: COMPONENTS_IMPLEMENTATION_MAP,
+    DOM_COMPONENT_INSTANCE_PROPERTY: DOM_COMPONENT_INSTANCE_PROPERTY,
+    PLUGINS_SET: PLUGINS_SET,
+    IS_DIRECTIVE: IS_DIRECTIVE,
+    VALUE_ATTRIBUTE: VALUE_ATTRIBUTE,
+    MOUNT_METHOD_KEY: MOUNT_METHOD_KEY,
+    UPDATE_METHOD_KEY: UPDATE_METHOD_KEY,
+    UNMOUNT_METHOD_KEY: UNMOUNT_METHOD_KEY,
+    SHOULD_UPDATE_KEY: SHOULD_UPDATE_KEY,
+    ON_BEFORE_MOUNT_KEY: ON_BEFORE_MOUNT_KEY,
+    ON_MOUNTED_KEY: ON_MOUNTED_KEY,
+    ON_BEFORE_UPDATE_KEY: ON_BEFORE_UPDATE_KEY,
+    ON_UPDATED_KEY: ON_UPDATED_KEY,
+    ON_BEFORE_UNMOUNT_KEY: ON_BEFORE_UNMOUNT_KEY,
+    ON_UNMOUNTED_KEY: ON_UNMOUNTED_KEY,
+    PROPS_KEY: PROPS_KEY,
+    STATE_KEY: STATE_KEY,
+    SLOTS_KEY: SLOTS_KEY,
+    ROOT_KEY: ROOT_KEY,
+    IS_PURE_SYMBOL: IS_PURE_SYMBOL,
+    PARENT_KEY_SYMBOL: PARENT_KEY_SYMBOL,
+    ATTRIBUTES_KEY_SYMBOL: ATTRIBUTES_KEY_SYMBOL,
+    TEMPLATE_KEY_SYMBOL: TEMPLATE_KEY_SYMBOL
+  });
+
+  function extendParentScope(attributes, scope, parentScope) {
+    if (!attributes || !attributes.length) return parentScope;
+    const expressions = attributes.map(attr => Object.assign({}, attr, {
+      value: attr.evaluate(scope)
+    }));
+    return Object.assign(Object.create(parentScope || null), evaluateAttributeExpressions(expressions));
+  } // this function is only meant to fix an edge case
+  // https://github.com/riot/riot/issues/2842
+
+
+  const getRealParent = (scope, parentScope) => parentScope ? parentScope === scope ? scope[PARENT_KEY_SYMBOL] : parentScope : undefined;
+
   const SlotBinding = Object.seal({
     // dynamic binding properties
-    node: null,
-    name: null,
-    template: null,
+    // node: null,
+    // name: null,
+    attributes: [],
+
+    // template: null,
+    getTemplateScope(scope, parentScope) {
+      return extendParentScope(this.attributes, scope, parentScope);
+    },
 
     // API methods
     mount(scope, parentScope) {
-      const templateData = scope.slots ? scope.slots.find((_ref10) => {
+      const templateData = scope.slots ? scope.slots.find((_ref) => {
         let {
           id
-        } = _ref10;
+        } = _ref;
         return id === this.name;
       }) : false;
       const {
         parentNode
       } = this.node;
+      const realParent = getRealParent(scope, parentScope);
       this.template = templateData && create$6(templateData.html, templateData.bindings).createDOM(parentNode);
 
       if (this.template) {
-        this.template.mount(this.node, parentScope);
-        moveSlotInnerContent(this.node);
+        this.template.mount(this.node, this.getTemplateScope(scope, realParent), realParent);
+        this.template.children = moveSlotInnerContent(this.node);
       }
 
-      parentNode.removeChild(this.node);
+      removeNode(this.node);
       return this;
     },
 
     update(scope, parentScope) {
-      if (this.template && parentScope) {
-        this.template.update(parentScope);
+      if (this.template) {
+        const realParent = getRealParent(scope, parentScope);
+        this.template.update(this.getTemplateScope(scope, realParent), realParent);
       }
 
       return this;
@@ -1462,7 +1667,7 @@
 
     unmount(scope, parentScope, mustRemoveRoot) {
       if (this.template) {
-        this.template.unmount(parentScope, null, mustRemoveRoot);
+        this.template.unmount(this.getTemplateScope(scope, parentScope), null, mustRemoveRoot);
       }
 
       return this;
@@ -1472,14 +1677,23 @@
   /**
    * Move the inner content of the slots outside of them
    * @param   {HTMLNode} slot - slot node
-   * @returns {undefined} it's a void function
+   * @param   {HTMLElement} children - array to fill with the child nodes detected
+   * @returns {HTMLElement[]} list of the node moved
    */
 
-  function moveSlotInnerContent(slot) {
-    if (slot.firstChild) {
-      slot.parentNode.insertBefore(slot.firstChild, slot);
-      moveSlotInnerContent(slot);
+  function moveSlotInnerContent(slot, children) {
+    if (children === void 0) {
+      children = [];
     }
+
+    const child = slot.firstChild;
+
+    if (child) {
+      slot.parentNode.insertBefore(child, slot);
+      return [child, ...moveSlotInnerContent(slot)];
+    }
+
+    return children;
   }
   /**
    * Create a single slot binding
@@ -1489,15 +1703,18 @@
    */
 
 
-  function createSlot(node, _ref11) {
+  function createSlot(node, _ref2) {
     let {
-      name
-    } = _ref11;
+      name,
+      attributes
+    } = _ref2;
     return Object.assign({}, SlotBinding, {
+      attributes,
       node,
       name
     });
   }
+
   /**
    * Create a new tag object if it was registered before, otherwise fallback to the simple
    * template chunk
@@ -1506,7 +1723,6 @@
    * @param   {Array} attributes - dynamic attributes that will be received by the tag element
    * @returns {TagImplementation|TemplateChunk} a tag implementation or a template chunk as fallback
    */
-
 
   function getTag(component, slots, attributes) {
     if (slots === void 0) {
@@ -1544,10 +1760,10 @@
 
 
   function slotBindings(slots) {
-    return slots.reduce((acc, _ref12) => {
+    return slots.reduce((acc, _ref) => {
       let {
         bindings
-      } = _ref12;
+      } = _ref;
       return acc.concat(bindings);
     }, []);
   }
@@ -1566,14 +1782,13 @@
 
   const TagBinding = Object.seal({
     // dynamic binding properties
-    node: null,
-    evaluate: null,
-    name: null,
-    slots: null,
-    tag: null,
-    attributes: null,
-    getComponent: null,
-
+    // node: null,
+    // evaluate: null,
+    // name: null,
+    // slots: null,
+    // tag: null,
+    // attributes: null,
+    // getComponent: null,
     mount(scope) {
       return this.update(scope);
     },
@@ -1605,14 +1820,13 @@
     }
 
   });
-
-  function create$4(node, _ref13) {
+  function create$4(node, _ref2) {
     let {
       evaluate,
       getComponent,
       slots,
       attributes
-    } = _ref13;
+    } = _ref2;
     return Object.assign({}, TagBinding, {
       node,
       evaluate,
@@ -1629,14 +1843,30 @@
     [TAG]: create$4,
     [SLOT]: createSlot
   };
+
+  /**
+   * Text expressions in a template tag will get childNodeIndex value normalized
+   * depending on the position of the <template> tag offset
+   * @param   {Expression[]} expressions - riot expressions array
+   * @param   {number} textExpressionsOffset - offset of the <template> tag
+   * @returns {Expression[]} expressions containing the text expressions normalized
+   */
+
+  function fixTextExpressionsOffset(expressions, textExpressionsOffset) {
+    return expressions.map(e => e.type === TEXT ? Object.assign({}, e, {
+      childNodeIndex: e.childNodeIndex + textExpressionsOffset
+    }) : e);
+  }
   /**
    * Bind a new expression object to a DOM node
    * @param   {HTMLElement} root - DOM node where to bind the expression
    * @param   {Object} binding - binding data
-   * @returns {Expression} Expression object
+   * @param   {number|null} templateTagOffset - if it's defined we need to fix the text expressions childNodeIndex offset
+   * @returns {Binding} Binding object
    */
 
-  function create$5(root, binding) {
+
+  function create$5(root, binding, templateTagOffset) {
     const {
       selector,
       type,
@@ -1646,24 +1876,13 @@
 
     const node = selector ? root.querySelector(selector) : root; // remove eventually additional attributes created only to select this node
 
-    if (redundantAttribute) node.removeAttribute(redundantAttribute); // init the binding
+    if (redundantAttribute) node.removeAttribute(redundantAttribute);
+    const bindingExpressions = expressions || []; // init the binding
 
     return (bindings[type] || bindings[SIMPLE])(node, Object.assign({}, binding, {
-      expressions: expressions || []
+      expressions: templateTagOffset && !selector ? fixTextExpressionsOffset(bindingExpressions, templateTagOffset) : bindingExpressions
     }));
   }
-  /**
-   * Check if an element is part of an svg
-   * @param   {HTMLElement}  el - element to check
-   * @returns {boolean} true if we are in an svg context
-   */
-
-
-  function isSvg(el) {
-    const owner = el.ownerSVGElement;
-    return !!owner || owner === null;
-  } // in this case a simple innerHTML is enough
-
 
   function createHTMLTree(html, root) {
     const template = isTemplate(root) ? root : document.createElement('template');
@@ -1689,30 +1908,13 @@
     if (isSvg(root)) return createSVGTree(html, root);
     return createHTMLTree(html, root);
   }
-  /**
-   * Move all the child nodes from a source tag to another
-   * @param   {HTMLElement} source - source node
-   * @param   {HTMLElement} target - target node
-   * @returns {undefined} it's a void method ¯\_(ツ)_/¯
-   */
-  // Ignore this helper because it's needed only for svg tags
 
-  /* istanbul ignore next */
-
-
-  function moveChildren(source, target) {
-    if (source.firstChild) {
-      target.appendChild(source.firstChild);
-      moveChildren(source, target);
-    }
-  }
   /**
    * Inject the DOM tree into a target node
    * @param   {HTMLElement} el - target element
    * @param   {HTMLFragment|SVGElement} dom - dom tree to inject
    * @returns {undefined}
    */
-
 
   function injectDOM(el, dom) {
     switch (true) {
@@ -1728,13 +1930,13 @@
         el.appendChild(dom);
     }
   }
+
   /**
    * Create the Template DOM skeleton
    * @param   {HTMLElement} el - root node where the DOM will be injected
    * @param   {string} html - markup that will be injected into the root node
    * @returns {HTMLFragment} fragment that will be injected into the root node
    */
-
 
   function createTemplateDOM(el, html) {
     return html && (typeof html === 'string' ? createDOMTree(el, html) : html);
@@ -1747,14 +1949,14 @@
 
   const TemplateChunk = Object.freeze({
     // Static props
-    bindings: null,
-    bindingsData: null,
-    html: null,
-    isTemplateTag: false,
-    fragment: null,
-    children: null,
-    dom: null,
-    el: null,
+    // bindings: null,
+    // bindingsData: null,
+    // html: null,
+    // isTemplateTag: false,
+    // fragment: null,
+    // children: null,
+    // dom: null,
+    // el: null,
 
     /**
      * Create the template DOM structure that will be cloned on each mount
@@ -1796,7 +1998,9 @@
       const {
         parentNode
       } = children ? children[0] : el;
-      this.isTemplateTag = isTemplate(el); // create the DOM if it wasn't created before
+      const isTemplateTag = isTemplate(el);
+      const templateTagOffset = isTemplateTag ? Math.max(Array.from(parentNode.childNodes).indexOf(el), 0) : null;
+      this.isTemplateTag = isTemplateTag; // create the DOM if it wasn't created before
 
       this.createDOM(el);
 
@@ -1813,7 +2017,7 @@
 
       if (!avoidDOMInjection && this.fragment) injectDOM(el, this.fragment); // create the bindings
 
-      this.bindings = this.bindingsData.map(binding => create$5(this.el, binding));
+      this.bindings = this.bindingsData.map(binding => create$5(this.el, binding, templateTagOffset));
       this.bindings.forEach(b => b.mount(scope, parentScope));
       return this;
     },
@@ -1845,13 +2049,13 @@
           // <template> tags should be treated a bit differently
           // we need to clear their children only if it's explicitly required by the caller
           // via mustRemoveRoot !== null
-          case this.isTemplateTag === true && mustRemoveRoot !== null:
+          case this.children && mustRemoveRoot !== null:
             clearChildren(this.children);
             break;
           // remove the root node only if the mustRemoveRoot === true
 
-          case mustRemoveRoot === true && this.el.parentNode !== null:
-            this.el.parentNode.removeChild(this.el);
+          case mustRemoveRoot === true:
+            removeNode(this.el);
             break;
           // otherwise we clean the node children
 
@@ -1895,77 +2099,6 @@
     });
   }
 
-  /**
-   * Quick type checking
-   * @param   {*} element - anything
-   * @param   {string} type - type definition
-   * @returns {boolean} true if the type corresponds
-   */
-  function checkType(element, type) {
-    return typeof element === type;
-  }
-  /**
-   * Check that will be passed if its argument is a function
-   * @param   {*} value - value to check
-   * @returns {boolean} - true if the value is a function
-   */
-
-  function isFunction(value) {
-    return checkType(value, 'function');
-  }
-
-  /* eslint-disable fp/no-mutating-methods */
-  /**
-   * Throw an error
-   * @param {string} error - error message
-   * @returns {undefined} it's a IO void function
-   */
-
-  function panic(error) {
-    throw new Error(error);
-  }
-  /**
-   * Call the first argument received only if it's a function otherwise return it as it is
-   * @param   {*} source - anything
-   * @returns {*} anything
-   */
-
-  function callOrAssign(source) {
-    return isFunction(source) ? source.prototype && source.prototype.constructor ? new source() : source() : source;
-  }
-  /**
-   * Convert a string from camel case to dash-case
-   * @param   {string} string - probably a component tag name
-   * @returns {string} component name normalized
-   */
-
-  function camelToDashCase(string) {
-    return string.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
-  }
-  /**
-   * Convert a string containing dashes to camel case
-   * @param   {string} string - input string
-   * @returns {string} my-string -> myString
-   */
-
-  function dashToCamelCase(string) {
-    return string.replace(/-(\w)/g, (_, c) => c.toUpperCase());
-  }
-  /**
-   * Define default properties if they don't exist on the source object
-   * @param   {Object} source - object that will receive the default properties
-   * @param   {Object} defaults - object containing additional optional keys
-   * @returns {Object} the original object received enhanced
-   */
-
-  function defineDefaults(source, defaults) {
-    Object.entries(defaults).forEach((_ref) => {
-      let [key, value] = _ref;
-      if (!source[key]) source[key] = value;
-    });
-    return source;
-  } // doese simply nothing
-
   function noop() {
     return this;
   }
@@ -1983,6 +2116,16 @@
     return source;
   }
   /**
+   * Call the first argument received only if it's a function otherwise return it as it is
+   * @param   {*} source - anything
+   * @returns {*} anything
+   */
+
+  function callOrAssign(source) {
+    return isFunction(source) ? source.prototype && source.prototype.constructor ? new source() : source() : source;
+  }
+
+  /**
    * Helper function to set an immutable property
    * @param   {Object} source - object where the new property will be set
    * @param   {string} key - object key where the new property will be stored
@@ -1990,18 +2133,20 @@
    * @param   {Object} options - set the propery overriding the default options
    * @returns {Object} - the original object modified
    */
-
   function defineProperty(source, key, value, options) {
     if (options === void 0) {
       options = {};
     }
 
+    /* eslint-disable fp/no-mutating-methods */
     Object.defineProperty(source, key, Object.assign({
       value,
       enumerable: false,
       writable: false,
       configurable: true
     }, options));
+    /* eslint-enable fp/no-mutating-methods */
+
     return source;
   }
   /**
@@ -2013,42 +2158,25 @@
    */
 
   function defineProperties(source, properties, options) {
-    Object.entries(properties).forEach((_ref2) => {
-      let [key, value] = _ref2;
+    Object.entries(properties).forEach((_ref) => {
+      let [key, value] = _ref;
       defineProperty(source, key, value, options);
     });
     return source;
   }
   /**
-   * Evaluate a list of attribute expressions
-   * @param   {Array} attributes - attribute expressions generated by the riot compiler
-   * @returns {Object} key value pairs with the result of the computation
+   * Define default properties if they don't exist on the source object
+   * @param   {Object} source - object that will receive the default properties
+   * @param   {Object} defaults - object containing additional optional keys
+   * @returns {Object} the original object received enhanced
    */
 
-  function evaluateAttributeExpressions(attributes) {
-    return attributes.reduce((acc, attribute) => {
-      const {
-        value,
-        type
-      } = attribute;
-
-      switch (true) {
-        // spread attribute
-        case !attribute.name && type === expressionTypes.ATTRIBUTE:
-          return Object.assign({}, acc, {}, value);
-        // value attribute
-
-        case type === expressionTypes.VALUE:
-          acc[VALUE_ATTRIBUTE] = attribute.value;
-          break;
-        // normal attributes
-
-        default:
-          acc[dashToCamelCase(attribute.name)] = attribute.value;
-      }
-
-      return acc;
-    }, {});
+  function defineDefaults(source, defaults) {
+    Object.entries(defaults).forEach((_ref2) => {
+      let [key, value] = _ref2;
+      if (!source[key]) source[key] = value;
+    });
+    return source;
   }
 
   /**
@@ -2067,6 +2195,17 @@
 
 
     return els;
+  }
+
+  /**
+   * Simple helper to find DOM nodes returning them as array like loopable object
+   * @param   { string|DOMNodeList } selector - either the query or the DOM nodes to arraify
+   * @param   { HTMLElement }        ctx      - context defining where the query will search for the DOM nodes
+   * @returns { Array } DOM nodes found as array
+   */
+
+  function $(selector, ctx) {
+    return domToArray(typeof selector === 'string' ? (ctx || document).querySelectorAll(selector) : selector);
   }
 
   /**
@@ -2151,39 +2290,6 @@
 
   function get(els, name) {
     return parseNodes(els, name, 'getAttribute');
-  }
-
-  /**
-   * Get all the element attributes as object
-   * @param   {HTMLElement} element - DOM node we want to parse
-   * @returns {Object} all the attributes found as a key value pairs
-   */
-
-  function DOMattributesToObject(element) {
-    return Array.from(element.attributes).reduce((acc, attribute) => {
-      acc[dashToCamelCase(attribute.name)] = attribute.value;
-      return acc;
-    }, {});
-  }
-  /**
-   * Get the tag name of any DOM node
-   * @param   {HTMLElement} element - DOM node we want to inspect
-   * @returns {string} name to identify this dom node in riot
-   */
-
-  function getName(element) {
-    return get(element, IS_DIRECTIVE) || element.tagName.toLowerCase();
-  }
-
-  /**
-   * Simple helper to find DOM nodes returning them as array like loopable object
-   * @param   { string|DOMNodeList } selector - either the query or the DOM nodes to arraify
-   * @param   { HTMLElement }        ctx      - context defining where the query will search for the DOM nodes
-   * @returns { Array } DOM nodes found as array
-   */
-
-  function $(selector, ctx) {
-    return domToArray(typeof selector === 'string' ? (ctx || document).querySelectorAll(selector) : selector);
   }
 
   const CSS_BY_NAME = new Map();
@@ -2276,6 +2382,16 @@
     };
   }
 
+  /**
+   * Get the tag name of any DOM node
+   * @param   {HTMLElement} element - DOM node we want to inspect
+   * @returns {string} name to identify this dom node in riot
+   */
+
+  function getName(element) {
+    return get(element, IS_DIRECTIVE) || element.tagName.toLowerCase();
+  }
+
   const COMPONENT_CORE_HELPERS = Object.freeze({
     // component helpers
     $(selector) {
@@ -2287,33 +2403,114 @@
     }
 
   });
-  const COMPONENT_LIFECYCLE_METHODS = Object.freeze({
-    shouldUpdate: noop,
-    onBeforeMount: noop,
-    onMounted: noop,
-    onBeforeUpdate: noop,
-    onUpdated: noop,
-    onBeforeUnmount: noop,
-    onUnmounted: noop
+  const PURE_COMPONENT_API = Object.freeze({
+    [MOUNT_METHOD_KEY]: noop,
+    [UPDATE_METHOD_KEY]: noop,
+    [UNMOUNT_METHOD_KEY]: noop
   });
-  const MOCKED_TEMPLATE_INTERFACE = {
-    update: noop,
-    mount: noop,
-    unmount: noop,
+  const COMPONENT_LIFECYCLE_METHODS = Object.freeze({
+    [SHOULD_UPDATE_KEY]: noop,
+    [ON_BEFORE_MOUNT_KEY]: noop,
+    [ON_MOUNTED_KEY]: noop,
+    [ON_BEFORE_UPDATE_KEY]: noop,
+    [ON_UPDATED_KEY]: noop,
+    [ON_BEFORE_UNMOUNT_KEY]: noop,
+    [ON_UNMOUNTED_KEY]: noop
+  });
+  const MOCKED_TEMPLATE_INTERFACE = Object.assign({}, PURE_COMPONENT_API, {
     clone: noop,
     createDOM: noop
-    /**
-     * Factory function to create the component templates only once
-     * @param   {Function} template - component template creation function
-     * @param   {Object} components - object containing the nested components
-     * @returns {TemplateChunk} template chunk object
-     */
+  });
+  /**
+   * Evaluate the component properties either from its real attributes or from its initial user properties
+   * @param   {HTMLElement} element - component root
+   * @param   {Object}  initialProps - initial props
+   * @returns {Object} component props key value pairs
+   */
 
-  };
+  function evaluateInitialProps(element, initialProps) {
+    if (initialProps === void 0) {
+      initialProps = {};
+    }
+
+    return Object.assign({}, DOMattributesToObject(element), {}, callOrAssign(initialProps));
+  }
+  /**
+   * Bind a DOM node to its component object
+   * @param   {HTMLElement} node - html node mounted
+   * @param   {Object} component - Riot.js component object
+   * @returns {Object} the component object received as second argument
+   */
+
+
+  const bindDOMNodeToComponentObject = (node, component) => node[DOM_COMPONENT_INSTANCE_PROPERTY] = component;
+  /**
+   * Wrap the Riot.js core API methods using a mapping function
+   * @param   {Function} mapFunction - lifting function
+   * @returns {Object} an object having the { mount, update, unmount } functions
+   */
+
+
+  function createCoreAPIMethods(mapFunction) {
+    return [MOUNT_METHOD_KEY, UPDATE_METHOD_KEY, UNMOUNT_METHOD_KEY].reduce((acc, method) => {
+      acc[method] = mapFunction(method);
+      return acc;
+    }, {});
+  }
+  /**
+   * Factory function to create the component templates only once
+   * @param   {Function} template - component template creation function
+   * @param   {Object} components - object containing the nested components
+   * @returns {TemplateChunk} template chunk object
+   */
+
 
   function componentTemplateFactory(template, components) {
     return template(create$6, expressionTypes, bindingTypes, name => {
       return components[name] || COMPONENTS_IMPLEMENTATION_MAP.get(name);
+    });
+  }
+  /**
+   * Create a pure component
+   * @param   {Function} pureFactoryFunction - pure component factory function
+   * @param   {Array} options.slots - component slots
+   * @param   {Array} options.attributes - component attributes
+   * @param   {Array} options.template - template factory function
+   * @param   {Array} options.template - template factory function
+   * @param   {any} options.props - initial component properties
+   * @returns {Object} pure component object
+   */
+
+
+  function createPureComponent(pureFactoryFunction, _ref) {
+    let {
+      slots,
+      attributes,
+      props,
+      css,
+      template
+    } = _ref;
+    if (template) panic('Pure components can not have html');
+    if (css) panic('Pure components do not have css');
+    const component = defineDefaults(pureFactoryFunction({
+      slots,
+      attributes,
+      props
+    }), PURE_COMPONENT_API);
+    return createCoreAPIMethods(method => function () {
+      for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+        args[_key] = arguments[_key];
+      }
+
+      // intercept the mount calls to bind the DOM node to the pure object created
+      // see also https://github.com/riot/riot/issues/2806
+      if (method === MOUNT_METHOD_KEY) {
+        const [el] = args;
+        bindDOMNodeToComponentObject(el, component);
+      }
+
+      component[method](...args);
+      return component;
     });
   }
   /**
@@ -2326,20 +2523,28 @@
    */
 
 
-  function createComponent(_ref) {
+  function createComponent(_ref2) {
     let {
       css,
       template,
       exports,
       name
-    } = _ref;
+    } = _ref2;
     const templateFn = template ? componentTemplateFactory(template, exports ? createSubcomponents(exports.components) : {}) : MOCKED_TEMPLATE_INTERFACE;
-    return (_ref2) => {
+    return (_ref3) => {
       let {
         slots,
         attributes,
         props
-      } = _ref2;
+      } = _ref3;
+      // pure components rendering will be managed by the end user
+      if (exports && exports[IS_PURE_SYMBOL]) return createPureComponent(exports, {
+        slots,
+        attributes,
+        props,
+        css,
+        template
+      });
       const componentAPI = callOrAssign(exports) || {};
       const component = defineComponent({
         css,
@@ -2378,41 +2583,27 @@
    * @returns {Object} a new component implementation object
    */
 
-  function defineComponent(_ref3) {
+  function defineComponent(_ref4) {
     let {
       css,
       template,
       componentAPI,
       name
-    } = _ref3;
+    } = _ref4;
     // add the component css into the DOM
     if (css && name) cssManager.add(name, css);
     return curry(enhanceComponentAPI)(defineProperties( // set the component defaults without overriding the original component API
     defineDefaults(componentAPI, Object.assign({}, COMPONENT_LIFECYCLE_METHODS, {
-      state: {}
+      [STATE_KEY]: {}
     })), Object.assign({
       // defined during the component creation
-      slots: null,
-      root: null
+      [SLOTS_KEY]: null,
+      [ROOT_KEY]: null
     }, COMPONENT_CORE_HELPERS, {
       name,
       css,
       template
     })));
-  }
-  /**
-   * Evaluate the component properties either from its real attributes or from its attribute expressions
-   * @param   {HTMLElement} element - component root
-   * @param   {Array}  attributeExpressions - attribute values generated via createAttributeBindings
-   * @returns {Object} attributes key value pairs
-   */
-
-  function evaluateProps(element, attributeExpressions) {
-    if (attributeExpressions === void 0) {
-      attributeExpressions = [];
-    }
-
-    return Object.assign({}, DOMattributesToObject(element), {}, evaluateAttributeExpressions(attributeExpressions));
   }
   /**
    * Create the bindings to update the component attributes
@@ -2421,7 +2612,6 @@
    * @returns {TemplateChunk} - template bindings object
    */
 
-
   function createAttributeBindings(node, attributes) {
     if (attributes === void 0) {
       attributes = [];
@@ -2429,18 +2619,12 @@
 
     const expressions = attributes.map(a => create$2(node, a));
     const binding = {};
-
-    const updateValues = method => scope => {
+    return Object.assign(binding, Object.assign({
+      expressions
+    }, createCoreAPIMethods(method => scope => {
       expressions.forEach(e => e[method](scope));
       return binding;
-    };
-
-    return Object.assign(binding, {
-      expressions,
-      mount: updateValues('mount'),
-      update: updateValues('update'),
-      unmount: updateValues('unmount')
-    });
+    })));
   }
   /**
    * Create the subcomponents that can be included inside a tag in runtime
@@ -2454,8 +2638,8 @@
       components = {};
     }
 
-    return Object.entries(callOrAssign(components)).reduce((acc, _ref4) => {
-      let [key, value] = _ref4;
+    return Object.entries(callOrAssign(components)).reduce((acc, _ref5) => {
+      let [key, value] = _ref5;
       acc[camelToDashCase(key)] = createComponent(value);
       return acc;
     }, {});
@@ -2491,7 +2675,7 @@
 
   function addCssHook(element, name) {
     if (getName(element) !== name) {
-      set(element, 'is', name);
+      set(element, IS_DIRECTIVE, name);
     }
   }
   /**
@@ -2503,13 +2687,12 @@
    */
 
 
-  function enhanceComponentAPI(component, _ref5) {
+  function enhanceComponentAPI(component, _ref6) {
     let {
       slots,
       attributes,
       props
-    } = _ref5;
-    const initialProps = callOrAssign(props);
+    } = _ref6;
     return autobindMethods(runPlugins(defineProperties(Object.create(component), {
       mount(element, state, parentScope) {
         if (state === void 0) {
@@ -2517,22 +2700,23 @@
         }
 
         this[ATTRIBUTES_KEY_SYMBOL] = createAttributeBindings(element, attributes).mount(parentScope);
-        this.props = Object.freeze(Object.assign({}, initialProps, {}, evaluateProps(element, this[ATTRIBUTES_KEY_SYMBOL].expressions)));
-        this.state = computeState(this.state, state);
+        defineProperty(this, PROPS_KEY, Object.freeze(Object.assign({}, evaluateInitialProps(element, props), {}, evaluateAttributeExpressions(this[ATTRIBUTES_KEY_SYMBOL].expressions))));
+        this[STATE_KEY] = computeState(this[STATE_KEY], state);
         this[TEMPLATE_KEY_SYMBOL] = this.template.createDOM(element).clone(); // link this object to the DOM node
 
-        element[DOM_COMPONENT_INSTANCE_PROPERTY] = this; // add eventually the 'is' attribute
+        bindDOMNodeToComponentObject(element, this); // add eventually the 'is' attribute
 
         component.name && addCssHook(element, component.name); // define the root element
 
-        defineProperty(this, 'root', element); // define the slots array
+        defineProperty(this, ROOT_KEY, element); // define the slots array
 
-        defineProperty(this, 'slots', slots); // before mount lifecycle event
+        defineProperty(this, SLOTS_KEY, slots); // before mount lifecycle event
 
-        this.onBeforeMount(this.props, this.state); // mount the template
+        this[ON_BEFORE_MOUNT_KEY](this[PROPS_KEY], this[STATE_KEY]);
+        this[PARENT_KEY_SYMBOL] = parentScope; // mount the template
 
         this[TEMPLATE_KEY_SYMBOL].mount(element, this, parentScope);
-        this.onMounted(this.props, this.state);
+        this[ON_MOUNTED_KEY](this[PROPS_KEY], this[STATE_KEY]);
         return this;
       },
 
@@ -2545,23 +2729,23 @@
           this[ATTRIBUTES_KEY_SYMBOL].update(parentScope);
         }
 
-        const newProps = evaluateProps(this.root, this[ATTRIBUTES_KEY_SYMBOL].expressions);
-        if (this.shouldUpdate(newProps, this.props) === false) return;
-        this.props = Object.freeze(Object.assign({}, initialProps, {}, newProps));
-        this.state = computeState(this.state, state);
-        this.onBeforeUpdate(this.props, this.state);
-        this[TEMPLATE_KEY_SYMBOL].update(this, parentScope);
-        this.onUpdated(this.props, this.state);
+        const newProps = evaluateAttributeExpressions(this[ATTRIBUTES_KEY_SYMBOL].expressions);
+        if (this[SHOULD_UPDATE_KEY](newProps, this[PROPS_KEY]) === false) return;
+        defineProperty(this, PROPS_KEY, Object.freeze(Object.assign({}, this[PROPS_KEY], {}, newProps)));
+        this[STATE_KEY] = computeState(this[STATE_KEY], state);
+        this[ON_BEFORE_UPDATE_KEY](this[PROPS_KEY], this[STATE_KEY]);
+        this[TEMPLATE_KEY_SYMBOL].update(this, this[PARENT_KEY_SYMBOL]);
+        this[ON_UPDATED_KEY](this[PROPS_KEY], this[STATE_KEY]);
         return this;
       },
 
       unmount(preserveRoot) {
-        this.onBeforeUnmount(this.props, this.state);
+        this[ON_BEFORE_UNMOUNT_KEY](this[PROPS_KEY], this[STATE_KEY]);
         this[ATTRIBUTES_KEY_SYMBOL].unmount(); // if the preserveRoot is null the template html will be left untouched
         // in that case the DOM cleanup will happen differently from a parent node
 
-        this[TEMPLATE_KEY_SYMBOL].unmount(this, {}, preserveRoot === null ? null : !preserveRoot);
-        this.onUnmounted(this.props, this.state);
+        this[TEMPLATE_KEY_SYMBOL].unmount(this, this[PARENT_KEY_SYMBOL], preserveRoot === null ? null : !preserveRoot);
+        this[ON_UNMOUNTED_KEY](this[PROPS_KEY], this[STATE_KEY]);
         return this;
       }
 
@@ -2674,9 +2858,18 @@
    */
 
   function component(implementation) {
-    return (el, props) => compose(c => c.mount(el), c => c({
-      props
-    }), createComponent)(implementation);
+    return function (el, props, _temp) {
+      let {
+        slots,
+        attributes,
+        parentScope
+      } = _temp === void 0 ? {} : _temp;
+      return compose(c => c.mount(el, parentScope), c => c({
+        props,
+        slots,
+        attributes
+      }), createComponent)(implementation);
+    };
   }
 
   var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
@@ -4211,24 +4404,24 @@
 
     'template': function(template, expressionTypes, bindingTypes, getComponent) {
       return template(
-        '<nav class="navbar navbar-light"><div class="container"><a class="navbar-brand" href="/">conduit</a><ul class="nav navbar-nav pull-xs-right"><li expr20="expr20" class="nav-item"></li></ul></div></nav>',
+        '<nav class="navbar navbar-light"><div class="container"><a class="navbar-brand" href="/">conduit</a><ul class="nav navbar-nav pull-xs-right"><li expr35="expr35" class="nav-item"></li></ul></div></nav>',
         [{
           'type': bindingTypes.EACH,
           'getKey': null,
           'condition': null,
 
           'template': template(
-            '<a expr21="expr21">\n                    &nbsp;\n                    <i expr22="expr22"></i><img expr23="expr23" class="user-pic"/><!----></a>',
+            '<a expr36="expr36">\n                    &nbsp;\n                    <i expr37="expr37"></i><img expr38="expr38" class="user-pic"/> </a>',
             [{
-              'redundantAttribute': 'expr21',
-              'selector': '[expr21]',
+              'redundantAttribute': 'expr36',
+              'selector': '[expr36]',
 
               'expressions': [{
                 'type': expressionTypes.TEXT,
                 'childNodeIndex': 3,
 
                 'evaluate': function(scope) {
-                  return ['\n                    ', scope.item.title, '\n                '].join('');
+                  return [scope.item.title].join('');
                 }
               }, {
                 'type': expressionTypes.ATTRIBUTE,
@@ -4252,8 +4445,8 @@
                 return scope.item.icon !== null;
               },
 
-              'redundantAttribute': 'expr22',
-              'selector': '[expr22]',
+              'redundantAttribute': 'expr37',
+              'selector': '[expr37]',
 
               'template': template(null, [{
                 'expressions': [{
@@ -4272,8 +4465,8 @@
                 return scope.item.image !== null;
               },
 
-              'redundantAttribute': 'expr23',
-              'selector': '[expr23]',
+              'redundantAttribute': 'expr38',
+              'selector': '[expr38]',
 
               'template': template(null, [{
                 'expressions': [{
@@ -4288,8 +4481,8 @@
             }]
           ),
 
-          'redundantAttribute': 'expr20',
-          'selector': '[expr20]',
+          'redundantAttribute': 'expr35',
+          'selector': '[expr35]',
           'itemName': 'item',
           'indexName': null,
 
@@ -4328,15 +4521,15 @@
     },
 
     'template': function(template, expressionTypes, bindingTypes, getComponent) {
-      return template('<div expr24="expr24" class="banner"></div>', [{
+      return template('<div expr47="expr47" class="banner"></div>', [{
         'type': bindingTypes.IF,
 
         'evaluate': function(scope) {
           return scope.state.isVisible;
         },
 
-        'redundantAttribute': 'expr24',
-        'selector': '[expr24]',
+        'redundantAttribute': 'expr47',
+        'selector': '[expr47]',
 
         'template': template(
           '<div class="container"><h1 class="logo-font">conduit</h1><p>A place to share your <a class="spotlink" href="https://riot.js.org" target="blank">RIOT</a> knowledge.</p></div>',
@@ -4368,10 +4561,10 @@
 
     'template': function(template, expressionTypes, bindingTypes, getComponent) {
       return template(
-        '<div expr25="expr25"><ul class="nav nav-pills outline-active"><li expr26="expr26" class="nav-item"></li></ul></div>',
+        '<div expr39="expr39"><ul class="nav nav-pills outline-active"><li expr40="expr40" class="nav-item"></li></ul></div>',
         [{
-          'redundantAttribute': 'expr25',
-          'selector': '[expr25]',
+          'redundantAttribute': 'expr39',
+          'selector': '[expr39]',
 
           'expressions': [{
             'type': expressionTypes.ATTRIBUTE,
@@ -4386,9 +4579,9 @@
           'getKey': null,
           'condition': null,
 
-          'template': template('<a expr27="expr27"><!----></a>', [{
-            'redundantAttribute': 'expr27',
-            'selector': '[expr27]',
+          'template': template('<a expr41="expr41"> </a>', [{
+            'redundantAttribute': 'expr41',
+            'selector': '[expr41]',
 
             'expressions': [{
               'type': expressionTypes.TEXT,
@@ -4414,8 +4607,8 @@
             }]
           }]),
 
-          'redundantAttribute': 'expr26',
-          'selector': '[expr26]',
+          'redundantAttribute': 'expr40',
+          'selector': '[expr40]',
           'itemName': 'item',
           'indexName': null,
 
@@ -4456,16 +4649,16 @@
     },
 
     'template': function(template, expressionTypes, bindingTypes, getComponent) {
-      return template('<div expr45="expr45" class="article-preview"></div>', [{
+      return template('<div expr20="expr20" class="article-preview"></div>', [{
         'type': bindingTypes.EACH,
         'getKey': null,
         'condition': null,
 
         'template': template(
-          '<div class="article-meta"><a expr46="expr46"><img expr47="expr47"/></a><div class="info"><a expr48="expr48" class="author author-link"><!----></a><span class="date">January 20th</span></div><button expr49="expr49"><i class="ion-heart"></i><!----></button></div><a expr50="expr50" class="preview-link"><h1 expr51="expr51"><!----></h1><p expr52="expr52"><!----></p><span>Read more...</span><ul class="tag-list"><li expr53="expr53" class="tag-default tag-pill tag-outline"></li></ul></a>',
+          '<div class="article-meta"><a expr21="expr21"><img expr22="expr22"/></a><div class="info"><a expr23="expr23" class="author author-link"> </a><span class="date">January 20th</span></div><button expr24="expr24"><i class="ion-heart"></i> </button></div><a expr25="expr25" class="preview-link"><h1 expr26="expr26"> </h1><p expr27="expr27"> </p><span>Read more...</span><ul class="tag-list"><li expr28="expr28" class="tag-default tag-pill tag-outline"></li></ul></a>',
           [{
-            'redundantAttribute': 'expr46',
-            'selector': '[expr46]',
+            'redundantAttribute': 'expr21',
+            'selector': '[expr21]',
 
             'expressions': [{
               'type': expressionTypes.EVENT,
@@ -4476,8 +4669,8 @@
               }
             }]
           }, {
-            'redundantAttribute': 'expr47',
-            'selector': '[expr47]',
+            'redundantAttribute': 'expr22',
+            'selector': '[expr22]',
 
             'expressions': [{
               'type': expressionTypes.ATTRIBUTE,
@@ -4488,8 +4681,8 @@
               }
             }]
           }, {
-            'redundantAttribute': 'expr48',
-            'selector': '[expr48]',
+            'redundantAttribute': 'expr23',
+            'selector': '[expr23]',
 
             'expressions': [{
               'type': expressionTypes.TEXT,
@@ -4507,15 +4700,15 @@
               }
             }]
           }, {
-            'redundantAttribute': 'expr49',
-            'selector': '[expr49]',
+            'redundantAttribute': 'expr24',
+            'selector': '[expr24]',
 
             'expressions': [{
               'type': expressionTypes.TEXT,
               'childNodeIndex': 1,
 
               'evaluate': function(scope) {
-                return [' ', scope.article.favoritesCount, '\n        '].join('');
+                return [scope.article.favoritesCount].join('');
               }
             }, {
               'type': expressionTypes.EVENT,
@@ -4533,8 +4726,8 @@
               }
             }]
           }, {
-            'redundantAttribute': 'expr50',
-            'selector': '[expr50]',
+            'redundantAttribute': 'expr25',
+            'selector': '[expr25]',
 
             'expressions': [{
               'type': expressionTypes.EVENT,
@@ -4545,20 +4738,20 @@
               }
             }]
           }, {
-            'redundantAttribute': 'expr51',
-            'selector': '[expr51]',
+            'redundantAttribute': 'expr26',
+            'selector': '[expr26]',
 
             'expressions': [{
               'type': expressionTypes.TEXT,
               'childNodeIndex': 0,
 
               'evaluate': function(scope) {
-                return [scope.article.title, ' '].join('');
+                return [scope.article.title].join('');
               }
             }]
           }, {
-            'redundantAttribute': 'expr52',
-            'selector': '[expr52]',
+            'redundantAttribute': 'expr27',
+            'selector': '[expr27]',
 
             'expressions': [{
               'type': expressionTypes.TEXT,
@@ -4573,7 +4766,7 @@
             'getKey': null,
             'condition': null,
 
-            'template': template('<!---->', [{
+            'template': template(' ', [{
               'expressions': [{
                 'type': expressionTypes.TEXT,
                 'childNodeIndex': 0,
@@ -4584,8 +4777,8 @@
               }]
             }]),
 
-            'redundantAttribute': 'expr53',
-            'selector': '[expr53]',
+            'redundantAttribute': 'expr28',
+            'selector': '[expr28]',
             'itemName': 'tagWord',
             'indexName': null,
 
@@ -4595,8 +4788,8 @@
           }]
         ),
 
-        'redundantAttribute': 'expr45',
-        'selector': '[expr45]',
+        'redundantAttribute': 'expr20',
+        'selector': '[expr20]',
         'itemName': 'article',
         'indexName': null,
 
@@ -4621,13 +4814,13 @@
 
     'template': function(template, expressionTypes, bindingTypes, getComponent) {
       return template(
-        '<div class="sidebar"><p>Popular Tags</p><div class="tag-list"><a expr28="expr28" class="tag-pill tag-default"></a></div></div>',
+        '<div class="sidebar"><p>Popular Tags</p><div class="tag-list"><a expr44="expr44" class="tag-pill tag-default"></a></div></div>',
         [{
           'type': bindingTypes.EACH,
           'getKey': null,
           'condition': null,
 
-          'template': template('<!---->', [{
+          'template': template(' ', [{
             'expressions': [{
               'type': expressionTypes.TEXT,
               'childNodeIndex': 0,
@@ -4645,8 +4838,8 @@
             }]
           }]),
 
-          'redundantAttribute': 'expr28',
-          'selector': '[expr28]',
+          'redundantAttribute': 'expr44',
+          'selector': '[expr44]',
           'itemName': 'tag',
           'indexName': null,
 
@@ -4689,12 +4882,12 @@
     },
 
     'template': function(template, expressionTypes, bindingTypes, getComponent) {
-      return template('<ul class="pagination"><li expr29="expr29"></li></ul>', [{
+      return template('<ul class="pagination"><li expr42="expr42"></li></ul>', [{
         'type': bindingTypes.EACH,
         'getKey': null,
         'condition': null,
 
-        'template': template('<a expr30="expr30" class="page-link"><!----></a>', [{
+        'template': template('<a expr43="expr43" class="page-link"> </a>', [{
           'expressions': [{
             'type': expressionTypes.ATTRIBUTE,
             'name': 'class',
@@ -4704,8 +4897,8 @@
             }
           }]
         }, {
-          'redundantAttribute': 'expr30',
-          'selector': '[expr30]',
+          'redundantAttribute': 'expr43',
+          'selector': '[expr43]',
 
           'expressions': [{
             'type': expressionTypes.TEXT,
@@ -4724,8 +4917,8 @@
           }]
         }]),
 
-        'redundantAttribute': 'expr29',
-        'selector': '[expr29]',
+        'redundantAttribute': 'expr42',
+        'selector': '[expr42]',
         'itemName': 'page',
         'indexName': null,
 
@@ -9618,21 +9811,21 @@
     },
 
     'template': function(template, expressionTypes, bindingTypes, getComponent) {
-      return template('<div expr31="expr31" class="article-meta"></div>', [{
+      return template('<div expr48="expr48" class="article-meta"></div>', [{
         'type': bindingTypes.IF,
 
         'evaluate': function(scope) {
           return scope.state.article != null;
         },
 
-        'redundantAttribute': 'expr31',
-        'selector': '[expr31]',
+        'redundantAttribute': 'expr48',
+        'selector': '[expr48]',
 
         'template': template(
-          '<a expr32="expr32"><img expr33="expr33"/></a><div class="info"><a expr34="expr34" class="author"><!----></a><span expr35="expr35" class="date"><!----></span></div><template expr36="expr36"></template><template expr40="expr40"></template>',
+          '<a expr49="expr49"><img expr50="expr50"/></a><div class="info"><a expr51="expr51" class="author"> </a><span expr52="expr52" class="date"> </span></div><template expr53="expr53"></template><template expr57="expr57"></template>',
           [{
-            'redundantAttribute': 'expr32',
-            'selector': '[expr32]',
+            'redundantAttribute': 'expr49',
+            'selector': '[expr49]',
 
             'expressions': [{
               'type': expressionTypes.ATTRIBUTE,
@@ -9643,8 +9836,8 @@
               }
             }]
           }, {
-            'redundantAttribute': 'expr33',
-            'selector': '[expr33]',
+            'redundantAttribute': 'expr50',
+            'selector': '[expr50]',
 
             'expressions': [{
               'type': expressionTypes.ATTRIBUTE,
@@ -9655,8 +9848,8 @@
               }
             }]
           }, {
-            'redundantAttribute': 'expr34',
-            'selector': '[expr34]',
+            'redundantAttribute': 'expr51',
+            'selector': '[expr51]',
 
             'expressions': [{
               'type': expressionTypes.TEXT,
@@ -9674,8 +9867,8 @@
               }
             }]
           }, {
-            'redundantAttribute': 'expr35',
-            'selector': '[expr35]',
+            'redundantAttribute': 'expr52',
+            'selector': '[expr52]',
 
             'expressions': [{
               'type': expressionTypes.TEXT,
@@ -9692,14 +9885,14 @@
               return scope.isOwnArticle() == false;
             },
 
-            'redundantAttribute': 'expr36',
-            'selector': '[expr36]',
+            'redundantAttribute': 'expr53',
+            'selector': '[expr53]',
 
             'template': template(
-              '<button expr37="expr37"><i class="ion-plus-round"></i><!----></button>\n        &nbsp;\n        <button expr38="expr38"><i class="ion-heart"></i><!----><span expr39="expr39" class="counter"><!----></span></button>',
+              '<button expr54="expr54"><i class="ion-plus-round"></i> </button>\n        &nbsp;\n        <button expr55="expr55"><i class="ion-heart"></i> <span expr56="expr56" class="counter"> </span></button>',
               [{
-                'redundantAttribute': 'expr37',
-                'selector': '[expr37]',
+                'redundantAttribute': 'expr54',
+                'selector': '[expr54]',
 
                 'expressions': [{
                   'type': expressionTypes.TEXT,
@@ -9707,9 +9900,7 @@
 
                   'evaluate': function(scope) {
                     return [
-                      '\n            ',
-                      (scope.state.article.author.following ? "Unfollow" : "Follow") + " " + scope.state.article.author.username,
-                      '\n        '
+                      (scope.state.article.author.following ? "Unfollow" : "Follow") + " " + scope.state.article.author.username
                     ].join('');
                   }
                 }, {
@@ -9728,19 +9919,15 @@
                   }
                 }]
               }, {
-                'redundantAttribute': 'expr38',
-                'selector': '[expr38]',
+                'redundantAttribute': 'expr55',
+                'selector': '[expr55]',
 
                 'expressions': [{
                   'type': expressionTypes.TEXT,
                   'childNodeIndex': 1,
 
                   'evaluate': function(scope) {
-                    return [
-                      ' \n            ',
-                      (scope.state.article.favorited ? "Unfavorite" : "Favorite") + " Article",
-                      ' \n            '
-                    ].join('');
+                    return [(scope.state.article.favorited ? "Unfavorite" : "Favorite") + " Article"].join('');
                   }
                 }, {
                   'type': expressionTypes.EVENT,
@@ -9758,8 +9945,8 @@
                   }
                 }]
               }, {
-                'redundantAttribute': 'expr39',
-                'selector': '[expr39]',
+                'redundantAttribute': 'expr56',
+                'selector': '[expr56]',
 
                 'expressions': [{
                   'type': expressionTypes.TEXT,
@@ -9778,14 +9965,14 @@
               return scope.isOwnArticle();
             },
 
-            'redundantAttribute': 'expr40',
-            'selector': '[expr40]',
+            'redundantAttribute': 'expr57',
+            'selector': '[expr57]',
 
             'template': template(
-              '<button expr41="expr41" class="btn btn-sm btn-outline-secondary"><i class="ion-edit"></i> Edit Article\n        </button>\n        &nbsp;\n        <button expr42="expr42" class="btn btn-sm btn-outline-danger"><i class="ion-trash-a"></i> Delete Article\n        </button>',
+              '<button expr58="expr58" class="btn btn-sm btn-outline-secondary"><i class="ion-edit"></i> Edit Article\n        </button>\n        &nbsp;\n        <button expr59="expr59" class="btn btn-sm btn-outline-danger"><i class="ion-trash-a"></i> Delete Article\n        </button>',
               [{
-                'redundantAttribute': 'expr41',
-                'selector': '[expr41]',
+                'redundantAttribute': 'expr58',
+                'selector': '[expr58]',
 
                 'expressions': [{
                   'type': expressionTypes.EVENT,
@@ -9796,8 +9983,8 @@
                   }
                 }]
               }, {
-                'redundantAttribute': 'expr42',
-                'selector': '[expr42]',
+                'redundantAttribute': 'expr59',
+                'selector': '[expr59]',
 
                 'expressions': [{
                   'type': expressionTypes.EVENT,
@@ -11552,24 +11739,24 @@
     },
 
     'template': function(template, expressionTypes, bindingTypes, getComponent) {
-      return template('<template expr43="expr43"></template>', [{
+      return template('<template expr45="expr45"></template>', [{
         'type': bindingTypes.IF,
 
         'evaluate': function(scope) {
           return scope.state.article != null;
         },
 
-        'redundantAttribute': 'expr43',
-        'selector': '[expr43]',
+        'redundantAttribute': 'expr45',
+        'selector': '[expr45]',
 
         'template': template(
-          '<div id="articleBodyField"></div><ul class="tag-list"><li expr44="expr44" class="tag-default tag-pill tag-outline"></li></ul>',
+          '<div id="articleBodyField"></div><ul class="tag-list"><li expr46="expr46" class="tag-default tag-pill tag-outline"></li></ul>',
           [{
             'type': bindingTypes.EACH,
             'getKey': null,
             'condition': null,
 
-            'template': template('<!---->', [{
+            'template': template(' ', [{
               'expressions': [{
                 'type': expressionTypes.TEXT,
                 'childNodeIndex': 0,
@@ -11580,8 +11767,8 @@
               }]
             }]),
 
-            'redundantAttribute': 'expr44',
-            'selector': '[expr44]',
+            'redundantAttribute': 'expr46',
+            'selector': '[expr46]',
             'itemName': 'tagWord',
             'indexName': null,
 
@@ -11618,7 +11805,7 @@
 
     'template': function(template, expressionTypes, bindingTypes, getComponent) {
       return template(
-        '<form class="card comment-form"><div class="card-block"><textarea id="commentArea" class="form-control" placeholder="Write a comment..." rows="3"></textarea></div><div class="card-footer"><template expr54="expr54"></template><button expr56="expr56" type="button" class="btn btn-sm btn-primary">\n        Post Comment\n        </button></div></form>',
+        '<form class="card comment-form"><div class="card-block"><textarea id="commentArea" class="form-control" placeholder="Write a comment..." rows="3"></textarea></div><div class="card-footer"><template expr60="expr60"></template><button expr62="expr62" type="button" class="btn btn-sm btn-primary">\n        Post Comment\n        </button></div></form>',
         [{
           'type': bindingTypes.IF,
 
@@ -11626,12 +11813,12 @@
             return scope.state.profile != null;
           },
 
-          'redundantAttribute': 'expr54',
-          'selector': '[expr54]',
+          'redundantAttribute': 'expr60',
+          'selector': '[expr60]',
 
-          'template': template('<img expr55="expr55" class="comment-author-img"/>', [{
-            'redundantAttribute': 'expr55',
-            'selector': '[expr55]',
+          'template': template('<img expr61="expr61" class="comment-author-img"/>', [{
+            'redundantAttribute': 'expr61',
+            'selector': '[expr61]',
 
             'expressions': [{
               'type': expressionTypes.ATTRIBUTE,
@@ -11643,8 +11830,8 @@
             }]
           }])
         }, {
-          'redundantAttribute': 'expr56',
-          'selector': '[expr56]',
+          'redundantAttribute': 'expr62',
+          'selector': '[expr62]',
 
           'expressions': [{
             'type': expressionTypes.EVENT,
@@ -11698,16 +11885,16 @@
     },
 
     'template': function(template, expressionTypes, bindingTypes, getComponent) {
-      return template('<div expr57="expr57" class="card"></div>', [{
+      return template('<div expr63="expr63" class="card"></div>', [{
         'type': bindingTypes.EACH,
         'getKey': null,
         'condition': null,
 
         'template': template(
-          '<div class="card-block"><p class="card-text"><div expr58="expr58" class="comment_body_view"></div></p></div><div class="card-footer"><a expr59="expr59" class="comment-author"><img expr60="expr60" class="comment-author-img"/></a>\n        &nbsp;\n        <a expr61="expr61" class="comment-author"><!----></a><span expr62="expr62" class="date-posted"><!----></span><template expr63="expr63"></template></div>',
+          '<div class="card-block"><p class="card-text"><div expr64="expr64" class="comment_body_view"></div></p></div><div class="card-footer"><a expr65="expr65" class="comment-author"><img expr66="expr66" class="comment-author-img"/></a>\n        &nbsp;\n        <a expr67="expr67" class="comment-author"> </a><span expr68="expr68" class="date-posted"> </span><template expr69="expr69"></template></div>',
           [{
-            'redundantAttribute': 'expr58',
-            'selector': '[expr58]',
+            'redundantAttribute': 'expr64',
+            'selector': '[expr64]',
 
             'expressions': [{
               'type': expressionTypes.ATTRIBUTE,
@@ -11718,8 +11905,8 @@
               }
             }]
           }, {
-            'redundantAttribute': 'expr59',
-            'selector': '[expr59]',
+            'redundantAttribute': 'expr65',
+            'selector': '[expr65]',
 
             'expressions': [{
               'type': expressionTypes.ATTRIBUTE,
@@ -11730,8 +11917,8 @@
               }
             }]
           }, {
-            'redundantAttribute': 'expr60',
-            'selector': '[expr60]',
+            'redundantAttribute': 'expr66',
+            'selector': '[expr66]',
 
             'expressions': [{
               'type': expressionTypes.ATTRIBUTE,
@@ -11742,15 +11929,15 @@
               }
             }]
           }, {
-            'redundantAttribute': 'expr61',
-            'selector': '[expr61]',
+            'redundantAttribute': 'expr67',
+            'selector': '[expr67]',
 
             'expressions': [{
               'type': expressionTypes.TEXT,
               'childNodeIndex': 0,
 
               'evaluate': function(scope) {
-                return ['\n            ', scope.comment.author.username, '\n        '].join('');
+                return [scope.comment.author.username].join('');
               }
             }, {
               'type': expressionTypes.ATTRIBUTE,
@@ -11761,8 +11948,8 @@
               }
             }]
           }, {
-            'redundantAttribute': 'expr62',
-            'selector': '[expr62]',
+            'redundantAttribute': 'expr68',
+            'selector': '[expr68]',
 
             'expressions': [{
               'type': expressionTypes.TEXT,
@@ -11779,14 +11966,14 @@
               return scope.isDeletable( scope.comment );
             },
 
-            'redundantAttribute': 'expr63',
-            'selector': '[expr63]',
+            'redundantAttribute': 'expr69',
+            'selector': '[expr69]',
 
             'template': template(
-              '<span class="mod-options"><i expr64="expr64" class="ion-trash-a"></i></span>',
+              '<span class="mod-options"><i expr70="expr70" class="ion-trash-a"></i></span>',
               [{
-                'redundantAttribute': 'expr64',
-                'selector': '[expr64]',
+                'redundantAttribute': 'expr70',
+                'selector': '[expr70]',
 
                 'expressions': [{
                   'type': expressionTypes.EVENT,
@@ -11801,8 +11988,8 @@
           }]
         ),
 
-        'redundantAttribute': 'expr57',
-        'selector': '[expr57]',
+        'redundantAttribute': 'expr63',
+        'selector': '[expr63]',
         'itemName': 'comment',
         'indexName': null,
 
@@ -11867,10 +12054,10 @@
 
     'template': function(template, expressionTypes, bindingTypes, getComponent) {
       return template(
-        '<div id="headerView"></div><div class="article-page"><div class="banner"><div class="container"><h1 expr5="expr5"><!----></h1><div id="aboveArticleWidgetView"></div></div></div><div class="container page"><div class="row article-content"><div class="col-md-12"><div id="articleView"></div></div></div></div><hr/><div class="article-actions"><div id="belowArticleWidgetView"></div></div><div class="row"><div class="col-xs-12 col-md-8 offset-md-2"><div id="commentFormView"></div><div id="commentTableView"></div></div></div></div><div id="footerView"></div>',
+        '<div id="headerView"></div><div class="article-page"><div class="banner"><div class="container"><h1 expr19="expr19"> </h1><div id="aboveArticleWidgetView"></div></div></div><div class="container page"><div class="row article-content"><div class="col-md-12"><div id="articleView"></div></div></div></div><hr/><div class="article-actions"><div id="belowArticleWidgetView"></div></div><div class="row"><div class="col-xs-12 col-md-8 offset-md-2"><div id="commentFormView"></div><div id="commentTableView"></div></div></div></div><div id="footerView"></div>',
         [{
-          'redundantAttribute': 'expr5',
-          'selector': '[expr5]',
+          'redundantAttribute': 'expr19',
+          'selector': '[expr19]',
 
           'expressions': [{
             'type': expressionTypes.TEXT,
@@ -11992,7 +12179,7 @@
             'getKey': null,
             'condition': null,
 
-            'template': template('<!---->', [{
+            'template': template(' ', [{
               'expressions': [{
                 'type': expressionTypes.TEXT,
                 'childNodeIndex': 0,
@@ -12148,7 +12335,7 @@
 
     'template': function(template, expressionTypes, bindingTypes, getComponent) {
       return template(
-        '<div id="headerView"></div><div class="auth-page"><div class="container page"><div class="row"><div class="col-md-6 offset-md-3 col-xs-12"><h1 class="text-xs-center">Sign Up</h1><p class="text-xs-center"><a href="#/login">Have an account?</a></p><ul expr6="expr6" class="error-messages"></ul><fieldset class="form-group"><input expr8="expr8" id="usernameField" class="form-control form-control-lg" type="text" placeholder="Username"/></fieldset><fieldset class="form-group"><input expr9="expr9" id="emailField" class="form-control form-control-lg" type="text" placeholder="Email"/></fieldset><fieldset class="form-group"><input expr10="expr10" id="passwordField" class="form-control form-control-lg" type="password" placeholder="Password"/></fieldset><button expr11="expr11" id="submitButton" class="btn btn-lg btn-primary pull-xs-right" disabled>\n                Sign up\n            </button></div></div></div></div><div id="footerView"></div>',
+        '<div id="headerView"></div><div class="auth-page"><div class="container page"><div class="row"><div class="col-md-6 offset-md-3 col-xs-12"><h1 class="text-xs-center">Sign Up</h1><p class="text-xs-center"><a href="#/login">Have an account?</a></p><ul expr5="expr5" class="error-messages"></ul><fieldset class="form-group"><input expr7="expr7" id="usernameField" class="form-control form-control-lg" type="text" placeholder="Username"/></fieldset><fieldset class="form-group"><input expr8="expr8" id="emailField" class="form-control form-control-lg" type="text" placeholder="Email"/></fieldset><fieldset class="form-group"><input expr9="expr9" id="passwordField" class="form-control form-control-lg" type="password" placeholder="Password"/></fieldset><button expr10="expr10" id="submitButton" class="btn btn-lg btn-primary pull-xs-right" disabled>\n                Sign up\n            </button></div></div></div></div><div id="footerView"></div>',
         [{
           'type': bindingTypes.IF,
 
@@ -12156,15 +12343,15 @@
             return scope.state.errorMessages != null;
           },
 
-          'redundantAttribute': 'expr6',
-          'selector': '[expr6]',
+          'redundantAttribute': 'expr5',
+          'selector': '[expr5]',
 
-          'template': template('<li expr7="expr7"></li>', [{
+          'template': template('<li expr6="expr6"></li>', [{
             'type': bindingTypes.EACH,
             'getKey': null,
             'condition': null,
 
-            'template': template('<!---->', [{
+            'template': template(' ', [{
               'expressions': [{
                 'type': expressionTypes.TEXT,
                 'childNodeIndex': 0,
@@ -12175,8 +12362,8 @@
               }]
             }]),
 
-            'redundantAttribute': 'expr7',
-            'selector': '[expr7]',
+            'redundantAttribute': 'expr6',
+            'selector': '[expr6]',
             'itemName': 'message',
             'indexName': null,
 
@@ -12184,6 +12371,18 @@
               return scope.state.errorMessages;
             }
           }])
+        }, {
+          'redundantAttribute': 'expr7',
+          'selector': '[expr7]',
+
+          'expressions': [{
+            'type': expressionTypes.EVENT,
+            'name': 'oninput',
+
+            'evaluate': function(scope) {
+              return scope.shouldSubmit;
+            }
+          }]
         }, {
           'redundantAttribute': 'expr8',
           'selector': '[expr8]',
@@ -12211,18 +12410,6 @@
         }, {
           'redundantAttribute': 'expr10',
           'selector': '[expr10]',
-
-          'expressions': [{
-            'type': expressionTypes.EVENT,
-            'name': 'oninput',
-
-            'evaluate': function(scope) {
-              return scope.shouldSubmit;
-            }
-          }]
-        }, {
-          'redundantAttribute': 'expr11',
-          'selector': '[expr11]',
 
           'expressions': [{
             'type': expressionTypes.EVENT,
@@ -12388,7 +12575,7 @@
 
     'template': function(template, expressionTypes, bindingTypes, getComponent) {
       return template(
-        '<div id="headerView"></div><div class="editor-page"><div class="container page"><div class="row"><div class="col-md-10 offset-md-1 col-xs-12"><ul expr12="expr12" class="error-messages"></ul><form><fieldset><fieldset class="form-group"><input id="titleField" type="text" class="form-control form-control-lg" placeholder="Article Title"/></fieldset><fieldset class="form-group"><input id="descriptionField" type="text" class="form-control" placeholder="What\'s this article about?"/></fieldset><fieldset class="form-group"><textarea id="bodyField" class="form-control" rows="8" placeholder="Write your article (in markdown)"></textarea></fieldset><fieldset class="form-group"><input id="tagListField" type="text" class="form-control" placeholder="Enter tags"/><div class="tag-list"></div></fieldset><button expr14="expr14" class="btn btn-lg pull-xs-right btn-primary" type="button"><!----></button></fieldset></form></div></div></div></div><div id="footerView"></div>',
+        '<div id="headerView"></div><div class="editor-page"><div class="container page"><div class="row"><div class="col-md-10 offset-md-1 col-xs-12"><ul expr11="expr11" class="error-messages"></ul><form><fieldset><fieldset class="form-group"><input id="titleField" type="text" class="form-control form-control-lg" placeholder="Article Title"/></fieldset><fieldset class="form-group"><input id="descriptionField" type="text" class="form-control" placeholder="What\'s this article about?"/></fieldset><fieldset class="form-group"><textarea id="bodyField" class="form-control" rows="8" placeholder="Write your article (in markdown)"></textarea></fieldset><fieldset class="form-group"><input id="tagListField" type="text" class="form-control" placeholder="Enter tags"/><div class="tag-list"></div></fieldset><button expr13="expr13" class="btn btn-lg pull-xs-right btn-primary" type="button"> </button></fieldset></form></div></div></div></div><div id="footerView"></div>',
         [{
           'type': bindingTypes.IF,
 
@@ -12396,15 +12583,15 @@
             return scope.state.errorMessages != null;
           },
 
-          'redundantAttribute': 'expr12',
-          'selector': '[expr12]',
+          'redundantAttribute': 'expr11',
+          'selector': '[expr11]',
 
-          'template': template('<li expr13="expr13"></li>', [{
+          'template': template('<li expr12="expr12"></li>', [{
             'type': bindingTypes.EACH,
             'getKey': null,
             'condition': null,
 
-            'template': template('<!---->', [{
+            'template': template(' ', [{
               'expressions': [{
                 'type': expressionTypes.TEXT,
                 'childNodeIndex': 0,
@@ -12415,8 +12602,8 @@
               }]
             }]),
 
-            'redundantAttribute': 'expr13',
-            'selector': '[expr13]',
+            'redundantAttribute': 'expr12',
+            'selector': '[expr12]',
             'itemName': 'message',
             'indexName': null,
 
@@ -12425,19 +12612,15 @@
             }
           }])
         }, {
-          'redundantAttribute': 'expr14',
-          'selector': '[expr14]',
+          'redundantAttribute': 'expr13',
+          'selector': '[expr13]',
 
           'expressions': [{
             'type': expressionTypes.TEXT,
             'childNodeIndex': 0,
 
             'evaluate': function(scope) {
-              return [
-                '\n                    ',
-                scope.state.owner.submitButtonTitle(),
-                '\n                '
-              ].join('');
+              return [scope.state.owner.submitButtonTitle()].join('');
             }
           }, {
             'type': expressionTypes.EVENT,
@@ -12491,10 +12674,8 @@
               switch (this.state.articleKind) {
                   case "favorite_articles":
                       return this.conduit.getArticlesForFavoriteUser(this.state.username, token, limit, offset).then(nextProcess);
-                      break;
                   default:
                       return this.conduit.getArticlesOfAuthor(this.state.username, token, limit, offset).then(nextProcess);
-                      break;
               }
           };
           this.pageCount = () => {
@@ -12692,21 +12873,21 @@
     },
 
     'template': function(template, expressionTypes, bindingTypes, getComponent) {
-      return template('<template expr65="expr65"></template>', [{
+      return template('<template expr29="expr29"></template>', [{
         'type': bindingTypes.IF,
 
         'evaluate': function(scope) {
           return scope.state.profile != null;
         },
 
-        'redundantAttribute': 'expr65',
-        'selector': '[expr65]',
+        'redundantAttribute': 'expr29',
+        'selector': '[expr29]',
 
         'template': template(
-          '<img expr66="expr66" class="user-img"/><h4 expr67="expr67"><!----></h4><p expr68="expr68"><!----></p><button expr69="expr69"><i expr70="expr70"></i><!----></button>',
+          '<img expr30="expr30" class="user-img"/><h4 expr31="expr31"> </h4><p expr32="expr32"> </p><button expr33="expr33"><i expr34="expr34"></i> </button>',
           [{
-            'redundantAttribute': 'expr66',
-            'selector': '[expr66]',
+            'redundantAttribute': 'expr30',
+            'selector': '[expr30]',
 
             'expressions': [{
               'type': expressionTypes.ATTRIBUTE,
@@ -12717,8 +12898,8 @@
               }
             }]
           }, {
-            'redundantAttribute': 'expr67',
-            'selector': '[expr67]',
+            'redundantAttribute': 'expr31',
+            'selector': '[expr31]',
 
             'expressions': [{
               'type': expressionTypes.TEXT,
@@ -12729,8 +12910,8 @@
               }
             }]
           }, {
-            'redundantAttribute': 'expr68',
-            'selector': '[expr68]',
+            'redundantAttribute': 'expr32',
+            'selector': '[expr32]',
 
             'expressions': [{
               'type': expressionTypes.TEXT,
@@ -12741,15 +12922,15 @@
               }
             }]
           }, {
-            'redundantAttribute': 'expr69',
-            'selector': '[expr69]',
+            'redundantAttribute': 'expr33',
+            'selector': '[expr33]',
 
             'expressions': [{
               'type': expressionTypes.TEXT,
               'childNodeIndex': 1,
 
               'evaluate': function(scope) {
-                return [' ', scope.buttonTitle(), '\n    '].join('');
+                return [scope.buttonTitle()].join('');
               }
             }, {
               'type': expressionTypes.EVENT,
@@ -12767,8 +12948,8 @@
               }
             }]
           }, {
-            'redundantAttribute': 'expr70',
-            'selector': '[expr70]',
+            'redundantAttribute': 'expr34',
+            'selector': '[expr34]',
 
             'expressions': [{
               'type': expressionTypes.ATTRIBUTE,
@@ -12990,7 +13171,7 @@
 
     'template': function(template, expressionTypes, bindingTypes, getComponent) {
       return template(
-        '<div id="headerView"></div><div class="settings-page"><div class="container page"><div class="row"><div class="col-md-6 offset-md-3 col-xs-12"><h1 class="text-xs-center">Your Settings</h1><ul expr15="expr15" class="error-messages"></ul><form><fieldset><fieldset class="form-group"><input id="iconUrlField" class="form-control" type="text" placeholder="URL of profile picture"/></fieldset><fieldset class="form-group"><input id="usernameField" class="form-control form-control-lg" type="text" placeholder="Your Name"/></fieldset><fieldset class="form-group"><textarea id="bioField" class="form-control form-control-lg" rows="8" placeholder="Short bio about you"></textarea></fieldset><fieldset class="form-group"><input id="emailField" class="form-control form-control-lg" type="text" placeholder="Email"/></fieldset><fieldset class="form-group"><input id="passwordField" class="form-control form-control-lg" type="password" placeholder="Password"/></fieldset><button expr17="expr17" class="btn btn-lg btn-primary pull-xs-right" type="button">\n                        Update Settings\n                    </button></fieldset></form><hr/><button expr18="expr18" class="btn btn-outline-danger"> Or click here to logout. </button></div></div></div></div><div id="footerView"></div>',
+        '<div id="headerView"></div><div class="settings-page"><div class="container page"><div class="row"><div class="col-md-6 offset-md-3 col-xs-12"><h1 class="text-xs-center">Your Settings</h1><ul expr14="expr14" class="error-messages"></ul><form><fieldset><fieldset class="form-group"><input id="iconUrlField" class="form-control" type="text" placeholder="URL of profile picture"/></fieldset><fieldset class="form-group"><input id="usernameField" class="form-control form-control-lg" type="text" placeholder="Your Name"/></fieldset><fieldset class="form-group"><textarea id="bioField" class="form-control form-control-lg" rows="8" placeholder="Short bio about you"></textarea></fieldset><fieldset class="form-group"><input id="emailField" class="form-control form-control-lg" type="text" placeholder="Email"/></fieldset><fieldset class="form-group"><input id="passwordField" class="form-control form-control-lg" type="password" placeholder="Password"/></fieldset><button expr16="expr16" class="btn btn-lg btn-primary pull-xs-right" type="button">\n                        Update Settings\n                    </button></fieldset></form><hr/><button expr17="expr17" class="btn btn-outline-danger"> Or click here to logout. </button></div></div></div></div><div id="footerView"></div>',
         [{
           'type': bindingTypes.IF,
 
@@ -12998,15 +13179,15 @@
             return scope.state.errorMessages != null;
           },
 
-          'redundantAttribute': 'expr15',
-          'selector': '[expr15]',
+          'redundantAttribute': 'expr14',
+          'selector': '[expr14]',
 
-          'template': template('<li expr16="expr16"></li>', [{
+          'template': template('<li expr15="expr15"></li>', [{
             'type': bindingTypes.EACH,
             'getKey': null,
             'condition': null,
 
-            'template': template('<!---->', [{
+            'template': template(' ', [{
               'expressions': [{
                 'type': expressionTypes.TEXT,
                 'childNodeIndex': 0,
@@ -13017,8 +13198,8 @@
               }]
             }]),
 
-            'redundantAttribute': 'expr16',
-            'selector': '[expr16]',
+            'redundantAttribute': 'expr15',
+            'selector': '[expr15]',
             'itemName': 'message',
             'indexName': null,
 
@@ -13027,8 +13208,8 @@
             }
           }])
         }, {
-          'redundantAttribute': 'expr17',
-          'selector': '[expr17]',
+          'redundantAttribute': 'expr16',
+          'selector': '[expr16]',
 
           'expressions': [{
             'type': expressionTypes.EVENT,
@@ -13039,8 +13220,8 @@
             }
           }]
         }, {
-          'redundantAttribute': 'expr18',
-          'selector': '[expr18]',
+          'redundantAttribute': 'expr17',
+          'selector': '[expr17]',
 
           'expressions': [{
             'type': expressionTypes.EVENT,
@@ -13070,17 +13251,17 @@
 
     'template': function(template, expressionTypes, bindingTypes, getComponent) {
       return template(
-        '<div class="home-page"><div id="headerView"></div><div class="banner"><div class="container"><h1 expr19="expr19" class="logo-font"><!----><br/>\n            Sorry, Please back <a class="spotlink" href="/">home</a>.\n            </h1></div></div><div id="footerView"></div></div>',
+        '<div class="home-page"><div id="headerView"></div><div class="banner"><div class="container"><h1 expr18="expr18" class="logo-font"> <br/>\n            Sorry, Please back <a class="spotlink" href="/">home</a>.\n            </h1></div></div><div id="footerView"></div></div>',
         [{
-          'redundantAttribute': 'expr19',
-          'selector': '[expr19]',
+          'redundantAttribute': 'expr18',
+          'selector': '[expr18]',
 
           'expressions': [{
             'type': expressionTypes.TEXT,
             'childNodeIndex': 0,
 
             'evaluate': function(scope) {
-              return ['\n            ', scope.props.message].join('');
+              return [scope.props.message].join('');
             }
           }]
         }]
