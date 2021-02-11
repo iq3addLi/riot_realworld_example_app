@@ -61,7 +61,7 @@
     "typescript": "^4.0.0",
     "typescript-simple": "^8.0.6",
     "uglify-es": "^3.3.9",
-    "yargs-parser": ">=5.0.0-security.0"
+    "yargs-parser": ">=13.1.2"
   },
   "optionalDependencies": {
     "tslint": "^6.0.0"
