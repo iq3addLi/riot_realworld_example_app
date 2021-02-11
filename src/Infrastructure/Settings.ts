@@ -3,16 +3,16 @@
  */
 export default class Settings {
 
-    private static _instance: Settings
-
-    private settings: Object
-
     public static shared = () => {
         if ( Settings._instance === undefined ) {
             Settings._instance = new Settings()
         }
         return Settings._instance
     }
+
+    private static _instance: Settings
+
+    private settings: Object
     constructor() {
         if (Settings._instance) {
             throw new Error("must use the shared().")

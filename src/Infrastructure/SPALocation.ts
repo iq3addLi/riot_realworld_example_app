@@ -5,12 +5,6 @@ import HTTPURLParser from "./HTTPURLParser"
  */
 export default class SPALocation {
 
-    private static _instance: SPALocation
-
-    private _scene?: string = null
-    private _paths?: string[] = null
-    private _query?: {[key: string]: string} = null
-
     public static shared = () => {
         if ( SPALocation._instance === undefined ) {
             SPALocation._instance = new SPALocation()
@@ -19,9 +13,11 @@ export default class SPALocation {
         return SPALocation._instance
     }
 
-    public scene = () => { return this._scene }
-    public paths = () => { return this._paths }
-    public query = () => { return this._query }
+    private static _instance: SPALocation
+
+    private _scene?: string = null
+    private _paths?: string[] = null
+    private _query?: {[key: string]: string} = null
 
     constructor() {
         if (SPALocation._instance) {
@@ -29,6 +25,10 @@ export default class SPALocation {
         }
         SPALocation._instance = this
     }
+
+    public scene = () => { return this._scene }
+    public paths = () => { return this._paths }
+    public query = () => { return this._query }
 
     private updateProperties = () => {
         try {
