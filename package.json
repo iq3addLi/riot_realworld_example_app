@@ -1,6 +1,6 @@
 {
   "name": "riot_v4_realworld_example_app",
-  "version": "1.0.6",
+  "version": "4.0.6",
   "description": "Exemplary real world application built with Riot.js v4✊",
   "scripts": {
     "build": "gulp",
