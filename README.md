@@ -1,4 +1,4 @@
-[![RealWorld Frontend](https://img.shields.io/badge/realworld-frontend-%23783578.svg)](http://realworld.io) [<img title="Riot v5" src="https://img.shields.io/badge/RIOT-v5-red">](https://Riot.js.org) [![CircleCI](https://circleci.com/gh/iq3addLi/riot_realworld_example_app.svg?style=shield)](https://circleci.com/gh/iq3addLi/riot_realworld_example_app) [<img title="lighthouse" src="https://img.shields.io/badge/🗼-lighthouse-9cf.svg?logo=google">](https://lighthouse-dot-webdotdevsite.appspot.com/lh/html?url=https://riot-realworld.addli.co.jp) 
+[![RealWorld Frontend](https://img.shields.io/badge/realworld-frontend-%23783578.svg)](http://realworld.io) [<img title="Riot v5" src="https://img.shields.io/badge/RIOT-v5-red">](https://Riot.js.org) [![CircleCI](https://circleci.com/gh/iq3addLi/riot_realworld_example_app.svg?style=shield)](https://circleci.com/gh/iq3addLi/riot_realworld_example_app)
 
 # ![RealWorld Example App](./logo.png)
 
@@ -14,9 +14,12 @@ We've gone to great lengths to adhere to the **Riot.js** community styleguides &
 For more information on how to this works with other frontends/backends, head over to the [RealWorld](https://github.com/gothinkster/realworld) repo.
 
 
-```
-⚠️ Here's the document from when I updated from v3 to v4. I was able to update v5 without any difficulty at all. Riot.js is great!!😊
-```
+
+| ℹ️ Important Notices                                          |
+| ------------------------------------------------------------ |
+| Here's the document from when I updated from v3 to v4. I was able to update v5 **without any difficulty at all**. Riot.js is awesome!!😊 |
+
+
 
 ## Introduction
 
