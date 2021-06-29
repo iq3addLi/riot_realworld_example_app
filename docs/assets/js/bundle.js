@@ -358,7 +358,7 @@
     self.fetch.polyfill = true;
   })();
 
-  /* Riot v5.2.0, @license MIT */
+  /* Riot v5.4.5, @license MIT */
   /**
    * Convert a string from camel case to dash-case
    * @param   {string} string - probably a component tag name
@@ -446,9 +446,9 @@
   const replaceChild = (newNode, replaced) => replaced && replaced.parentNode && replaced.parentNode.replaceChild(newNode, replaced);
 
   // Riot.js constants that can be used accross more modules
-  const COMPONENTS_IMPLEMENTATION_MAP = new Map(),
-        DOM_COMPONENT_INSTANCE_PROPERTY = Symbol('riot-component'),
-        PLUGINS_SET = new Set(),
+  const COMPONENTS_IMPLEMENTATION_MAP$1 = new Map(),
+        DOM_COMPONENT_INSTANCE_PROPERTY$1 = Symbol('riot-component'),
+        PLUGINS_SET$1 = new Set(),
         IS_DIRECTIVE = 'is',
         VALUE_ATTRIBUTE = 'value',
         MOUNT_METHOD_KEY = 'mount',
@@ -465,16 +465,17 @@
         STATE_KEY = 'state',
         SLOTS_KEY = 'slots',
         ROOT_KEY = 'root',
-        IS_PURE_SYMBOL = Symbol.for('pure'),
+        IS_PURE_SYMBOL = Symbol('pure'),
+        IS_COMPONENT_UPDATING = Symbol('is_updating'),
         PARENT_KEY_SYMBOL = Symbol('parent'),
         ATTRIBUTES_KEY_SYMBOL = Symbol('attributes'),
         TEMPLATE_KEY_SYMBOL = Symbol('template');
 
   var globals = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    COMPONENTS_IMPLEMENTATION_MAP: COMPONENTS_IMPLEMENTATION_MAP,
-    DOM_COMPONENT_INSTANCE_PROPERTY: DOM_COMPONENT_INSTANCE_PROPERTY,
-    PLUGINS_SET: PLUGINS_SET,
+    COMPONENTS_IMPLEMENTATION_MAP: COMPONENTS_IMPLEMENTATION_MAP$1,
+    DOM_COMPONENT_INSTANCE_PROPERTY: DOM_COMPONENT_INSTANCE_PROPERTY$1,
+    PLUGINS_SET: PLUGINS_SET$1,
     IS_DIRECTIVE: IS_DIRECTIVE,
     VALUE_ATTRIBUTE: VALUE_ATTRIBUTE,
     MOUNT_METHOD_KEY: MOUNT_METHOD_KEY,
@@ -492,6 +493,7 @@
     SLOTS_KEY: SLOTS_KEY,
     ROOT_KEY: ROOT_KEY,
     IS_PURE_SYMBOL: IS_PURE_SYMBOL,
+    IS_COMPONENT_UPDATING: IS_COMPONENT_UPDATING,
     PARENT_KEY_SYMBOL: PARENT_KEY_SYMBOL,
     ATTRIBUTES_KEY_SYMBOL: ATTRIBUTES_KEY_SYMBOL,
     TEMPLATE_KEY_SYMBOL: TEMPLATE_KEY_SYMBOL
@@ -525,13 +527,13 @@
   const TAIL_SYMBOL = Symbol('tail');
 
   /**
-   * Create the <template> fragments comment nodes
-   * @return {Object} {{head: Comment, tail: Comment}}
+   * Create the <template> fragments text nodes
+   * @return {Object} {{head: TextNode, tail: TextNode}}
    */
 
   function createHeadTailPlaceholders() {
-    const head = document.createComment('fragment head');
-    const tail = document.createComment('fragment tail');
+    const head = document.createTextNode('');
+    const tail = document.createTextNode('');
     head[HEAD_SYMBOL] = true;
     tail[TAIL_SYMBOL] = true;
     return {
@@ -627,7 +629,7 @@
    */
 
   function isTemplate(el) {
-    return !isNil(el.content);
+    return el.tagName.toLowerCase() === 'template';
   }
   /**
    * Check that will be passed if its argument is a function
@@ -1022,7 +1024,7 @@
     };
   }
 
-  function create(node, _ref2) {
+  function create$6(node, _ref2) {
     let {
       evaluate,
       condition,
@@ -1101,7 +1103,7 @@
     }
 
   };
-  function create$1(node, _ref) {
+  function create$5(node, _ref) {
     let {
       evaluate,
       template
@@ -1175,8 +1177,6 @@
     }, {});
   }
 
-  const REMOVE_ATTRIBUTE = 'removeAttribute';
-  const SET_ATTIBUTE = 'setAttribute';
   const ElementProto = typeof Element === 'undefined' ? {} : Element.prototype;
   const isNativeHtmlProperty = memoize(name => ElementProto.hasOwnProperty(name)); // eslint-disable-line
 
@@ -1188,7 +1188,7 @@
    */
 
   function setAllAttributes(node, attributes) {
-    Object.entries(attributes).forEach((_ref) => {
+    Object.entries(attributes).forEach(_ref => {
       let [name, value] = _ref;
       return attributeExpression(node, {
         name
@@ -1207,6 +1207,26 @@
   function removeAllAttributes(node, newAttributes, oldAttributes) {
     const newKeys = newAttributes ? Object.keys(newAttributes) : [];
     Object.keys(oldAttributes).filter(name => !newKeys.includes(name)).forEach(attribute => node.removeAttribute(attribute));
+  }
+  /**
+   * Check whether the attribute value can be rendered
+   * @param {*} value - expression value
+   * @returns {boolean} true if we can render this attribute value
+   */
+
+
+  function canRenderAttribute(value) {
+    return value === true || ['string', 'number'].includes(typeof value);
+  }
+  /**
+   * Check whether the attribute should be removed
+   * @param {*} value - expression value
+   * @returns {boolean} boolean - true if the attribute can be removed}
+   */
+
+
+  function shouldRemoveAttribute(value) {
+    return isNil(value) || value === false || value === '';
   }
   /**
    * This methods handles the DOM attributes updates
@@ -1244,16 +1264,11 @@
       node[name] = value;
     }
 
-    node[getMethod(value)](name, normalizeValue(name, value));
-  }
-  /**
-   * Get the attribute modifier method
-   * @param   {*} value - if truthy we return `setAttribute` othewise `removeAttribute`
-   * @returns {string} the node attribute modifier method name
-   */
-
-  function getMethod(value) {
-    return isNil(value) || value === false || value === '' || isObject(value) || isFunction(value) ? REMOVE_ATTRIBUTE : SET_ATTIBUTE;
+    if (shouldRemoveAttribute(value)) {
+      node.removeAttribute(name);
+    } else if (canRenderAttribute(value)) {
+      node.setAttribute(name, normalizeValue(name, value));
+    }
   }
   /**
    * Get the value as string
@@ -1261,7 +1276,6 @@
    * @param   {*} value - user input value
    * @returns {string} input value as string
    */
-
 
   function normalizeValue(name, value) {
     // be sure that expressions like selected={ true } will be always rendered as selected='selected'
@@ -1437,7 +1451,7 @@
     return expressions[expression.type](expression.node, expression, value, expression.value);
   }
 
-  function create$2(node, data) {
+  function create$4(node, data) {
     return Object.assign({}, Expression, data, {
       node: data.type === TEXT ? getTextNode(node, data.childNodeIndex) : node
     });
@@ -1465,7 +1479,7 @@
     let {
       expressions
     } = _ref;
-    return Object.assign({}, flattenCollectionMethods(expressions.map(expression => create$2(node, expression)), ['mount', 'update', 'unmount']));
+    return Object.assign({}, flattenCollectionMethods(expressions.map(expression => create$4(node, expression)), ['mount', 'update', 'unmount']));
   }
 
   function extendParentScope(attributes, scope, parentScope) {
@@ -1493,7 +1507,7 @@
 
     // API methods
     mount(scope, parentScope) {
-      const templateData = scope.slots ? scope.slots.find((_ref) => {
+      const templateData = scope.slots ? scope.slots.find(_ref => {
         let {
           id
         } = _ref;
@@ -1503,7 +1517,7 @@
         parentNode
       } = this.node;
       const realParent = getRealParent(scope, parentScope);
-      this.template = templateData && create$6(templateData.html, templateData.bindings).createDOM(parentNode);
+      this.template = templateData && create(templateData.html, templateData.bindings).createDOM(parentNode);
 
       if (this.template) {
         this.template.mount(this.node, this.getTemplateScope(scope, realParent), realParent);
@@ -1592,7 +1606,7 @@
     } // otherwise we return a template chunk
 
 
-    return create$6(slotsToMarkup(slots), [...slotBindings(slots), {
+    return create(slotsToMarkup(slots), [...slotBindings(slots), {
       // the attributes should be registered as binding
       // if we fallback to a normal template chunk
       expressions: attributes.map(attr => {
@@ -1646,7 +1660,7 @@
     update(scope, parentScope) {
       const name = this.evaluate(scope); // simple update
 
-      if (name === this.name) {
+      if (name && name === this.name) {
         this.tag.update(scope);
       } else {
         // unmount the old tag if it exists
@@ -1670,7 +1684,7 @@
     }
 
   };
-  function create$4(node, _ref2) {
+  function create$2(node, _ref2) {
     let {
       evaluate,
       getComponent,
@@ -1687,10 +1701,10 @@
   }
 
   var bindings = {
-    [IF]: create$1,
+    [IF]: create$5,
     [SIMPLE]: create$3,
-    [EACH]: create,
-    [TAG]: create$4,
+    [EACH]: create$6,
+    [TAG]: create$2,
     [SLOT]: createSlot
   };
 
@@ -1716,7 +1730,7 @@
    */
 
 
-  function create$5(root, binding, templateTagOffset) {
+  function create$1(root, binding, templateTagOffset) {
     const {
       selector,
       type,
@@ -1792,6 +1806,19 @@
     return html && (typeof html === 'string' ? createDOMTree(el, html) : html);
   }
   /**
+   * Get the offset of the <template> tag
+   * @param {HTMLElement} parentNode - template tag parent node
+   * @param {HTMLElement} el - the template tag we want to render
+   * @param   {Object} meta - meta properties needed to handle the <template> tags in loops
+   * @returns {number} offset of the <template> tag calculated from its siblings DOM nodes
+   */
+
+
+  function getTemplateTagOffset(parentNode, el, meta) {
+    const siblings = Array.from(parentNode.childNodes);
+    return Math.max(siblings.indexOf(el), siblings.indexOf(meta.head) + 1, 0);
+  }
+  /**
    * Template Chunk model
    * @type {Object}
    */
@@ -1815,7 +1842,7 @@
      */
     createDOM(el) {
       // make sure that the DOM gets created before cloning the template
-      this.dom = this.dom || createTemplateDOM(el, this.html);
+      this.dom = this.dom || createTemplateDOM(el, this.html) || document.createDocumentFragment();
       return this;
     },
 
@@ -1849,25 +1876,21 @@
         parentNode
       } = children ? children[0] : el;
       const isTemplateTag = isTemplate(el);
-      const templateTagOffset = isTemplateTag ? Math.max(Array.from(parentNode.childNodes).indexOf(el), 0) : null;
-      this.isTemplateTag = isTemplateTag; // create the DOM if it wasn't created before
+      const templateTagOffset = isTemplateTag ? getTemplateTagOffset(parentNode, el, meta) : null; // create the DOM if it wasn't created before
 
-      this.createDOM(el);
+      this.createDOM(el); // create the DOM of this template cloning the original DOM structure stored in this instance
+      // notice that if a documentFragment was passed (via meta) we will use it instead
 
-      if (this.dom) {
-        // create the new template dom fragment if it want already passed in via meta
-        this.fragment = fragment || this.dom.cloneNode(true);
-      } // store root node
+      const cloneNode = fragment || this.dom.cloneNode(true); // store root node
       // notice that for template tags the root note will be the parent tag
 
+      this.el = isTemplateTag ? parentNode : el; // create the children array only for the <template> fragments
 
-      this.el = this.isTemplateTag ? parentNode : el; // create the children array only for the <template> fragments
+      this.children = isTemplateTag ? children || Array.from(cloneNode.childNodes) : null; // inject the DOM into the el only if a fragment is available
 
-      this.children = this.isTemplateTag ? children || Array.from(this.fragment.childNodes) : null; // inject the DOM into the el only if a fragment is available
+      if (!avoidDOMInjection && cloneNode) injectDOM(el, cloneNode); // create the bindings
 
-      if (!avoidDOMInjection && this.fragment) injectDOM(el, this.fragment); // create the bindings
-
-      this.bindings = this.bindingsData.map(binding => create$5(this.el, binding, templateTagOffset));
+      this.bindings = this.bindingsData.map(binding => create$1(this.el, binding, templateTagOffset));
       this.bindings.forEach(b => b.mount(scope, parentScope)); // store the template meta properties
 
       this.meta = meta;
@@ -1945,7 +1968,7 @@
    * @returns {TemplateChunk} a new TemplateChunk copy
    */
 
-  function create$6(html, bindings) {
+  function create(html, bindings) {
     if (bindings === void 0) {
       bindings = [];
     }
@@ -2015,7 +2038,7 @@
    */
 
   function defineProperties(source, properties, options) {
-    Object.entries(properties).forEach((_ref) => {
+    Object.entries(properties).forEach(_ref => {
       let [key, value] = _ref;
       defineProperty(source, key, value, options);
     });
@@ -2029,7 +2052,7 @@
    */
 
   function defineDefaults(source, defaults) {
-    Object.entries(defaults).forEach((_ref2) => {
+    Object.entries(defaults).forEach(_ref2 => {
       let [key, value] = _ref2;
       if (!source[key]) source[key] = value;
     });
@@ -2072,7 +2095,7 @@
    * @private
    */
 
-  const normalize = values => values.length === 1 ? values[0] : values;
+  const normalize$1 = values => values.length === 1 ? values[0] : values;
   /**
    * Parse all the nodes received to get/remove/check their attributes
    * @param   { HTMLElement|NodeList|Array } els    - DOM node/s to parse
@@ -2085,8 +2108,8 @@
 
   function parseNodes(els, name, method) {
     const names = typeof name === 'string' ? [name] : name;
-    return normalize(domToArray(els).map(el => {
-      return normalize(names.map(n => el[method](n)));
+    return normalize$1(domToArray(els).map(el => {
+      return normalize$1(names.map(n => el[method](n)));
     }));
   }
   /**
@@ -2279,6 +2302,13 @@
     createDOM: noop
   });
   /**
+   * Performance optimization for the recursive components
+   * @param  {RiotComponentShell} componentShell - riot compiler generated object
+   * @returns {Object} component like interface
+   */
+
+  const memoizedCreateComponent = memoize(createComponent);
+  /**
    * Evaluate the component properties either from its real attributes or from its initial user properties
    * @param   {HTMLElement} element - component root
    * @param   {Object}  initialProps - initial props
@@ -2300,7 +2330,7 @@
    */
 
 
-  const bindDOMNodeToComponentObject = (node, component) => node[DOM_COMPONENT_INSTANCE_PROPERTY] = component;
+  const bindDOMNodeToComponentObject = (node, component) => node[DOM_COMPONENT_INSTANCE_PROPERTY$1] = component;
   /**
    * Wrap the Riot.js core API methods using a mapping function
    * @param   {Function} mapFunction - lifting function
@@ -2317,14 +2347,18 @@
   /**
    * Factory function to create the component templates only once
    * @param   {Function} template - component template creation function
-   * @param   {Object} components - object containing the nested components
+   * @param   {RiotComponentShell} componentShell - riot compiler generated object
    * @returns {TemplateChunk} template chunk object
    */
 
 
-  function componentTemplateFactory(template, components) {
-    return template(create$6, expressionTypes, bindingTypes, name => {
-      return components[name] || COMPONENTS_IMPLEMENTATION_MAP.get(name);
+  function componentTemplateFactory(template, componentShell) {
+    const components = createSubcomponents(componentShell.exports ? componentShell.exports.components : {});
+    return template(create, expressionTypes, bindingTypes, name => {
+      // improve support for recursive components
+      if (name === componentShell.name) return memoizedCreateComponent(componentShell); // return the registered components
+
+      return components[name] || COMPONENTS_IMPLEMENTATION_MAP$1.get(name);
     });
   }
   /**
@@ -2374,28 +2408,29 @@
   }
   /**
    * Create the component interface needed for the @riotjs/dom-bindings tag bindings
-   * @param   {string} options.css - component css
-   * @param   {Function} options.template - functon that will return the dom-bindings template function
-   * @param   {Object} options.exports - component interface
-   * @param   {string} options.name - component name
+   * @param   {RiotComponentShell} componentShell - riot compiler generated object
+   * @param   {string} componentShell.css - component css
+   * @param   {Function} componentShell.template - function that will return the dom-bindings template function
+   * @param   {Object} componentShell.exports - component interface
+   * @param   {string} componentShell.name - component name
    * @returns {Object} component like interface
    */
 
 
-  function createComponent(_ref2) {
-    let {
+  function createComponent(componentShell) {
+    const {
       css,
       template,
       exports,
       name
-    } = _ref2;
-    const templateFn = template ? componentTemplateFactory(template, exports ? createSubcomponents(exports.components) : {}) : MOCKED_TEMPLATE_INTERFACE;
-    return (_ref3) => {
+    } = componentShell;
+    const templateFn = template ? componentTemplateFactory(template, componentShell) : MOCKED_TEMPLATE_INTERFACE;
+    return _ref2 => {
       let {
         slots,
         attributes,
         props
-      } = _ref3;
+      } = _ref2;
       // pure components rendering will be managed by the end user
       if (exports && exports[IS_PURE_SYMBOL]) return createPureComponent(exports, {
         slots,
@@ -2442,17 +2477,18 @@
    * @returns {Object} a new component implementation object
    */
 
-  function defineComponent(_ref4) {
+  function defineComponent(_ref3) {
     let {
       css,
       template,
       componentAPI,
       name
-    } = _ref4;
+    } = _ref3;
     // add the component css into the DOM
     if (css && name) cssManager.add(name, css);
     return curry(enhanceComponentAPI)(defineProperties( // set the component defaults without overriding the original component API
     defineDefaults(componentAPI, Object.assign({}, COMPONENT_LIFECYCLE_METHODS, {
+      [PROPS_KEY]: {},
       [STATE_KEY]: {}
     })), Object.assign({
       // defined during the component creation
@@ -2476,7 +2512,7 @@
       attributes = [];
     }
 
-    const expressions = attributes.map(a => create$2(node, a));
+    const expressions = attributes.map(a => create$4(node, a));
     const binding = {};
     return Object.assign(binding, Object.assign({
       expressions
@@ -2497,8 +2533,8 @@
       components = {};
     }
 
-    return Object.entries(callOrAssign(components)).reduce((acc, _ref5) => {
-      let [key, value] = _ref5;
+    return Object.entries(callOrAssign(components)).reduce((acc, _ref4) => {
+      let [key, value] = _ref4;
       acc[camelToDashCase(key)] = createComponent(value);
       return acc;
     }, {});
@@ -2511,7 +2547,7 @@
 
 
   function runPlugins(component) {
-    return [...PLUGINS_SET].reduce((c, fn) => fn(c) || c, component);
+    return [...PLUGINS_SET$1].reduce((c, fn) => fn(c) || c, component);
   }
   /**
    * Compute the component current state merging it with its previous state
@@ -2546,18 +2582,19 @@
    */
 
 
-  function enhanceComponentAPI(component, _ref6) {
+  function enhanceComponentAPI(component, _ref5) {
     let {
       slots,
       attributes,
       props
-    } = _ref6;
+    } = _ref5;
     return autobindMethods(runPlugins(defineProperties(isObject(component) ? Object.create(component) : component, {
       mount(element, state, parentScope) {
         if (state === void 0) {
           state = {};
         }
 
+        this[PARENT_KEY_SYMBOL] = parentScope;
         this[ATTRIBUTES_KEY_SYMBOL] = createAttributeBindings(element, attributes).mount(parentScope);
         defineProperty(this, PROPS_KEY, Object.freeze(Object.assign({}, evaluateInitialProps(element, props), evaluateAttributeExpressions(this[ATTRIBUTES_KEY_SYMBOL].expressions))));
         this[STATE_KEY] = computeState(this[STATE_KEY], state);
@@ -2571,8 +2608,7 @@
 
         defineProperty(this, SLOTS_KEY, slots); // before mount lifecycle event
 
-        this[ON_BEFORE_MOUNT_KEY](this[PROPS_KEY], this[STATE_KEY]);
-        this[PARENT_KEY_SYMBOL] = parentScope; // mount the template
+        this[ON_BEFORE_MOUNT_KEY](this[PROPS_KEY], this[STATE_KEY]); // mount the template
 
         this[TEMPLATE_KEY_SYMBOL].mount(element, this, parentScope);
         this[ON_MOUNTED_KEY](this[PROPS_KEY], this[STATE_KEY]);
@@ -2593,9 +2629,16 @@
         if (this[SHOULD_UPDATE_KEY](newProps, this[PROPS_KEY]) === false) return;
         defineProperty(this, PROPS_KEY, Object.freeze(Object.assign({}, this[PROPS_KEY], newProps)));
         this[STATE_KEY] = computeState(this[STATE_KEY], state);
-        this[ON_BEFORE_UPDATE_KEY](this[PROPS_KEY], this[STATE_KEY]);
-        this[TEMPLATE_KEY_SYMBOL].update(this, this[PARENT_KEY_SYMBOL]);
+        this[ON_BEFORE_UPDATE_KEY](this[PROPS_KEY], this[STATE_KEY]); // avoiding recursive updates
+        // see also https://github.com/riot/riot/issues/2895
+
+        if (!this[IS_COMPONENT_UPDATING]) {
+          this[IS_COMPONENT_UPDATING] = true;
+          this[TEMPLATE_KEY_SYMBOL].update(this, this[PARENT_KEY_SYMBOL]);
+        }
+
         this[ON_UPDATED_KEY](this[PROPS_KEY], this[STATE_KEY]);
+        this[IS_COMPONENT_UPDATING] = false;
         return this;
       },
 
@@ -2621,8 +2664,8 @@
 
   function mountComponent(element, initialProps, componentName) {
     const name = componentName || getName(element);
-    if (!COMPONENTS_IMPLEMENTATION_MAP.has(name)) panic(`The component named "${name}" was never registered`);
-    const component = COMPONENTS_IMPLEMENTATION_MAP.get(name)({
+    if (!COMPONENTS_IMPLEMENTATION_MAP$1.has(name)) panic(`The component named "${name}" was never registered`);
+    const component = COMPONENTS_IMPLEMENTATION_MAP$1.get(name)({
       props: initialProps
     });
     return component.mount(element);
@@ -2654,9 +2697,9 @@
   }
 
   const {
-    DOM_COMPONENT_INSTANCE_PROPERTY: DOM_COMPONENT_INSTANCE_PROPERTY$1,
-    COMPONENTS_IMPLEMENTATION_MAP: COMPONENTS_IMPLEMENTATION_MAP$1,
-    PLUGINS_SET: PLUGINS_SET$1
+    DOM_COMPONENT_INSTANCE_PROPERTY,
+    COMPONENTS_IMPLEMENTATION_MAP,
+    PLUGINS_SET
   } = globals;
   /**
    * Riot public api
@@ -2675,21 +2718,21 @@
       template,
       exports
     } = _ref;
-    if (COMPONENTS_IMPLEMENTATION_MAP$1.has(name)) panic(`The component "${name}" was already registered`);
-    COMPONENTS_IMPLEMENTATION_MAP$1.set(name, createComponent({
+    if (COMPONENTS_IMPLEMENTATION_MAP.has(name)) panic(`The component "${name}" was already registered`);
+    COMPONENTS_IMPLEMENTATION_MAP.set(name, createComponent({
       name,
       css,
       template,
       exports
     }));
-    return COMPONENTS_IMPLEMENTATION_MAP$1;
+    return COMPONENTS_IMPLEMENTATION_MAP;
   }
   /**
    * Mounting function that will work only for the components that were globally registered
    * @param   {string|HTMLElement} selector - query for the selection or a DOM element
    * @param   {Object} initialProps - the initial component properties
    * @param   {string} name - optional component name
-   * @returns {Array} list of nodes upgraded
+   * @returns {Array} list of riot components
    */
 
   function mount(selector, initialProps, name) {
@@ -2704,8 +2747,8 @@
 
   function unmount(selector, keepRootElement) {
     return $(selector).map(element => {
-      if (element[DOM_COMPONENT_INSTANCE_PROPERTY$1]) {
-        element[DOM_COMPONENT_INSTANCE_PROPERTY$1].unmount(keepRootElement);
+      if (element[DOM_COMPONENT_INSTANCE_PROPERTY]) {
+        element[DOM_COMPONENT_INSTANCE_PROPERTY].unmount(keepRootElement);
       }
 
       return element;
@@ -2968,7 +3011,7 @@
     central.on('emit', this.e.bind(this));
   }
 
-  function normalize$1(path) {
+  function normalize(path) {
     return path.replace(/^\/|\/$/, '')
   }
 
@@ -3060,7 +3103,7 @@
     // Server-side usage: directly execute handlers for the path
     if (!hist) { return central[TRIGGER]('emit', getPathFromBase(path)) }
 
-    path = route._.base + normalize$1(path);
+    path = route._.base + normalize(path);
     title = title || doc.title;
     // browsers ignores the second parameter `title`
     shouldReplace
@@ -3104,7 +3147,7 @@
    */
   prot.e = function(path) {
     this.$.concat('@').some(function(filter) {
-      var args = (filter === '@' ? parser : secondParser)(normalize$1(path), normalize$1(filter));
+      var args = (filter === '@' ? parser : secondParser)(normalize(path), normalize(filter));
       if (typeof args != 'undefined') {
         this[TRIGGER].apply(null, [filter].concat(args));
         return routeFound = true // exit from loop
@@ -3119,7 +3162,7 @@
    */
   prot.r = function(filter, action) {
     if (filter !== '@') {
-      filter = '/' + normalize$1(filter);
+      filter = '/' + normalize(filter);
       this.$.push(filter);
     }
 
@@ -4349,7 +4392,7 @@
       getComponent
     ) {
       return template(
-        '<div expr52="expr52" class="banner"></div>',
+        '<div expr61="expr61" class="banner"></div>',
         [
           {
             'type': bindingTypes.IF,
@@ -4360,8 +4403,8 @@
               return scope.state.isVisible;
             },
 
-            'redundantAttribute': 'expr52',
-            'selector': '[expr52]',
+            'redundantAttribute': 'expr61',
+            'selector': '[expr61]',
 
             'template': template(
               '<div class="container"><h1 class="logo-font">conduit</h1><p>A place to share your <a class="spotlink" href="https://riot.js.org" target="blank">RIOT</a> knowledge.</p></div>',
@@ -4400,11 +4443,11 @@
       getComponent
     ) {
       return template(
-        '<div expr49="expr49"><ul class="nav nav-pills outline-active"><li expr50="expr50" class="nav-item"></li></ul></div>',
+        '<div expr32="expr32"><ul class="nav nav-pills outline-active"><li expr33="expr33" class="nav-item"></li></ul></div>',
         [
           {
-            'redundantAttribute': 'expr49',
-            'selector': '[expr49]',
+            'redundantAttribute': 'expr32',
+            'selector': '[expr32]',
 
             'expressions': [
               {
@@ -4425,11 +4468,11 @@
             'condition': null,
 
             'template': template(
-              '<a expr51="expr51"> </a>',
+              '<a expr34="expr34"> </a>',
               [
                 {
-                  'redundantAttribute': 'expr51',
-                  'selector': '[expr51]',
+                  'redundantAttribute': 'expr34',
+                  'selector': '[expr34]',
 
                   'expressions': [
                     {
@@ -4467,8 +4510,8 @@
               ]
             ),
 
-            'redundantAttribute': 'expr50',
-            'selector': '[expr50]',
+            'redundantAttribute': 'expr33',
+            'selector': '[expr33]',
             'itemName': 'item',
             'indexName': null,
 
@@ -4486,7 +4529,7 @@
   };
 
   var ArticlesTableView = {
-    'css': `articles_table_view .author-link,[is="articles_table_view"] .author-link{ color: #5cb85c; cursor : pointer; text-decoration: none; } articles_table_view .author-link:hover,[is="articles_table_view"] .author-link:hover{ color: #5cb85c; text-decoration: underline; }`,
+    'css': `articles_table_view .author-link,[is="articles_table_view"] .author-link{ color: #5cb85c; cursor: pointer; text-decoration: none; } articles_table_view .author-link:hover,[is="articles_table_view"] .author-link:hover{ color: #5cb85c; text-decoration: underline; }`,
 
     'exports': {
       setArticles( articles ){
@@ -4518,7 +4561,7 @@
       getComponent
     ) {
       return template(
-        '<div expr56="expr56" class="article-preview"></div>',
+        '<div expr49="expr49" class="article-preview"></div>',
         [
           {
             'type': bindingTypes.EACH,
@@ -4526,11 +4569,11 @@
             'condition': null,
 
             'template': template(
-              '<div class="article-meta"><a expr57="expr57"><img expr58="expr58"/></a><div class="info"><a expr59="expr59" class="author author-link"> </a><span class="date">January 20th</span></div><button expr60="expr60"><i class="ion-heart"></i> </button></div><a expr61="expr61" class="preview-link"><h1 expr62="expr62"> </h1><p expr63="expr63"> </p><span>Read more...</span><ul class="tag-list"><li expr64="expr64" class="tag-default tag-pill tag-outline"></li></ul></a>',
+              '<div class="article-meta"><a expr50="expr50"><img expr51="expr51"/></a><div class="info"><a expr52="expr52" class="author author-link"> </a><span class="date">January 20th</span></div><button expr53="expr53"><i class="ion-heart"></i> </button></div><a expr54="expr54" class="preview-link"><h1 expr55="expr55"> </h1><p expr56="expr56"> </p><span>Read more...</span><ul class="tag-list"><li expr57="expr57" class="tag-default tag-pill tag-outline"></li></ul></a>',
               [
                 {
-                  'redundantAttribute': 'expr57',
-                  'selector': '[expr57]',
+                  'redundantAttribute': 'expr50',
+                  'selector': '[expr50]',
 
                   'expressions': [
                     {
@@ -4546,8 +4589,8 @@
                   ]
                 },
                 {
-                  'redundantAttribute': 'expr58',
-                  'selector': '[expr58]',
+                  'redundantAttribute': 'expr51',
+                  'selector': '[expr51]',
 
                   'expressions': [
                     {
@@ -4563,8 +4606,8 @@
                   ]
                 },
                 {
-                  'redundantAttribute': 'expr59',
-                  'selector': '[expr59]',
+                  'redundantAttribute': 'expr52',
+                  'selector': '[expr52]',
 
                   'expressions': [
                     {
@@ -4590,8 +4633,8 @@
                   ]
                 },
                 {
-                  'redundantAttribute': 'expr60',
-                  'selector': '[expr60]',
+                  'redundantAttribute': 'expr53',
+                  'selector': '[expr53]',
 
                   'expressions': [
                     {
@@ -4631,8 +4674,8 @@
                   ]
                 },
                 {
-                  'redundantAttribute': 'expr61',
-                  'selector': '[expr61]',
+                  'redundantAttribute': 'expr54',
+                  'selector': '[expr54]',
 
                   'expressions': [
                     {
@@ -4648,8 +4691,8 @@
                   ]
                 },
                 {
-                  'redundantAttribute': 'expr62',
-                  'selector': '[expr62]',
+                  'redundantAttribute': 'expr55',
+                  'selector': '[expr55]',
 
                   'expressions': [
                     {
@@ -4669,8 +4712,8 @@
                   ]
                 },
                 {
-                  'redundantAttribute': 'expr63',
-                  'selector': '[expr63]',
+                  'redundantAttribute': 'expr56',
+                  'selector': '[expr56]',
 
                   'expressions': [
                     {
@@ -4710,8 +4753,8 @@
                     ]
                   ),
 
-                  'redundantAttribute': 'expr64',
-                  'selector': '[expr64]',
+                  'redundantAttribute': 'expr57',
+                  'selector': '[expr57]',
                   'itemName': 'tagWord',
                   'indexName': null,
 
@@ -4724,8 +4767,8 @@
               ]
             ),
 
-            'redundantAttribute': 'expr56',
-            'selector': '[expr56]',
+            'redundantAttribute': 'expr49',
+            'selector': '[expr49]',
             'itemName': 'article',
             'indexName': null,
 
@@ -4759,7 +4802,7 @@
       getComponent
     ) {
       return template(
-        '<div class="sidebar"><p>Popular Tags</p><div class="tag-list"><a expr53="expr53" class="tag-pill tag-default"></a></div></div>',
+        '<div class="sidebar"><p>Popular Tags</p><div class="tag-list"><a expr62="expr62" class="tag-pill tag-default"></a></div></div>',
         [
           {
             'type': bindingTypes.EACH,
@@ -4801,8 +4844,8 @@
               ]
             ),
 
-            'redundantAttribute': 'expr53',
-            'selector': '[expr53]',
+            'redundantAttribute': 'expr62',
+            'selector': '[expr62]',
             'itemName': 'tag',
             'indexName': null,
 
@@ -4854,7 +4897,7 @@
       getComponent
     ) {
       return template(
-        '<ul class="pagination"><li expr54="expr54"></li></ul>',
+        '<ul class="pagination"><li expr30="expr30"></li></ul>',
         [
           {
             'type': bindingTypes.EACH,
@@ -4862,7 +4905,7 @@
             'condition': null,
 
             'template': template(
-              '<a expr55="expr55" class="page-link"> </a>',
+              '<a expr31="expr31" class="page-link"> </a>',
               [
                 {
                   'expressions': [
@@ -4879,8 +4922,8 @@
                   ]
                 },
                 {
-                  'redundantAttribute': 'expr55',
-                  'selector': '[expr55]',
+                  'redundantAttribute': 'expr31',
+                  'selector': '[expr31]',
 
                   'expressions': [
                     {
@@ -4908,8 +4951,8 @@
               ]
             ),
 
-            'redundantAttribute': 'expr54',
-            'selector': '[expr54]',
+            'redundantAttribute': 'expr30',
+            'selector': '[expr30]',
             'itemName': 'page',
             'indexName': null,
 
@@ -10881,7 +10924,7 @@
       getComponent
     ) {
       return template(
-        '<div expr24="expr24" class="article-meta"></div>',
+        '<div expr35="expr35" class="article-meta"></div>',
         [
           {
             'type': bindingTypes.IF,
@@ -10892,15 +10935,15 @@
               return scope.state.article != null;
             },
 
-            'redundantAttribute': 'expr24',
-            'selector': '[expr24]',
+            'redundantAttribute': 'expr35',
+            'selector': '[expr35]',
 
             'template': template(
-              '<a expr25="expr25"><img expr26="expr26"/></a><div class="info"><a expr27="expr27" class="author"> </a><span expr28="expr28" class="date"> </span></div><template expr29="expr29"></template><template expr33="expr33"></template>',
+              '<a expr36="expr36"><img expr37="expr37"/></a><div class="info"><a expr38="expr38" class="author"> </a><span expr39="expr39" class="date"> </span></div><template expr40="expr40"></template><template expr44="expr44"></template>',
               [
                 {
-                  'redundantAttribute': 'expr25',
-                  'selector': '[expr25]',
+                  'redundantAttribute': 'expr36',
+                  'selector': '[expr36]',
 
                   'expressions': [
                     {
@@ -10916,8 +10959,8 @@
                   ]
                 },
                 {
-                  'redundantAttribute': 'expr26',
-                  'selector': '[expr26]',
+                  'redundantAttribute': 'expr37',
+                  'selector': '[expr37]',
 
                   'expressions': [
                     {
@@ -10933,8 +10976,8 @@
                   ]
                 },
                 {
-                  'redundantAttribute': 'expr27',
-                  'selector': '[expr27]',
+                  'redundantAttribute': 'expr38',
+                  'selector': '[expr38]',
 
                   'expressions': [
                     {
@@ -10960,8 +11003,8 @@
                   ]
                 },
                 {
-                  'redundantAttribute': 'expr28',
-                  'selector': '[expr28]',
+                  'redundantAttribute': 'expr39',
+                  'selector': '[expr39]',
 
                   'expressions': [
                     {
@@ -10985,15 +11028,15 @@
                     return scope.isOwnArticle() == false;
                   },
 
-                  'redundantAttribute': 'expr29',
-                  'selector': '[expr29]',
+                  'redundantAttribute': 'expr40',
+                  'selector': '[expr40]',
 
                   'template': template(
-                    '<button expr30="expr30"><i class="ion-plus-round"></i> </button>\n        &nbsp;\n        <button expr31="expr31"><i class="ion-heart"></i> <span expr32="expr32" class="counter"> </span></button>',
+                    '<button expr41="expr41"><i class="ion-plus-round"></i> </button>\n        &nbsp;\n        <button expr42="expr42"><i class="ion-heart"></i> <span expr43="expr43" class="counter"> </span></button>',
                     [
                       {
-                        'redundantAttribute': 'expr30',
-                        'selector': '[expr30]',
+                        'redundantAttribute': 'expr41',
+                        'selector': '[expr41]',
 
                         'expressions': [
                           {
@@ -11033,8 +11076,8 @@
                         ]
                       },
                       {
-                        'redundantAttribute': 'expr31',
-                        'selector': '[expr31]',
+                        'redundantAttribute': 'expr42',
+                        'selector': '[expr42]',
 
                         'expressions': [
                           {
@@ -11074,8 +11117,8 @@
                         ]
                       },
                       {
-                        'redundantAttribute': 'expr32',
-                        'selector': '[expr32]',
+                        'redundantAttribute': 'expr43',
+                        'selector': '[expr43]',
 
                         'expressions': [
                           {
@@ -11108,15 +11151,15 @@
                     return scope.isOwnArticle();
                   },
 
-                  'redundantAttribute': 'expr33',
-                  'selector': '[expr33]',
+                  'redundantAttribute': 'expr44',
+                  'selector': '[expr44]',
 
                   'template': template(
-                    '<button expr34="expr34" class="btn btn-sm btn-outline-secondary"><i class="ion-edit"></i> Edit Article\n        </button>\n        &nbsp;\n        <button expr35="expr35" class="btn btn-sm btn-outline-danger"><i class="ion-trash-a"></i> Delete Article\n        </button>',
+                    '<button expr45="expr45" class="btn btn-sm btn-outline-secondary"><i class="ion-edit"></i> Edit Article\n        </button>\n        &nbsp;\n        <button expr46="expr46" class="btn btn-sm btn-outline-danger"><i class="ion-trash-a"></i> Delete Article\n        </button>',
                     [
                       {
-                        'redundantAttribute': 'expr34',
-                        'selector': '[expr34]',
+                        'redundantAttribute': 'expr45',
+                        'selector': '[expr45]',
 
                         'expressions': [
                           {
@@ -11132,8 +11175,8 @@
                         ]
                       },
                       {
-                        'redundantAttribute': 'expr35',
-                        'selector': '[expr35]',
+                        'redundantAttribute': 'expr46',
+                        'selector': '[expr46]',
 
                         'expressions': [
                           {
@@ -11161,11 +11204,12 @@
     'name': 'article_widget_view'
   };
 
-  var defaults = createCommonjsModule(function (module) {
+  var defaults$5 = createCommonjsModule(function (module) {
   function getDefaults() {
     return {
       baseUrl: null,
       breaks: false,
+      extensions: null,
       gfm: true,
       headerIds: true,
       headerPrefix: '',
@@ -11195,9 +11239,9 @@
     changeDefaults
   };
   });
-  defaults.defaults;
-  defaults.getDefaults;
-  defaults.changeDefaults;
+  defaults$5.defaults;
+  defaults$5.getDefaults;
+  defaults$5.changeDefaults;
 
   /**
    * Helpers
@@ -11214,7 +11258,7 @@
     "'": '&#39;'
   };
   const getEscapeReplacement = (ch) => escapeReplacements[ch];
-  function escape(html, encode) {
+  function escape$3(html, encode) {
     if (encode) {
       if (escapeTest.test(html)) {
         return html.replace(escapeReplace, getEscapeReplacement);
@@ -11230,7 +11274,7 @@
 
   const unescapeTest = /&(#(?:\d+)|(?:#x[0-9A-Fa-f]+)|(?:\w+));?/ig;
 
-  function unescape(html) {
+  function unescape$1(html) {
     // explicitly match decimal, hex, and named HTML entities
     return html.replace(unescapeTest, (_, n) => {
       n = n.toLowerCase();
@@ -11245,7 +11289,7 @@
   }
 
   const caret = /(^|[^\[])\^/g;
-  function edit(regex, opt) {
+  function edit$1(regex, opt) {
     regex = regex.source || regex;
     opt = opt || '';
     const obj = {
@@ -11264,11 +11308,11 @@
 
   const nonWordAndColonTest = /[^\w:]/g;
   const originIndependentUrl = /^$|^[a-z][a-z0-9+.-]*:|^[?#]/i;
-  function cleanUrl(sanitize, base, href) {
+  function cleanUrl$1(sanitize, base, href) {
     if (sanitize) {
       let prot;
       try {
-        prot = decodeURIComponent(unescape(href))
+        prot = decodeURIComponent(unescape$1(href))
           .replace(nonWordAndColonTest, '')
           .toLowerCase();
       } catch (e) {
@@ -11302,7 +11346,7 @@
       if (justDomain.test(base)) {
         baseUrls[' ' + base] = base + '/';
       } else {
-        baseUrls[' ' + base] = rtrim(base, '/', true);
+        baseUrls[' ' + base] = rtrim$1(base, '/', true);
       }
     }
     base = baseUrls[' ' + base];
@@ -11323,9 +11367,9 @@
     }
   }
 
-  const noopTest = { exec: function noopTest() {} };
+  const noopTest$1 = { exec: function noopTest() {} };
 
-  function merge(obj) {
+  function merge$2(obj) {
     let i = 1,
       target,
       key;
@@ -11342,7 +11386,7 @@
     return obj;
   }
 
-  function splitCells(tableRow, count) {
+  function splitCells$1(tableRow, count) {
     // ensure that every cell-delimiting pipe has a space
     // before it to distinguish it from an escaped pipe
     const row = tableRow.replace(/\|/g, (match, offset, str) => {
@@ -11377,7 +11421,7 @@
   // Remove trailing 'c's. Equivalent to str.replace(/c*$/, '').
   // /c*$/ is vulnerable to REDOS.
   // invert: Remove suffix of non-c chars instead. Default falsey.
-  function rtrim(str, c, invert) {
+  function rtrim$1(str, c, invert) {
     const l = str.length;
     if (l === 0) {
       return '';
@@ -11401,7 +11445,7 @@
     return str.substr(0, l - suffLen);
   }
 
-  function findClosingBracket(str, b) {
+  function findClosingBracket$1(str, b) {
     if (str.indexOf(b[1]) === -1) {
       return -1;
     }
@@ -11423,14 +11467,14 @@
     return -1;
   }
 
-  function checkSanitizeDeprecation(opt) {
+  function checkSanitizeDeprecation$1(opt) {
     if (opt && opt.sanitize && !opt.silent) {
       console.warn('marked(): sanitize and sanitizer parameters are deprecated since version 0.7.0, should not be used and will be removed in the future. Read more here: https://marked.js.org/#/USING_ADVANCED.md#options');
     }
   }
 
   // copied from https://stackoverflow.com/a/5450113/806777
-  function repeatString(pattern, count) {
+  function repeatString$1(pattern, count) {
     if (count < 1) {
       return '';
     }
@@ -11446,31 +11490,31 @@
   }
 
   var helpers = {
-    escape,
-    unescape,
-    edit,
-    cleanUrl,
+    escape: escape$3,
+    unescape: unescape$1,
+    edit: edit$1,
+    cleanUrl: cleanUrl$1,
     resolveUrl,
-    noopTest,
-    merge,
-    splitCells,
-    rtrim,
-    findClosingBracket,
-    checkSanitizeDeprecation,
-    repeatString
+    noopTest: noopTest$1,
+    merge: merge$2,
+    splitCells: splitCells$1,
+    rtrim: rtrim$1,
+    findClosingBracket: findClosingBracket$1,
+    checkSanitizeDeprecation: checkSanitizeDeprecation$1,
+    repeatString: repeatString$1
   };
 
-  const { defaults: defaults$1 } = defaults;
+  const { defaults: defaults$4 } = defaults$5;
   const {
-    rtrim: rtrim$1,
-    splitCells: splitCells$1,
-    escape: escape$1,
-    findClosingBracket: findClosingBracket$1
+    rtrim,
+    splitCells,
+    escape: escape$2,
+    findClosingBracket
   } = helpers;
 
   function outputLink(cap, link, raw) {
     const href = link.href;
-    const title = link.title ? escape$1(link.title) : null;
+    const title = link.title ? escape$2(link.title) : null;
     const text = cap[1].replace(/\\([\[\]])/g, '$1');
 
     if (cap[0].charAt(0) !== '!') {
@@ -11487,7 +11531,7 @@
         raw,
         href,
         title,
-        text: escape$1(text)
+        text: escape$2(text)
       };
     }
   }
@@ -11525,7 +11569,7 @@
    */
   var Tokenizer_1 = class Tokenizer {
     constructor(options) {
-      this.options = options || defaults$1;
+      this.options = options || defaults$4;
     }
 
     space(src) {
@@ -11550,7 +11594,7 @@
           raw: cap[0],
           codeBlockStyle: 'indented',
           text: !this.options.pedantic
-            ? rtrim$1(text, '\n')
+            ? rtrim(text, '\n')
             : text
         };
       }
@@ -11578,7 +11622,7 @@
 
         // remove trailing #s
         if (/#$/.test(text)) {
-          const trimmed = rtrim$1(text, '#');
+          const trimmed = rtrim(text, '#');
           if (this.options.pedantic) {
             text = trimmed.trim();
           } else if (!trimmed || / $/.test(trimmed)) {
@@ -11601,7 +11645,7 @@
       if (cap) {
         const item = {
           type: 'table',
-          header: splitCells$1(cap[1].replace(/^ *| *\| *$/g, '')),
+          header: splitCells(cap[1].replace(/^ *| *\| *$/g, '')),
           align: cap[2].replace(/^ *|\| *$/g, '').split(/ *\| */),
           cells: cap[3] ? cap[3].replace(/\n$/, '').split('\n') : [],
           raw: cap[0]
@@ -11624,7 +11668,7 @@
 
           l = item.cells.length;
           for (i = 0; i < l; i++) {
-            item.cells[i] = splitCells$1(item.cells[i], item.header.length);
+            item.cells[i] = splitCells(item.cells[i], item.header.length);
           }
 
           return item;
@@ -11682,7 +11726,8 @@
           addBack,
           loose,
           istask,
-          ischecked;
+          ischecked,
+          endMatch;
 
         let l = itemMatch.length;
         bcurr = this.rules.block.listItemStart.exec(itemMatch[0]);
@@ -11690,31 +11735,42 @@
           item = itemMatch[i];
           raw = item;
 
+          if (!this.options.pedantic) {
+            // Determine if current item contains the end of the list
+            endMatch = item.match(new RegExp('\\n\\s*\\n {0,' + (bcurr[0].length - 1) + '}\\S'));
+            if (endMatch) {
+              addBack = item.length - endMatch.index + itemMatch.slice(i + 1).join('\n').length;
+              list.raw = list.raw.substring(0, list.raw.length - addBack);
+
+              item = item.substring(0, endMatch.index);
+              raw = item;
+              l = i + 1;
+            }
+          }
+
           // Determine whether the next list item belongs here.
           // Backpedal if it does not belong in this list.
           if (i !== l - 1) {
             bnext = this.rules.block.listItemStart.exec(itemMatch[i + 1]);
             if (
               !this.options.pedantic
-                ? bnext[1].length > bcurr[0].length || bnext[1].length > 3
+                ? bnext[1].length >= bcurr[0].length || bnext[1].length > 3
                 : bnext[1].length > bcurr[1].length
             ) {
-              // nested list
-              itemMatch.splice(i, 2, itemMatch[i] + '\n' + itemMatch[i + 1]);
+              // nested list or continuation
+              itemMatch.splice(i, 2, itemMatch[i] + (!this.options.pedantic && bnext[1].length < bcurr[0].length && !itemMatch[i].match(/\n$/) ? '' : '\n') + itemMatch[i + 1]);
               i--;
               l--;
               continue;
-            } else {
-              if (
-                // different bullet style
-                !this.options.pedantic || this.options.smartLists
-                  ? bnext[2][bnext[2].length - 1] !== bull[bull.length - 1]
-                  : isordered === (bnext[2].length === 1)
-              ) {
-                addBack = itemMatch.slice(i + 1).join('\n');
-                list.raw = list.raw.substring(0, list.raw.length - addBack.length);
-                i = l - 1;
-              }
+            } else if (
+              // different bullet style
+              !this.options.pedantic || this.options.smartLists
+                ? bnext[2][bnext[2].length - 1] !== bull[bull.length - 1]
+                : isordered === (bnext[2].length === 1)
+            ) {
+              addBack = itemMatch.slice(i + 1).join('\n').length;
+              list.raw = list.raw.substring(0, list.raw.length - addBack);
+              i = l - 1;
             }
             bcurr = bnext;
           }
@@ -11733,12 +11789,18 @@
               : item.replace(/^ {1,4}/gm, '');
           }
 
+          // trim item newlines at end
+          item = rtrim(item, '\n');
+          if (i !== l - 1) {
+            raw = raw + '\n';
+          }
+
           // Determine whether item is loose or not.
           // Use: /(^|\n)(?! )[^\n]+\n\n(?!\s*$)/
           // for discount behavior.
-          loose = next || /\n\n(?!\s*$)/.test(item);
+          loose = next || /\n\n(?!\s*$)/.test(raw);
           if (i !== l - 1) {
-            next = item.charAt(item.length - 1) === '\n';
+            next = raw.slice(-2) === '\n\n';
             if (!loose) loose = next;
           }
 
@@ -11780,7 +11842,7 @@
           raw: cap[0],
           pre: !this.options.sanitizer
             && (cap[1] === 'pre' || cap[1] === 'script' || cap[1] === 'style'),
-          text: this.options.sanitize ? (this.options.sanitizer ? this.options.sanitizer(cap[0]) : escape$1(cap[0])) : cap[0]
+          text: this.options.sanitize ? (this.options.sanitizer ? this.options.sanitizer(cap[0]) : escape$2(cap[0])) : cap[0]
         };
       }
     }
@@ -11791,6 +11853,7 @@
         if (cap[3]) cap[3] = cap[3].substring(1, cap[3].length - 1);
         const tag = cap[1].toLowerCase().replace(/\s+/g, ' ');
         return {
+          type: 'def',
           tag,
           raw: cap[0],
           href: cap[2],
@@ -11804,7 +11867,7 @@
       if (cap) {
         const item = {
           type: 'table',
-          header: splitCells$1(cap[1].replace(/^ *| *\| *$/g, '')),
+          header: splitCells(cap[1].replace(/^ *| *\| *$/g, '')),
           align: cap[2].replace(/^ *|\| *$/g, '').split(/ *\| */),
           cells: cap[3] ? cap[3].replace(/\n$/, '').split('\n') : []
         };
@@ -11828,7 +11891,7 @@
 
           l = item.cells.length;
           for (i = 0; i < l; i++) {
-            item.cells[i] = splitCells$1(
+            item.cells[i] = splitCells(
               item.cells[i].replace(/^ *\| *| *\| *$/g, ''),
               item.header.length);
           }
@@ -11880,7 +11943,7 @@
         return {
           type: 'escape',
           raw: cap[0],
-          text: escape$1(cap[1])
+          text: escape$2(cap[1])
         };
       }
     }
@@ -11909,7 +11972,7 @@
           text: this.options.sanitize
             ? (this.options.sanitizer
               ? this.options.sanitizer(cap[0])
-              : escape$1(cap[0]))
+              : escape$2(cap[0]))
             : cap[0]
         };
       }
@@ -11926,13 +11989,13 @@
           }
 
           // ending angle bracket cannot be escaped
-          const rtrimSlash = rtrim$1(trimmedUrl.slice(0, -1), '\\');
+          const rtrimSlash = rtrim(trimmedUrl.slice(0, -1), '\\');
           if ((trimmedUrl.length - rtrimSlash.length) % 2 === 0) {
             return;
           }
         } else {
           // find closing parenthesis
-          const lastParenIndex = findClosingBracket$1(cap[2], '()');
+          const lastParenIndex = findClosingBracket(cap[2], '()');
           if (lastParenIndex > -1) {
             const start = cap[0].indexOf('!') === 0 ? 5 : 4;
             const linkLen = start + cap[1].length + lastParenIndex;
@@ -11993,7 +12056,8 @@
       let match = this.rules.inline.emStrong.lDelim.exec(src);
       if (!match) return;
 
-      if (match[3] && prevChar.match(/[\p{L}\p{N}]/u)) return; // _ can't be between two alphanumerics. \p{L}\p{N} includes non-english alphabet/numbers as well
+      // _ can't be between two alphanumerics. \p{L}\p{N} includes non-english alphabet/numbers as well
+      if (match[3] && prevChar.match(/[\p{L}\p{N}]/u)) return;
 
       const nextChar = match[1] || match[2] || '';
 
@@ -12004,12 +12068,13 @@
         const endReg = match[0][0] === '*' ? this.rules.inline.emStrong.rDelimAst : this.rules.inline.emStrong.rDelimUnd;
         endReg.lastIndex = 0;
 
-        maskedSrc = maskedSrc.slice(-1 * src.length + lLength); // Bump maskedSrc to same section of string as src (move to lexer?)
+        // Clip maskedSrc to same section of string as src (move to lexer?)
+        maskedSrc = maskedSrc.slice(-1 * src.length + lLength);
 
         while ((match = endReg.exec(maskedSrc)) != null) {
           rDelim = match[1] || match[2] || match[3] || match[4] || match[5] || match[6];
 
-          if (!rDelim) continue; // matched the first alternative in rules.js (skip the * in __abc*abc__)
+          if (!rDelim) continue; // skip single * in __abc*abc__
 
           rLength = rDelim.length;
 
@@ -12027,11 +12092,10 @@
 
           if (delimTotal > 0) continue; // Haven't found enough closing delimiters
 
-          // If this is the last rDelimiter, remove extra characters. *a*** -> *a*
-          if (delimTotal + midDelimTotal - rLength <= 0 && !maskedSrc.slice(endReg.lastIndex).match(endReg)) {
-            rLength = Math.min(rLength, rLength + delimTotal + midDelimTotal);
-          }
+          // Remove extra characters. *a*** -> *a*
+          rLength = Math.min(rLength, rLength + delimTotal + midDelimTotal);
 
+          // Create `em` if smallest delimiter has odd char count. *a***
           if (Math.min(lLength, rLength) % 2) {
             return {
               type: 'em',
@@ -12039,13 +12103,13 @@
               text: src.slice(1, lLength + match.index + rLength)
             };
           }
-          if (Math.min(lLength, rLength) % 2 === 0) {
-            return {
-              type: 'strong',
-              raw: src.slice(0, lLength + match.index + rLength + 1),
-              text: src.slice(2, lLength + match.index + rLength - 1)
-            };
-          }
+
+          // Create 'strong' if smallest delimiter has even char count. **a***
+          return {
+            type: 'strong',
+            raw: src.slice(0, lLength + match.index + rLength + 1),
+            text: src.slice(2, lLength + match.index + rLength - 1)
+          };
         }
       }
     }
@@ -12059,7 +12123,7 @@
         if (hasNonSpaceChars && hasSpaceCharsOnBothEnds) {
           text = text.substring(1, text.length - 1);
         }
-        text = escape$1(text, true);
+        text = escape$2(text, true);
         return {
           type: 'codespan',
           raw: cap[0],
@@ -12094,10 +12158,10 @@
       if (cap) {
         let text, href;
         if (cap[2] === '@') {
-          text = escape$1(this.options.mangle ? mangle(cap[1]) : cap[1]);
+          text = escape$2(this.options.mangle ? mangle(cap[1]) : cap[1]);
           href = 'mailto:' + text;
         } else {
-          text = escape$1(cap[1]);
+          text = escape$2(cap[1]);
           href = text;
         }
 
@@ -12122,7 +12186,7 @@
       if (cap = this.rules.inline.url.exec(src)) {
         let text, href;
         if (cap[2] === '@') {
-          text = escape$1(this.options.mangle ? mangle(cap[0]) : cap[0]);
+          text = escape$2(this.options.mangle ? mangle(cap[0]) : cap[0]);
           href = 'mailto:' + text;
         } else {
           // do extended autolink path validation
@@ -12131,7 +12195,7 @@
             prevCapZero = cap[0];
             cap[0] = this.rules.inline._backpedal.exec(cap[0])[0];
           } while (prevCapZero !== cap[0]);
-          text = escape$1(cap[0]);
+          text = escape$2(cap[0]);
           if (cap[1] === 'www.') {
             href = 'http://' + text;
           } else {
@@ -12159,9 +12223,9 @@
       if (cap) {
         let text;
         if (inRawBlock) {
-          text = this.options.sanitize ? (this.options.sanitizer ? this.options.sanitizer(cap[0]) : escape$1(cap[0])) : cap[0];
+          text = this.options.sanitize ? (this.options.sanitizer ? this.options.sanitizer(cap[0]) : escape$2(cap[0])) : cap[0];
         } else {
-          text = escape$1(this.options.smartypants ? smartypants(cap[0]) : cap[0]);
+          text = escape$2(this.options.smartypants ? smartypants(cap[0]) : cap[0]);
         }
         return {
           type: 'text',
@@ -12173,15 +12237,15 @@
   };
 
   const {
-    noopTest: noopTest$1,
-    edit: edit$1,
+    noopTest,
+    edit,
     merge: merge$1
   } = helpers;
 
   /**
    * Block-Level Grammar
    */
-  const block = {
+  const block$1 = {
     newline: /^(?: *(?:\n|$))+/,
     code: /^( {4}[^\n]+(?:\n(?: *(?:\n|$))*)?)+/,
     fences: /^ {0,3}(`{3,}(?=[^`\n]*\n)|~{3,})([^\n]*)\n(?:|([\s\S]*?)\n)(?: {0,3}\1[~`]* *(?:\n+|$)|$)/,
@@ -12190,18 +12254,18 @@
     blockquote: /^( {0,3}> ?(paragraph|[^\n]*)(?:\n|$))+/,
     list: /^( {0,3})(bull) [\s\S]+?(?:hr|def|\n{2,}(?! )(?! {0,3}bull )\n*|\s*$)/,
     html: '^ {0,3}(?:' // optional indentation
-      + '<(script|pre|style)[\\s>][\\s\\S]*?(?:</\\1>[^\\n]*\\n+|$)' // (1)
+      + '<(script|pre|style|textarea)[\\s>][\\s\\S]*?(?:</\\1>[^\\n]*\\n+|$)' // (1)
       + '|comment[^\\n]*(\\n+|$)' // (2)
       + '|<\\?[\\s\\S]*?(?:\\?>\\n*|$)' // (3)
       + '|<![A-Z][\\s\\S]*?(?:>\\n*|$)' // (4)
       + '|<!\\[CDATA\\[[\\s\\S]*?(?:\\]\\]>\\n*|$)' // (5)
-      + '|</?(tag)(?: +|\\n|/?>)[\\s\\S]*?(?:\\n{2,}|$)' // (6)
-      + '|<(?!script|pre|style)([a-z][\\w-]*)(?:attribute)*? */?>(?=[ \\t]*(?:\\n|$))[\\s\\S]*?(?:\\n{2,}|$)' // (7) open tag
-      + '|</(?!script|pre|style)[a-z][\\w-]*\\s*>(?=[ \\t]*(?:\\n|$))[\\s\\S]*?(?:\\n{2,}|$)' // (7) closing tag
+      + '|</?(tag)(?: +|\\n|/?>)[\\s\\S]*?(?:(?:\\n *)+\\n|$)' // (6)
+      + '|<(?!script|pre|style|textarea)([a-z][\\w-]*)(?:attribute)*? */?>(?=[ \\t]*(?:\\n|$))[\\s\\S]*?(?:(?:\\n *)+\\n|$)' // (7) open tag
+      + '|</(?!script|pre|style|textarea)[a-z][\\w-]*\\s*>(?=[ \\t]*(?:\\n|$))[\\s\\S]*?(?:(?:\\n *)+\\n|$)' // (7) closing tag
       + ')',
     def: /^ {0,3}\[(label)\]: *\n? *<?([^\s>]+)>?(?:(?: +\n? *| *\n *)(title))? *(?:\n+|$)/,
-    nptable: noopTest$1,
-    table: noopTest$1,
+    nptable: noopTest,
+    table: noopTest,
     lheading: /^([^\n]+)\n {0,3}(=+|-+) *(?:\n+|$)/,
     // regex template, placeholders will be replaced according to different paragraph
     // interruption rules of commonmark and the original markdown spec:
@@ -12209,68 +12273,68 @@
     text: /^[^\n]+/
   };
 
-  block._label = /(?!\s*\])(?:\\[\[\]]|[^\[\]])+/;
-  block._title = /(?:"(?:\\"?|[^"\\])*"|'[^'\n]*(?:\n[^'\n]+)*\n?'|\([^()]*\))/;
-  block.def = edit$1(block.def)
-    .replace('label', block._label)
-    .replace('title', block._title)
+  block$1._label = /(?!\s*\])(?:\\[\[\]]|[^\[\]])+/;
+  block$1._title = /(?:"(?:\\"?|[^"\\])*"|'[^'\n]*(?:\n[^'\n]+)*\n?'|\([^()]*\))/;
+  block$1.def = edit(block$1.def)
+    .replace('label', block$1._label)
+    .replace('title', block$1._title)
     .getRegex();
 
-  block.bullet = /(?:[*+-]|\d{1,9}[.)])/;
-  block.item = /^( *)(bull) ?[^\n]*(?:\n(?! *bull ?)[^\n]*)*/;
-  block.item = edit$1(block.item, 'gm')
-    .replace(/bull/g, block.bullet)
+  block$1.bullet = /(?:[*+-]|\d{1,9}[.)])/;
+  block$1.item = /^( *)(bull) ?[^\n]*(?:\n(?! *bull ?)[^\n]*)*/;
+  block$1.item = edit(block$1.item, 'gm')
+    .replace(/bull/g, block$1.bullet)
     .getRegex();
 
-  block.listItemStart = edit$1(/^( *)(bull)/)
-    .replace('bull', block.bullet)
+  block$1.listItemStart = edit(/^( *)(bull) */)
+    .replace('bull', block$1.bullet)
     .getRegex();
 
-  block.list = edit$1(block.list)
-    .replace(/bull/g, block.bullet)
+  block$1.list = edit(block$1.list)
+    .replace(/bull/g, block$1.bullet)
     .replace('hr', '\\n+(?=\\1?(?:(?:- *){3,}|(?:_ *){3,}|(?:\\* *){3,})(?:\\n+|$))')
-    .replace('def', '\\n+(?=' + block.def.source + ')')
+    .replace('def', '\\n+(?=' + block$1.def.source + ')')
     .getRegex();
 
-  block._tag = 'address|article|aside|base|basefont|blockquote|body|caption'
+  block$1._tag = 'address|article|aside|base|basefont|blockquote|body|caption'
     + '|center|col|colgroup|dd|details|dialog|dir|div|dl|dt|fieldset|figcaption'
     + '|figure|footer|form|frame|frameset|h[1-6]|head|header|hr|html|iframe'
     + '|legend|li|link|main|menu|menuitem|meta|nav|noframes|ol|optgroup|option'
     + '|p|param|section|source|summary|table|tbody|td|tfoot|th|thead|title|tr'
     + '|track|ul';
-  block._comment = /<!--(?!-?>)[\s\S]*?(?:-->|$)/;
-  block.html = edit$1(block.html, 'i')
-    .replace('comment', block._comment)
-    .replace('tag', block._tag)
+  block$1._comment = /<!--(?!-?>)[\s\S]*?(?:-->|$)/;
+  block$1.html = edit(block$1.html, 'i')
+    .replace('comment', block$1._comment)
+    .replace('tag', block$1._tag)
     .replace('attribute', / +[a-zA-Z:_][\w.:-]*(?: *= *"[^"\n]*"| *= *'[^'\n]*'| *= *[^\s"'=<>`]+)?/)
     .getRegex();
 
-  block.paragraph = edit$1(block._paragraph)
-    .replace('hr', block.hr)
+  block$1.paragraph = edit(block$1._paragraph)
+    .replace('hr', block$1.hr)
     .replace('heading', ' {0,3}#{1,6} ')
     .replace('|lheading', '') // setex headings don't interrupt commonmark paragraphs
     .replace('blockquote', ' {0,3}>')
     .replace('fences', ' {0,3}(?:`{3,}(?=[^`\\n]*\\n)|~{3,})[^\\n]*\\n')
     .replace('list', ' {0,3}(?:[*+-]|1[.)]) ') // only lists starting from 1 can interrupt
-    .replace('html', '</?(?:tag)(?: +|\\n|/?>)|<(?:script|pre|style|!--)')
-    .replace('tag', block._tag) // pars can be interrupted by type (6) html blocks
+    .replace('html', '</?(?:tag)(?: +|\\n|/?>)|<(?:script|pre|style|textarea|!--)')
+    .replace('tag', block$1._tag) // pars can be interrupted by type (6) html blocks
     .getRegex();
 
-  block.blockquote = edit$1(block.blockquote)
-    .replace('paragraph', block.paragraph)
+  block$1.blockquote = edit(block$1.blockquote)
+    .replace('paragraph', block$1.paragraph)
     .getRegex();
 
   /**
    * Normal Block Grammar
    */
 
-  block.normal = merge$1({}, block);
+  block$1.normal = merge$1({}, block$1);
 
   /**
    * GFM Block Grammar
    */
 
-  block.gfm = merge$1({}, block.normal, {
+  block$1.gfm = merge$1({}, block$1.normal, {
     nptable: '^ *([^|\\n ].*\\|.*)\\n' // Header
       + ' {0,3}([-:]+ *\\|[-| :]*)' // Align
       + '(?:\\n((?:(?!\\n|hr|heading|blockquote|code|fences|list|html).*(?:\\n|$))*)\\n*|$)', // Cells
@@ -12279,38 +12343,38 @@
       + '(?:\\n *((?:(?!\\n|hr|heading|blockquote|code|fences|list|html).*(?:\\n|$))*)\\n*|$)' // Cells
   });
 
-  block.gfm.nptable = edit$1(block.gfm.nptable)
-    .replace('hr', block.hr)
+  block$1.gfm.nptable = edit(block$1.gfm.nptable)
+    .replace('hr', block$1.hr)
     .replace('heading', ' {0,3}#{1,6} ')
     .replace('blockquote', ' {0,3}>')
     .replace('code', ' {4}[^\\n]')
     .replace('fences', ' {0,3}(?:`{3,}(?=[^`\\n]*\\n)|~{3,})[^\\n]*\\n')
     .replace('list', ' {0,3}(?:[*+-]|1[.)]) ') // only lists starting from 1 can interrupt
-    .replace('html', '</?(?:tag)(?: +|\\n|/?>)|<(?:script|pre|style|!--)')
-    .replace('tag', block._tag) // tables can be interrupted by type (6) html blocks
+    .replace('html', '</?(?:tag)(?: +|\\n|/?>)|<(?:script|pre|style|textarea|!--)')
+    .replace('tag', block$1._tag) // tables can be interrupted by type (6) html blocks
     .getRegex();
 
-  block.gfm.table = edit$1(block.gfm.table)
-    .replace('hr', block.hr)
+  block$1.gfm.table = edit(block$1.gfm.table)
+    .replace('hr', block$1.hr)
     .replace('heading', ' {0,3}#{1,6} ')
     .replace('blockquote', ' {0,3}>')
     .replace('code', ' {4}[^\\n]')
     .replace('fences', ' {0,3}(?:`{3,}(?=[^`\\n]*\\n)|~{3,})[^\\n]*\\n')
     .replace('list', ' {0,3}(?:[*+-]|1[.)]) ') // only lists starting from 1 can interrupt
-    .replace('html', '</?(?:tag)(?: +|\\n|/?>)|<(?:script|pre|style|!--)')
-    .replace('tag', block._tag) // tables can be interrupted by type (6) html blocks
+    .replace('html', '</?(?:tag)(?: +|\\n|/?>)|<(?:script|pre|style|textarea|!--)')
+    .replace('tag', block$1._tag) // tables can be interrupted by type (6) html blocks
     .getRegex();
 
   /**
    * Pedantic grammar (original John Gruber's loose markdown specification)
    */
 
-  block.pedantic = merge$1({}, block.normal, {
-    html: edit$1(
+  block$1.pedantic = merge$1({}, block$1.normal, {
+    html: edit(
       '^ *(?:comment *(?:\\n|\\s*$)'
       + '|<(tag)[\\s\\S]+?</\\1> *(?:\\n{2,}|\\s*$)' // closed tag
       + '|<tag(?:"[^"]*"|\'[^\']*\'|\\s[^\'"/>\\s]*)*?/?> *(?:\\n{2,}|\\s*$))')
-      .replace('comment', block._comment)
+      .replace('comment', block$1._comment)
       .replace(/tag/g, '(?!(?:'
         + 'a|em|strong|small|s|cite|q|dfn|abbr|data|time|code|var|samp|kbd|sub'
         + '|sup|i|b|u|mark|ruby|rt|rp|bdi|bdo|span|br|wbr|ins|del|img)'
@@ -12318,11 +12382,11 @@
       .getRegex(),
     def: /^ *\[([^\]]+)\]: *<?([^\s>]+)>?(?: +(["(][^\n]+[")]))? *(?:\n+|$)/,
     heading: /^(#{1,6})(.*)(?:\n+|$)/,
-    fences: noopTest$1, // fences not supported
-    paragraph: edit$1(block.normal._paragraph)
-      .replace('hr', block.hr)
+    fences: noopTest, // fences not supported
+    paragraph: edit(block$1.normal._paragraph)
+      .replace('hr', block$1.hr)
       .replace('heading', ' *#{1,6} *[^\n]')
-      .replace('lheading', block.lheading)
+      .replace('lheading', block$1.lheading)
       .replace('blockquote', ' {0,3}>')
       .replace('|fences', '')
       .replace('|list', '')
@@ -12333,10 +12397,10 @@
   /**
    * Inline-Level Grammar
    */
-  const inline = {
+  const inline$1 = {
     escape: /^\\([!"#$%&'()*+,\-./:;<=>?@\[\]\\^_`{|}~])/,
     autolink: /^<(scheme:[^\s\x00-\x1f<>]*|email)>/,
-    url: noopTest$1,
+    url: noopTest,
     tag: '^comment'
       + '|^</[a-zA-Z][\\w:-]*\\s*>' // self-closing tag
       + '|^<[a-zA-Z][\\w-]*(?:attribute)*?\\s*/?>' // open tag
@@ -12350,86 +12414,86 @@
     emStrong: {
       lDelim: /^(?:\*+(?:([punct_])|[^\s*]))|^_+(?:([punct*])|([^\s_]))/,
       //        (1) and (2) can only be a Right Delimiter. (3) and (4) can only be Left.  (5) and (6) can be either Left or Right.
-      //        () Skip other delimiter (1) #***                (2) a***#, a***                   (3) #***a, ***a                 (4) ***#              (5) #***#                 (6) a***a
-      rDelimAst: /\_\_[^_]*?\*[^_]*?\_\_|[punct_](\*+)(?=[\s]|$)|[^punct*_\s](\*+)(?=[punct_\s]|$)|[punct_\s](\*+)(?=[^punct*_\s])|[\s](\*+)(?=[punct_])|[punct_](\*+)(?=[punct_])|[^punct*_\s](\*+)(?=[^punct*_\s])/,
-      rDelimUnd: /\*\*[^*]*?\_[^*]*?\*\*|[punct*](\_+)(?=[\s]|$)|[^punct*_\s](\_+)(?=[punct*\s]|$)|[punct*\s](\_+)(?=[^punct*_\s])|[\s](\_+)(?=[punct*])|[punct*](\_+)(?=[punct*])/ // ^- Not allowed for _
+      //        () Skip other delimiter (1) #***                   (2) a***#, a***                   (3) #***a, ***a                 (4) ***#              (5) #***#                 (6) a***a
+      rDelimAst: /\_\_[^_*]*?\*[^_*]*?\_\_|[punct_](\*+)(?=[\s]|$)|[^punct*_\s](\*+)(?=[punct_\s]|$)|[punct_\s](\*+)(?=[^punct*_\s])|[\s](\*+)(?=[punct_])|[punct_](\*+)(?=[punct_])|[^punct*_\s](\*+)(?=[^punct*_\s])/,
+      rDelimUnd: /\*\*[^_*]*?\_[^_*]*?\*\*|[punct*](\_+)(?=[\s]|$)|[^punct*_\s](\_+)(?=[punct*\s]|$)|[punct*\s](\_+)(?=[^punct*_\s])|[\s](\_+)(?=[punct*])|[punct*](\_+)(?=[punct*])/ // ^- Not allowed for _
     },
     code: /^(`+)([^`]|[^`][\s\S]*?[^`])\1(?!`)/,
     br: /^( {2,}|\\)\n(?!\s*$)/,
-    del: noopTest$1,
+    del: noopTest,
     text: /^(`+|[^`])(?:(?= {2,}\n)|[\s\S]*?(?:(?=[\\<!\[`*_]|\b_|$)|[^ ](?= {2,}\n)))/,
     punctuation: /^([\spunctuation])/
   };
 
   // list of punctuation marks from CommonMark spec
   // without * and _ to handle the different emphasis markers * and _
-  inline._punctuation = '!"#$%&\'()+\\-.,/:;<=>?@\\[\\]`^{|}~';
-  inline.punctuation = edit$1(inline.punctuation).replace(/punctuation/g, inline._punctuation).getRegex();
+  inline$1._punctuation = '!"#$%&\'()+\\-.,/:;<=>?@\\[\\]`^{|}~';
+  inline$1.punctuation = edit(inline$1.punctuation).replace(/punctuation/g, inline$1._punctuation).getRegex();
 
   // sequences em should skip over [title](link), `code`, <html>
-  inline.blockSkip = /\[[^\]]*?\]\([^\)]*?\)|`[^`]*?`|<[^>]*?>/g;
-  inline.escapedEmSt = /\\\*|\\_/g;
+  inline$1.blockSkip = /\[[^\]]*?\]\([^\)]*?\)|`[^`]*?`|<[^>]*?>/g;
+  inline$1.escapedEmSt = /\\\*|\\_/g;
 
-  inline._comment = edit$1(block._comment).replace('(?:-->|$)', '-->').getRegex();
+  inline$1._comment = edit(block$1._comment).replace('(?:-->|$)', '-->').getRegex();
 
-  inline.emStrong.lDelim = edit$1(inline.emStrong.lDelim)
-    .replace(/punct/g, inline._punctuation)
+  inline$1.emStrong.lDelim = edit(inline$1.emStrong.lDelim)
+    .replace(/punct/g, inline$1._punctuation)
     .getRegex();
 
-  inline.emStrong.rDelimAst = edit$1(inline.emStrong.rDelimAst, 'g')
-    .replace(/punct/g, inline._punctuation)
+  inline$1.emStrong.rDelimAst = edit(inline$1.emStrong.rDelimAst, 'g')
+    .replace(/punct/g, inline$1._punctuation)
     .getRegex();
 
-  inline.emStrong.rDelimUnd = edit$1(inline.emStrong.rDelimUnd, 'g')
-    .replace(/punct/g, inline._punctuation)
+  inline$1.emStrong.rDelimUnd = edit(inline$1.emStrong.rDelimUnd, 'g')
+    .replace(/punct/g, inline$1._punctuation)
     .getRegex();
 
-  inline._escapes = /\\([!"#$%&'()*+,\-./:;<=>?@\[\]\\^_`{|}~])/g;
+  inline$1._escapes = /\\([!"#$%&'()*+,\-./:;<=>?@\[\]\\^_`{|}~])/g;
 
-  inline._scheme = /[a-zA-Z][a-zA-Z0-9+.-]{1,31}/;
-  inline._email = /[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+(@)[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+(?![-_])/;
-  inline.autolink = edit$1(inline.autolink)
-    .replace('scheme', inline._scheme)
-    .replace('email', inline._email)
+  inline$1._scheme = /[a-zA-Z][a-zA-Z0-9+.-]{1,31}/;
+  inline$1._email = /[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+(@)[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+(?![-_])/;
+  inline$1.autolink = edit(inline$1.autolink)
+    .replace('scheme', inline$1._scheme)
+    .replace('email', inline$1._email)
     .getRegex();
 
-  inline._attribute = /\s+[a-zA-Z:_][\w.:-]*(?:\s*=\s*"[^"]*"|\s*=\s*'[^']*'|\s*=\s*[^\s"'=<>`]+)?/;
+  inline$1._attribute = /\s+[a-zA-Z:_][\w.:-]*(?:\s*=\s*"[^"]*"|\s*=\s*'[^']*'|\s*=\s*[^\s"'=<>`]+)?/;
 
-  inline.tag = edit$1(inline.tag)
-    .replace('comment', inline._comment)
-    .replace('attribute', inline._attribute)
+  inline$1.tag = edit(inline$1.tag)
+    .replace('comment', inline$1._comment)
+    .replace('attribute', inline$1._attribute)
     .getRegex();
 
-  inline._label = /(?:\[(?:\\.|[^\[\]\\])*\]|\\.|`[^`]*`|[^\[\]\\`])*?/;
-  inline._href = /<(?:\\.|[^\n<>\\])+>|[^\s\x00-\x1f]*/;
-  inline._title = /"(?:\\"?|[^"\\])*"|'(?:\\'?|[^'\\])*'|\((?:\\\)?|[^)\\])*\)/;
+  inline$1._label = /(?:\[(?:\\.|[^\[\]\\])*\]|\\.|`[^`]*`|[^\[\]\\`])*?/;
+  inline$1._href = /<(?:\\.|[^\n<>\\])+>|[^\s\x00-\x1f]*/;
+  inline$1._title = /"(?:\\"?|[^"\\])*"|'(?:\\'?|[^'\\])*'|\((?:\\\)?|[^)\\])*\)/;
 
-  inline.link = edit$1(inline.link)
-    .replace('label', inline._label)
-    .replace('href', inline._href)
-    .replace('title', inline._title)
+  inline$1.link = edit(inline$1.link)
+    .replace('label', inline$1._label)
+    .replace('href', inline$1._href)
+    .replace('title', inline$1._title)
     .getRegex();
 
-  inline.reflink = edit$1(inline.reflink)
-    .replace('label', inline._label)
+  inline$1.reflink = edit(inline$1.reflink)
+    .replace('label', inline$1._label)
     .getRegex();
 
-  inline.reflinkSearch = edit$1(inline.reflinkSearch, 'g')
-    .replace('reflink', inline.reflink)
-    .replace('nolink', inline.nolink)
+  inline$1.reflinkSearch = edit(inline$1.reflinkSearch, 'g')
+    .replace('reflink', inline$1.reflink)
+    .replace('nolink', inline$1.nolink)
     .getRegex();
 
   /**
    * Normal Inline Grammar
    */
 
-  inline.normal = merge$1({}, inline);
+  inline$1.normal = merge$1({}, inline$1);
 
   /**
    * Pedantic Inline Grammar
    */
 
-  inline.pedantic = merge$1({}, inline.normal, {
+  inline$1.pedantic = merge$1({}, inline$1.normal, {
     strong: {
       start: /^__|\*\*/,
       middle: /^__(?=\S)([\s\S]*?\S)__(?!_)|^\*\*(?=\S)([\s\S]*?\S)\*\*(?!\*)/,
@@ -12442,11 +12506,11 @@
       endAst: /\*(?!\*)/g,
       endUnd: /_(?!_)/g
     },
-    link: edit$1(/^!?\[(label)\]\((.*?)\)/)
-      .replace('label', inline._label)
+    link: edit(/^!?\[(label)\]\((.*?)\)/)
+      .replace('label', inline$1._label)
       .getRegex(),
-    reflink: edit$1(/^!?\[(label)\]\s*\[([^\]]*)\]/)
-      .replace('label', inline._label)
+    reflink: edit(/^!?\[(label)\]\s*\[([^\]]*)\]/)
+      .replace('label', inline$1._label)
       .getRegex()
   });
 
@@ -12454,38 +12518,38 @@
    * GFM Inline Grammar
    */
 
-  inline.gfm = merge$1({}, inline.normal, {
-    escape: edit$1(inline.escape).replace('])', '~|])').getRegex(),
+  inline$1.gfm = merge$1({}, inline$1.normal, {
+    escape: edit(inline$1.escape).replace('])', '~|])').getRegex(),
     _extended_email: /[A-Za-z0-9._+-]+(@)[a-zA-Z0-9-_]+(?:\.[a-zA-Z0-9-_]*[a-zA-Z0-9])+(?![-_])/,
     url: /^((?:ftp|https?):\/\/|www\.)(?:[a-zA-Z0-9\-]+\.?)+[^\s<]*|^email/,
     _backpedal: /(?:[^?!.,:;*_~()&]+|\([^)]*\)|&(?![a-zA-Z0-9]+;$)|[?!.,:;*_~)]+(?!$))+/,
     del: /^(~~?)(?=[^\s~])([\s\S]*?[^\s~])\1(?=[^~]|$)/,
-    text: /^([`~]+|[^`~])(?:(?= {2,}\n)|[\s\S]*?(?:(?=[\\<!\[`*~_]|\b_|https?:\/\/|ftp:\/\/|www\.|$)|[^ ](?= {2,}\n)|[^a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-](?=[a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-]+@))|(?=[a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-]+@))/
+    text: /^([`~]+|[^`~])(?:(?= {2,}\n)|(?=[a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-]+@)|[\s\S]*?(?:(?=[\\<!\[`*~_]|\b_|https?:\/\/|ftp:\/\/|www\.|$)|[^ ](?= {2,}\n)|[^a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-](?=[a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-]+@)))/
   });
 
-  inline.gfm.url = edit$1(inline.gfm.url, 'i')
-    .replace('email', inline.gfm._extended_email)
+  inline$1.gfm.url = edit(inline$1.gfm.url, 'i')
+    .replace('email', inline$1.gfm._extended_email)
     .getRegex();
   /**
    * GFM + Line Breaks Inline Grammar
    */
 
-  inline.breaks = merge$1({}, inline.gfm, {
-    br: edit$1(inline.br).replace('{2,}', '*').getRegex(),
-    text: edit$1(inline.gfm.text)
+  inline$1.breaks = merge$1({}, inline$1.gfm, {
+    br: edit(inline$1.br).replace('{2,}', '*').getRegex(),
+    text: edit(inline$1.gfm.text)
       .replace('\\b_', '\\b_| {2,}\\n')
       .replace(/\{2,\}/g, '*')
       .getRegex()
   });
 
   var rules = {
-    block,
-    inline
+    block: block$1,
+    inline: inline$1
   };
 
-  const { defaults: defaults$2 } = defaults;
-  const { block: block$1, inline: inline$1 } = rules;
-  const { repeatString: repeatString$1 } = helpers;
+  const { defaults: defaults$3 } = defaults$5;
+  const { block, inline } = rules;
+  const { repeatString } = helpers;
 
   /**
    * smartypants text replacement
@@ -12535,25 +12599,25 @@
     constructor(options) {
       this.tokens = [];
       this.tokens.links = Object.create(null);
-      this.options = options || defaults$2;
+      this.options = options || defaults$3;
       this.options.tokenizer = this.options.tokenizer || new Tokenizer_1();
       this.tokenizer = this.options.tokenizer;
       this.tokenizer.options = this.options;
 
       const rules = {
-        block: block$1.normal,
-        inline: inline$1.normal
+        block: block.normal,
+        inline: inline.normal
       };
 
       if (this.options.pedantic) {
-        rules.block = block$1.pedantic;
-        rules.inline = inline$1.pedantic;
+        rules.block = block.pedantic;
+        rules.inline = inline.pedantic;
       } else if (this.options.gfm) {
-        rules.block = block$1.gfm;
+        rules.block = block.gfm;
         if (this.options.breaks) {
-          rules.inline = inline$1.breaks;
+          rules.inline = inline.breaks;
         } else {
-          rules.inline = inline$1.gfm;
+          rules.inline = inline.gfm;
         }
       }
       this.tokenizer.rules = rules;
@@ -12564,8 +12628,8 @@
      */
     static get rules() {
       return {
-        block: block$1,
-        inline: inline$1
+        block,
+        inline
       };
     }
 
@@ -12607,9 +12671,22 @@
       if (this.options.pedantic) {
         src = src.replace(/^ +$/gm, '');
       }
-      let token, i, l, lastToken;
+      let token, i, l, lastToken, cutSrc, lastParagraphClipped;
 
       while (src) {
+        if (this.options.extensions
+          && this.options.extensions.block
+          && this.options.extensions.block.some((extTokenizer) => {
+            if (token = extTokenizer.call(this, src, tokens)) {
+              src = src.substring(token.raw.length);
+              tokens.push(token);
+              return true;
+            }
+            return false;
+          })) {
+          continue;
+        }
+
         // newline
         if (token = this.tokenizer.space(src)) {
           src = src.substring(token.raw.length);
@@ -12714,9 +12791,30 @@
         }
 
         // top-level paragraph
-        if (top && (token = this.tokenizer.paragraph(src))) {
+        // prevent paragraph consuming extensions by clipping 'src' to extension start
+        cutSrc = src;
+        if (this.options.extensions && this.options.extensions.startBlock) {
+          let startIndex = Infinity;
+          const tempSrc = src.slice(1);
+          let tempStart;
+          this.options.extensions.startBlock.forEach(function(getStartIndex) {
+            tempStart = getStartIndex.call(this, tempSrc);
+            if (typeof tempStart === 'number' && tempStart >= 0) { startIndex = Math.min(startIndex, tempStart); }
+          });
+          if (startIndex < Infinity && startIndex >= 0) {
+            cutSrc = src.substring(0, startIndex + 1);
+          }
+        }
+        if (top && (token = this.tokenizer.paragraph(cutSrc))) {
+          lastToken = tokens[tokens.length - 1];
+          if (lastParagraphClipped && lastToken.type === 'paragraph') {
+            lastToken.raw += '\n' + token.raw;
+            lastToken.text += '\n' + token.text;
+          } else {
+            tokens.push(token);
+          }
+          lastParagraphClipped = (cutSrc.length !== src.length);
           src = src.substring(token.raw.length);
-          tokens.push(token);
           continue;
         }
 
@@ -12813,7 +12911,7 @@
      * Lexing/Compiling
      */
     inlineTokens(src, tokens = [], inLink = false, inRawBlock = false) {
-      let token, lastToken;
+      let token, lastToken, cutSrc;
 
       // String with links masked to avoid interference with em and strong
       let maskedSrc = src;
@@ -12826,14 +12924,14 @@
         if (links.length > 0) {
           while ((match = this.tokenizer.rules.inline.reflinkSearch.exec(maskedSrc)) != null) {
             if (links.includes(match[0].slice(match[0].lastIndexOf('[') + 1, -1))) {
-              maskedSrc = maskedSrc.slice(0, match.index) + '[' + repeatString$1('a', match[0].length - 2) + ']' + maskedSrc.slice(this.tokenizer.rules.inline.reflinkSearch.lastIndex);
+              maskedSrc = maskedSrc.slice(0, match.index) + '[' + repeatString('a', match[0].length - 2) + ']' + maskedSrc.slice(this.tokenizer.rules.inline.reflinkSearch.lastIndex);
             }
           }
         }
       }
       // Mask out other blocks
       while ((match = this.tokenizer.rules.inline.blockSkip.exec(maskedSrc)) != null) {
-        maskedSrc = maskedSrc.slice(0, match.index) + '[' + repeatString$1('a', match[0].length - 2) + ']' + maskedSrc.slice(this.tokenizer.rules.inline.blockSkip.lastIndex);
+        maskedSrc = maskedSrc.slice(0, match.index) + '[' + repeatString('a', match[0].length - 2) + ']' + maskedSrc.slice(this.tokenizer.rules.inline.blockSkip.lastIndex);
       }
 
       // Mask out escaped em & strong delimiters
@@ -12847,6 +12945,20 @@
         }
         keepPrevChar = false;
 
+        // extensions
+        if (this.options.extensions
+          && this.options.extensions.inline
+          && this.options.extensions.inline.some((extTokenizer) => {
+            if (token = extTokenizer.call(this, src, tokens)) {
+              src = src.substring(token.raw.length);
+              tokens.push(token);
+              return true;
+            }
+            return false;
+          })) {
+          continue;
+        }
+
         // escape
         if (token = this.tokenizer.escape(src)) {
           src = src.substring(token.raw.length);
@@ -12859,7 +12971,7 @@
           src = src.substring(token.raw.length);
           inLink = token.inLink;
           inRawBlock = token.inRawBlock;
-          const lastToken = tokens[tokens.length - 1];
+          lastToken = tokens[tokens.length - 1];
           if (lastToken && token.type === 'text' && lastToken.type === 'text') {
             lastToken.raw += token.raw;
             lastToken.text += token.text;
@@ -12882,7 +12994,7 @@
         // reflink, nolink
         if (token = this.tokenizer.reflink(src, this.tokens.links)) {
           src = src.substring(token.raw.length);
-          const lastToken = tokens[tokens.length - 1];
+          lastToken = tokens[tokens.length - 1];
           if (token.type === 'link') {
             token.tokens = this.inlineTokens(token.text, [], true, inRawBlock);
             tokens.push(token);
@@ -12940,7 +13052,21 @@
         }
 
         // text
-        if (token = this.tokenizer.inlineText(src, inRawBlock, smartypants)) {
+        // prevent inlineText consuming extensions by clipping 'src' to extension start
+        cutSrc = src;
+        if (this.options.extensions && this.options.extensions.startInline) {
+          let startIndex = Infinity;
+          const tempSrc = src.slice(1);
+          let tempStart;
+          this.options.extensions.startInline.forEach(function(getStartIndex) {
+            tempStart = getStartIndex.call(this, tempSrc);
+            if (typeof tempStart === 'number' && tempStart >= 0) { startIndex = Math.min(startIndex, tempStart); }
+          });
+          if (startIndex < Infinity && startIndex >= 0) {
+            cutSrc = src.substring(0, startIndex + 1);
+          }
+        }
+        if (token = this.tokenizer.inlineText(cutSrc, inRawBlock, smartypants)) {
           src = src.substring(token.raw.length);
           if (token.raw.slice(-1) !== '_') { // Track prevChar before string of ____ started
             prevChar = token.raw.slice(-1);
@@ -12971,10 +13097,10 @@
     }
   };
 
-  const { defaults: defaults$3 } = defaults;
+  const { defaults: defaults$2 } = defaults$5;
   const {
-    cleanUrl: cleanUrl$1,
-    escape: escape$2
+    cleanUrl,
+    escape: escape$1
   } = helpers;
 
   /**
@@ -12982,7 +13108,7 @@
    */
   var Renderer_1 = class Renderer {
     constructor(options) {
-      this.options = options || defaults$3;
+      this.options = options || defaults$2;
     }
 
     code(code, infostring, escaped) {
@@ -12999,15 +13125,15 @@
 
       if (!lang) {
         return '<pre><code>'
-          + (escaped ? code : escape$2(code, true))
+          + (escaped ? code : escape$1(code, true))
           + '</code></pre>\n';
       }
 
       return '<pre><code class="'
         + this.options.langPrefix
-        + escape$2(lang, true)
+        + escape$1(lang, true)
         + '">'
-        + (escaped ? code : escape$2(code, true))
+        + (escaped ? code : escape$1(code, true))
         + '</code></pre>\n';
     }
 
@@ -13107,11 +13233,11 @@
     }
 
     link(href, title, text) {
-      href = cleanUrl$1(this.options.sanitize, this.options.baseUrl, href);
+      href = cleanUrl(this.options.sanitize, this.options.baseUrl, href);
       if (href === null) {
         return text;
       }
-      let out = '<a href="' + escape$2(href) + '"';
+      let out = '<a href="' + escape$1(href) + '"';
       if (title) {
         out += ' title="' + title + '"';
       }
@@ -13120,7 +13246,7 @@
     }
 
     image(href, title, text) {
-      href = cleanUrl$1(this.options.sanitize, this.options.baseUrl, href);
+      href = cleanUrl(this.options.sanitize, this.options.baseUrl, href);
       if (href === null) {
         return text;
       }
@@ -13231,9 +13357,9 @@
     }
   };
 
-  const { defaults: defaults$4 } = defaults;
+  const { defaults: defaults$1 } = defaults$5;
   const {
-    unescape: unescape$1
+    unescape
   } = helpers;
 
   /**
@@ -13241,7 +13367,7 @@
    */
   var Parser_1 = class Parser {
     constructor(options) {
-      this.options = options || defaults$4;
+      this.options = options || defaults$1;
       this.options.renderer = this.options.renderer || new Renderer_1();
       this.renderer = this.options.renderer;
       this.renderer.options = this.options;
@@ -13287,11 +13413,22 @@
         item,
         checked,
         task,
-        checkbox;
+        checkbox,
+        ret;
 
       const l = tokens.length;
       for (i = 0; i < l; i++) {
         token = tokens[i];
+
+        // Run any renderer extensions
+        if (this.options.extensions && this.options.extensions.renderers && this.options.extensions.renderers[token.type]) {
+          ret = this.options.extensions.renderers[token.type].call(this, token);
+          if (ret !== false || !['space', 'hr', 'heading', 'code', 'table', 'blockquote', 'list', 'html', 'paragraph', 'text'].includes(token.type)) {
+            out += ret || '';
+            continue;
+          }
+        }
+
         switch (token.type) {
           case 'space': {
             continue;
@@ -13304,7 +13441,7 @@
             out += this.renderer.heading(
               this.parseInline(token.tokens),
               token.depth,
-              unescape$1(this.parseInline(token.tokens, this.textRenderer)),
+              unescape(this.parseInline(token.tokens, this.textRenderer)),
               this.slugger);
             continue;
           }
@@ -13409,6 +13546,7 @@
             out += top ? this.renderer.paragraph(body) : body;
             continue;
           }
+
           default: {
             const errMsg = 'Token with "' + token.type + '" type was not found.';
             if (this.options.silent) {
@@ -13431,11 +13569,22 @@
       renderer = renderer || this.renderer;
       let out = '',
         i,
-        token;
+        token,
+        ret;
 
       const l = tokens.length;
       for (i = 0; i < l; i++) {
         token = tokens[i];
+
+        // Run any renderer extensions
+        if (this.options.extensions && this.options.extensions.renderers && this.options.extensions.renderers[token.type]) {
+          ret = this.options.extensions.renderers[token.type].call(this, token);
+          if (ret !== false || !['escape', 'html', 'link', 'image', 'strong', 'em', 'codespan', 'br', 'del', 'text'].includes(token.type)) {
+            out += ret || '';
+            continue;
+          }
+        }
+
         switch (token.type) {
           case 'escape': {
             out += renderer.text(token.text);
@@ -13493,15 +13642,15 @@
   };
 
   const {
-    merge: merge$2,
-    checkSanitizeDeprecation: checkSanitizeDeprecation$1,
-    escape: escape$3
+    merge,
+    checkSanitizeDeprecation,
+    escape
   } = helpers;
   const {
     getDefaults,
     changeDefaults,
-    defaults: defaults$5
-  } = defaults;
+    defaults
+  } = defaults$5;
 
   /**
    * Marked
@@ -13521,8 +13670,8 @@
       opt = null;
     }
 
-    opt = merge$2({}, marked.defaults, opt || {});
-    checkSanitizeDeprecation$1(opt);
+    opt = merge({}, marked.defaults, opt || {});
+    checkSanitizeDeprecation(opt);
 
     if (callback) {
       const highlight = opt.highlight;
@@ -13539,6 +13688,9 @@
 
         if (!err) {
           try {
+            if (opt.walkTokens) {
+              marked.walkTokens(tokens, opt.walkTokens);
+            }
             out = Parser_1.parse(tokens, opt);
           } catch (e) {
             err = e;
@@ -13600,7 +13752,7 @@
       e.message += '\nPlease report this to https://github.com/markedjs/marked.';
       if (opt.silent) {
         return '<p>An error occurred:</p><pre>'
-          + escape$3(e.message + '', true)
+          + escape(e.message + '', true)
           + '</pre>';
       }
       throw e;
@@ -13613,59 +13765,127 @@
 
   marked.options =
   marked.setOptions = function(opt) {
-    merge$2(marked.defaults, opt);
+    merge(marked.defaults, opt);
     changeDefaults(marked.defaults);
     return marked;
   };
 
   marked.getDefaults = getDefaults;
 
-  marked.defaults = defaults$5;
+  marked.defaults = defaults;
 
   /**
    * Use Extension
    */
 
-  marked.use = function(extension) {
-    const opts = merge$2({}, extension);
-    if (extension.renderer) {
-      const renderer = marked.defaults.renderer || new Renderer_1();
-      for (const prop in extension.renderer) {
-        const prevRenderer = renderer[prop];
-        renderer[prop] = (...args) => {
-          let ret = extension.renderer[prop].apply(renderer, args);
-          if (ret === false) {
-            ret = prevRenderer.apply(renderer, args);
+  marked.use = function(...args) {
+    const opts = merge({}, ...args);
+    const extensions = marked.defaults.extensions || { renderers: {}, childTokens: {} };
+    let hasExtensions;
+
+    args.forEach((pack) => {
+      // ==-- Parse "addon" extensions --== //
+      if (pack.extensions) {
+        hasExtensions = true;
+        pack.extensions.forEach((ext) => {
+          if (!ext.name) {
+            throw new Error('extension name required');
           }
-          return ret;
-        };
-      }
-      opts.renderer = renderer;
-    }
-    if (extension.tokenizer) {
-      const tokenizer = marked.defaults.tokenizer || new Tokenizer_1();
-      for (const prop in extension.tokenizer) {
-        const prevTokenizer = tokenizer[prop];
-        tokenizer[prop] = (...args) => {
-          let ret = extension.tokenizer[prop].apply(tokenizer, args);
-          if (ret === false) {
-            ret = prevTokenizer.apply(tokenizer, args);
+          if (ext.renderer) { // Renderer extensions
+            const prevRenderer = extensions.renderers ? extensions.renderers[ext.name] : null;
+            if (prevRenderer) {
+              // Replace extension with func to run new extension but fall back if false
+              extensions.renderers[ext.name] = function(...args) {
+                let ret = ext.renderer.apply(this, args);
+                if (ret === false) {
+                  ret = prevRenderer.apply(this, args);
+                }
+                return ret;
+              };
+            } else {
+              extensions.renderers[ext.name] = ext.renderer;
+            }
           }
-          return ret;
-        };
+          if (ext.tokenizer) { // Tokenizer Extensions
+            if (!ext.level || (ext.level !== 'block' && ext.level !== 'inline')) {
+              throw new Error("extension level must be 'block' or 'inline'");
+            }
+            if (extensions[ext.level]) {
+              extensions[ext.level].unshift(ext.tokenizer);
+            } else {
+              extensions[ext.level] = [ext.tokenizer];
+            }
+            if (ext.start) { // Function to check for start of token
+              if (ext.level === 'block') {
+                if (extensions.startBlock) {
+                  extensions.startBlock.push(ext.start);
+                } else {
+                  extensions.startBlock = [ext.start];
+                }
+              } else if (ext.level === 'inline') {
+                if (extensions.startInline) {
+                  extensions.startInline.push(ext.start);
+                } else {
+                  extensions.startInline = [ext.start];
+                }
+              }
+            }
+          }
+          if (ext.childTokens) { // Child tokens to be visited by walkTokens
+            extensions.childTokens[ext.name] = ext.childTokens;
+          }
+        });
       }
-      opts.tokenizer = tokenizer;
-    }
-    if (extension.walkTokens) {
-      const walkTokens = marked.defaults.walkTokens;
-      opts.walkTokens = (token) => {
-        extension.walkTokens(token);
-        if (walkTokens) {
-          walkTokens(token);
+
+      // ==-- Parse "overwrite" extensions --== //
+      if (pack.renderer) {
+        const renderer = marked.defaults.renderer || new Renderer_1();
+        for (const prop in pack.renderer) {
+          const prevRenderer = renderer[prop];
+          // Replace renderer with func to run extension, but fall back if false
+          renderer[prop] = (...args) => {
+            let ret = pack.renderer[prop].apply(renderer, args);
+            if (ret === false) {
+              ret = prevRenderer.apply(renderer, args);
+            }
+            return ret;
+          };
         }
-      };
-    }
-    marked.setOptions(opts);
+        opts.renderer = renderer;
+      }
+      if (pack.tokenizer) {
+        const tokenizer = marked.defaults.tokenizer || new Tokenizer_1();
+        for (const prop in pack.tokenizer) {
+          const prevTokenizer = tokenizer[prop];
+          // Replace tokenizer with func to run extension, but fall back if false
+          tokenizer[prop] = (...args) => {
+            let ret = pack.tokenizer[prop].apply(tokenizer, args);
+            if (ret === false) {
+              ret = prevTokenizer.apply(tokenizer, args);
+            }
+            return ret;
+          };
+        }
+        opts.tokenizer = tokenizer;
+      }
+
+      // ==-- Parse WalkTokens extensions --== //
+      if (pack.walkTokens) {
+        const walkTokens = marked.defaults.walkTokens;
+        opts.walkTokens = (token) => {
+          pack.walkTokens.call(this, token);
+          if (walkTokens) {
+            walkTokens(token);
+          }
+        };
+      }
+
+      if (hasExtensions) {
+        opts.extensions = extensions;
+      }
+
+      marked.setOptions(opts);
+    });
   };
 
   /**
@@ -13692,7 +13912,11 @@
           break;
         }
         default: {
-          if (token.tokens) {
+          if (marked.defaults.extensions && marked.defaults.extensions.childTokens && marked.defaults.extensions.childTokens[token.type]) { // Walk any extensions
+            marked.defaults.extensions.childTokens[token.type].forEach(function(childTokens) {
+              marked.walkTokens(token[childTokens], callback);
+            });
+          } else if (token.tokens) {
             marked.walkTokens(token.tokens, callback);
           }
         }
@@ -13713,8 +13937,8 @@
         + Object.prototype.toString.call(src) + ', string expected');
     }
 
-    opt = merge$2({}, marked.defaults, opt || {});
-    checkSanitizeDeprecation$1(opt);
+    opt = merge({}, marked.defaults, opt || {});
+    checkSanitizeDeprecation(opt);
 
     try {
       const tokens = Lexer_1.lexInline(src, opt);
@@ -13726,7 +13950,7 @@
       e.message += '\nPlease report this to https://github.com/markedjs/marked.';
       if (opt.silent) {
         return '<p>An error occurred:</p><pre>'
-          + escape$3(e.message + '', true)
+          + escape(e.message + '', true)
           + '</pre>';
       }
       throw e;
@@ -13799,7 +14023,7 @@
       getComponent
     ) {
       return template(
-        '<template expr36="expr36"></template>',
+        '<template expr47="expr47"></template>',
         [
           {
             'type': bindingTypes.IF,
@@ -13810,11 +14034,11 @@
               return scope.state.article != null;
             },
 
-            'redundantAttribute': 'expr36',
-            'selector': '[expr36]',
+            'redundantAttribute': 'expr47',
+            'selector': '[expr47]',
 
             'template': template(
-              '<div id="articleBodyField"></div><ul class="tag-list"><li expr37="expr37" class="tag-default tag-pill tag-outline"></li></ul>',
+              '<div id="articleBodyField"></div><ul class="tag-list"><li expr48="expr48" class="tag-default tag-pill tag-outline"></li></ul>',
               [
                 {
                   'type': bindingTypes.EACH,
@@ -13841,8 +14065,8 @@
                     ]
                   ),
 
-                  'redundantAttribute': 'expr37',
-                  'selector': '[expr37]',
+                  'redundantAttribute': 'expr48',
+                  'selector': '[expr48]',
                   'itemName': 'tagWord',
                   'indexName': null,
 
@@ -13889,7 +14113,7 @@
       getComponent
     ) {
       return template(
-        '<form class="card comment-form"><div class="card-block"><textarea id="commentArea" class="form-control" placeholder="Write a comment..." rows="3"></textarea></div><div class="card-footer"><template expr46="expr46"></template><button expr48="expr48" type="button" class="btn btn-sm btn-primary">\n        Post Comment\n        </button></div></form>',
+        '<form class="card comment-form"><div class="card-block"><textarea id="commentArea" class="form-control" placeholder="Write a comment..." rows="3"></textarea></div><div class="card-footer"><template expr58="expr58"></template><button expr60="expr60" type="button" class="btn btn-sm btn-primary">\n        Post Comment\n        </button></div></form>',
         [
           {
             'type': bindingTypes.IF,
@@ -13900,15 +14124,15 @@
               return scope.state.profile != null;
             },
 
-            'redundantAttribute': 'expr46',
-            'selector': '[expr46]',
+            'redundantAttribute': 'expr58',
+            'selector': '[expr58]',
 
             'template': template(
-              '<img expr47="expr47" class="comment-author-img"/>',
+              '<img expr59="expr59" class="comment-author-img"/>',
               [
                 {
-                  'redundantAttribute': 'expr47',
-                  'selector': '[expr47]',
+                  'redundantAttribute': 'expr59',
+                  'selector': '[expr59]',
 
                   'expressions': [
                     {
@@ -13927,8 +14151,8 @@
             )
           },
           {
-            'redundantAttribute': 'expr48',
-            'selector': '[expr48]',
+            'redundantAttribute': 'expr60',
+            'selector': '[expr60]',
 
             'expressions': [
               {
@@ -13993,7 +14217,7 @@
       getComponent
     ) {
       return template(
-        '<div expr38="expr38" class="card"></div>',
+        '<div expr63="expr63" class="card"></div>',
         [
           {
             'type': bindingTypes.EACH,
@@ -14001,11 +14225,11 @@
             'condition': null,
 
             'template': template(
-              '<div class="card-block"><p class="card-text"><div expr39="expr39" class="comment_body_view"></div></p></div><div class="card-footer"><a expr40="expr40" class="comment-author"><img expr41="expr41" class="comment-author-img"/></a>\n        &nbsp;\n        <a expr42="expr42" class="comment-author"> </a><span expr43="expr43" class="date-posted"> </span><template expr44="expr44"></template></div>',
+              '<div class="card-block"><p class="card-text"><div expr64="expr64" class="comment_body_view"></div></p></div><div class="card-footer"><a expr65="expr65" class="comment-author"><img expr66="expr66" class="comment-author-img"/></a>\n        &nbsp;\n        <a expr67="expr67" class="comment-author"> </a><span expr68="expr68" class="date-posted"> </span><template expr69="expr69"></template></div>',
               [
                 {
-                  'redundantAttribute': 'expr39',
-                  'selector': '[expr39]',
+                  'redundantAttribute': 'expr64',
+                  'selector': '[expr64]',
 
                   'expressions': [
                     {
@@ -14021,8 +14245,8 @@
                   ]
                 },
                 {
-                  'redundantAttribute': 'expr40',
-                  'selector': '[expr40]',
+                  'redundantAttribute': 'expr65',
+                  'selector': '[expr65]',
 
                   'expressions': [
                     {
@@ -14038,8 +14262,8 @@
                   ]
                 },
                 {
-                  'redundantAttribute': 'expr41',
-                  'selector': '[expr41]',
+                  'redundantAttribute': 'expr66',
+                  'selector': '[expr66]',
 
                   'expressions': [
                     {
@@ -14055,8 +14279,8 @@
                   ]
                 },
                 {
-                  'redundantAttribute': 'expr42',
-                  'selector': '[expr42]',
+                  'redundantAttribute': 'expr67',
+                  'selector': '[expr67]',
 
                   'expressions': [
                     {
@@ -14086,8 +14310,8 @@
                   ]
                 },
                 {
-                  'redundantAttribute': 'expr43',
-                  'selector': '[expr43]',
+                  'redundantAttribute': 'expr68',
+                  'selector': '[expr68]',
 
                   'expressions': [
                     {
@@ -14111,15 +14335,15 @@
                     return scope.isDeletable( scope.comment );
                   },
 
-                  'redundantAttribute': 'expr44',
-                  'selector': '[expr44]',
+                  'redundantAttribute': 'expr69',
+                  'selector': '[expr69]',
 
                   'template': template(
-                    '<span class="mod-options"><i expr45="expr45" class="ion-trash-a"></i></span>',
+                    '<span class="mod-options"><i expr70="expr70" class="ion-trash-a"></i></span>',
                     [
                       {
-                        'redundantAttribute': 'expr45',
-                        'selector': '[expr45]',
+                        'redundantAttribute': 'expr70',
+                        'selector': '[expr70]',
 
                         'expressions': [
                           {
@@ -14140,8 +14364,8 @@
               ]
             ),
 
-            'redundantAttribute': 'expr38',
-            'selector': '[expr38]',
+            'redundantAttribute': 'expr63',
+            'selector': '[expr63]',
             'itemName': 'comment',
             'indexName': null,
 
@@ -14215,11 +14439,11 @@
       getComponent
     ) {
       return template(
-        '<div id="headerView"></div><div class="article-page"><div class="banner"><div class="container"><h1 expr0="expr0"> </h1><div id="aboveArticleWidgetView"></div></div></div><div class="container page"><div class="row article-content"><div class="col-md-12"><div id="articleView"></div></div></div></div><hr/><div class="article-actions"><div id="belowArticleWidgetView"></div></div><div class="row"><div class="col-xs-12 col-md-8 offset-md-2"><div id="commentFormView"></div><div id="commentTableView"></div></div></div></div><div id="footerView"></div>',
+        '<div id="headerView"></div><div class="article-page"><div class="banner"><div class="container"><h1 expr19="expr19"> </h1><div id="aboveArticleWidgetView"></div></div></div><div class="container page"><div class="row article-content"><div class="col-md-12"><div id="articleView"></div></div></div></div><hr/><div class="article-actions"><div id="belowArticleWidgetView"></div></div><div class="row"><div class="col-xs-12 col-md-8 offset-md-2"><div id="commentFormView"></div><div id="commentTableView"></div></div></div></div><div id="footerView"></div>',
         [
           {
-            'redundantAttribute': 'expr0',
-            'selector': '[expr0]',
+            'redundantAttribute': 'expr19',
+            'selector': '[expr19]',
 
             'expressions': [
               {
@@ -14335,7 +14559,7 @@
       getComponent
     ) {
       return template(
-        '<div id="headerView"></div><div class="auth-page"><div class="container page"><div class="row"><div class="col-md-6 offset-md-3 col-xs-12"><h1 class="text-xs-center">Sign In</h1><p class="text-xs-center"><a href="#/register">Need an account?</a></p><ul expr7="expr7" class="error-messages"></ul><fieldset class="form-group"><input expr9="expr9" id="emailField" class="form-control form-control-lg" type="text" placeholder="Email"/></fieldset><fieldset class="form-group"><input expr10="expr10" id="passwordField" class="form-control form-control-lg" type="password" placeholder="Password"/></fieldset><button expr11="expr11" id="submitButton" class="btn btn-lg btn-primary pull-xs-right" disabled>\n                Sign in\n            </button></div></div></div></div><div id="footerView"></div>',
+        '<div id="headerView"></div><div class="auth-page"><div class="container page"><div class="row"><div class="col-md-6 offset-md-3 col-xs-12"><h1 class="text-xs-center">Sign In</h1><p class="text-xs-center"><a href="#/register">Need an account?</a></p><ul expr6="expr6" class="error-messages"></ul><fieldset class="form-group"><input expr8="expr8" id="emailField" class="form-control form-control-lg" type="text" placeholder="Email"/></fieldset><fieldset class="form-group"><input expr9="expr9" id="passwordField" class="form-control form-control-lg" type="password" placeholder="Password"/></fieldset><button expr10="expr10" id="submitButton" class="btn btn-lg btn-primary pull-xs-right" disabled>\n                Sign in\n            </button></div></div></div></div><div id="footerView"></div>',
         [
           {
             'type': bindingTypes.IF,
@@ -14346,11 +14570,11 @@
               return scope.state.errorMessages != null;
             },
 
-            'redundantAttribute': 'expr7',
-            'selector': '[expr7]',
+            'redundantAttribute': 'expr6',
+            'selector': '[expr6]',
 
             'template': template(
-              '<li expr8="expr8"></li>',
+              '<li expr7="expr7"></li>',
               [
                 {
                   'type': bindingTypes.EACH,
@@ -14377,8 +14601,8 @@
                     ]
                   ),
 
-                  'redundantAttribute': 'expr8',
-                  'selector': '[expr8]',
+                  'redundantAttribute': 'expr7',
+                  'selector': '[expr7]',
                   'itemName': 'message',
                   'indexName': null,
 
@@ -14390,6 +14614,23 @@
                 }
               ]
             )
+          },
+          {
+            'redundantAttribute': 'expr8',
+            'selector': '[expr8]',
+
+            'expressions': [
+              {
+                'type': expressionTypes.EVENT,
+                'name': 'oninput',
+
+                'evaluate': function(
+                  scope
+                ) {
+                  return scope.shouldSubmit;
+                }
+              }
+            ]
           },
           {
             'redundantAttribute': 'expr9',
@@ -14411,23 +14652,6 @@
           {
             'redundantAttribute': 'expr10',
             'selector': '[expr10]',
-
-            'expressions': [
-              {
-                'type': expressionTypes.EVENT,
-                'name': 'oninput',
-
-                'evaluate': function(
-                  scope
-                ) {
-                  return scope.shouldSubmit;
-                }
-              }
-            ]
-          },
-          {
-            'redundantAttribute': 'expr11',
-            'selector': '[expr11]',
 
             'expressions': [
               {
@@ -14547,7 +14771,7 @@
       getComponent
     ) {
       return template(
-        '<div id="headerView"></div><div class="auth-page"><div class="container page"><div class="row"><div class="col-md-6 offset-md-3 col-xs-12"><h1 class="text-xs-center">Sign Up</h1><p class="text-xs-center"><a href="#/login">Have an account?</a></p><ul expr1="expr1" class="error-messages"></ul><fieldset class="form-group"><input expr3="expr3" id="usernameField" class="form-control form-control-lg" type="text" placeholder="Username"/></fieldset><fieldset class="form-group"><input expr4="expr4" id="emailField" class="form-control form-control-lg" type="text" placeholder="Email"/></fieldset><fieldset class="form-group"><input expr5="expr5" id="passwordField" class="form-control form-control-lg" type="password" placeholder="Password"/></fieldset><button expr6="expr6" id="submitButton" class="btn btn-lg btn-primary pull-xs-right" disabled>\n                Sign up\n            </button></div></div></div></div><div id="footerView"></div>',
+        '<div id="headerView"></div><div class="auth-page"><div class="container page"><div class="row"><div class="col-md-6 offset-md-3 col-xs-12"><h1 class="text-xs-center">Sign Up</h1><p class="text-xs-center"><a href="#/login">Have an account?</a></p><ul expr0="expr0" class="error-messages"></ul><fieldset class="form-group"><input expr2="expr2" id="usernameField" class="form-control form-control-lg" type="text" placeholder="Username"/></fieldset><fieldset class="form-group"><input expr3="expr3" id="emailField" class="form-control form-control-lg" type="text" placeholder="Email"/></fieldset><fieldset class="form-group"><input expr4="expr4" id="passwordField" class="form-control form-control-lg" type="password" placeholder="Password"/></fieldset><button expr5="expr5" id="submitButton" class="btn btn-lg btn-primary pull-xs-right" disabled>\n                Sign up\n            </button></div></div></div></div><div id="footerView"></div>',
         [
           {
             'type': bindingTypes.IF,
@@ -14558,11 +14782,11 @@
               return scope.state.errorMessages != null;
             },
 
-            'redundantAttribute': 'expr1',
-            'selector': '[expr1]',
+            'redundantAttribute': 'expr0',
+            'selector': '[expr0]',
 
             'template': template(
-              '<li expr2="expr2"></li>',
+              '<li expr1="expr1"></li>',
               [
                 {
                   'type': bindingTypes.EACH,
@@ -14589,8 +14813,8 @@
                     ]
                   ),
 
-                  'redundantAttribute': 'expr2',
-                  'selector': '[expr2]',
+                  'redundantAttribute': 'expr1',
+                  'selector': '[expr1]',
                   'itemName': 'message',
                   'indexName': null,
 
@@ -14602,6 +14826,23 @@
                 }
               ]
             )
+          },
+          {
+            'redundantAttribute': 'expr2',
+            'selector': '[expr2]',
+
+            'expressions': [
+              {
+                'type': expressionTypes.EVENT,
+                'name': 'oninput',
+
+                'evaluate': function(
+                  scope
+                ) {
+                  return scope.shouldSubmit;
+                }
+              }
+            ]
           },
           {
             'redundantAttribute': 'expr3',
@@ -14640,23 +14881,6 @@
           {
             'redundantAttribute': 'expr5',
             'selector': '[expr5]',
-
-            'expressions': [
-              {
-                'type': expressionTypes.EVENT,
-                'name': 'oninput',
-
-                'evaluate': function(
-                  scope
-                ) {
-                  return scope.shouldSubmit;
-                }
-              }
-            ]
-          },
-          {
-            'redundantAttribute': 'expr6',
-            'selector': '[expr6]',
 
             'expressions': [
               {
@@ -14832,7 +15056,7 @@
       getComponent
     ) {
       return template(
-        '<div id="headerView"></div><div class="editor-page"><div class="container page"><div class="row"><div class="col-md-10 offset-md-1 col-xs-12"><ul expr12="expr12" class="error-messages"></ul><form><fieldset><fieldset class="form-group"><input id="titleField" type="text" class="form-control form-control-lg" placeholder="Article Title"/></fieldset><fieldset class="form-group"><input id="descriptionField" type="text" class="form-control" placeholder="What\'s this article about?"/></fieldset><fieldset class="form-group"><textarea id="bodyField" class="form-control" rows="8" placeholder="Write your article (in markdown)"></textarea></fieldset><fieldset class="form-group"><input id="tagListField" type="text" class="form-control" placeholder="Enter tags"/><div class="tag-list"></div></fieldset><button expr14="expr14" class="btn btn-lg pull-xs-right btn-primary" type="button"> </button></fieldset></form></div></div></div></div><div id="footerView"></div>',
+        '<div id="headerView"></div><div class="editor-page"><div class="container page"><div class="row"><div class="col-md-10 offset-md-1 col-xs-12"><ul expr11="expr11" class="error-messages"></ul><form><fieldset><fieldset class="form-group"><input id="titleField" type="text" class="form-control form-control-lg" placeholder="Article Title"/></fieldset><fieldset class="form-group"><input id="descriptionField" type="text" class="form-control" placeholder="What\'s this article about?"/></fieldset><fieldset class="form-group"><textarea id="bodyField" class="form-control" rows="8" placeholder="Write your article (in markdown)"></textarea></fieldset><fieldset class="form-group"><input id="tagListField" type="text" class="form-control" placeholder="Enter tags"/><div class="tag-list"></div></fieldset><button expr13="expr13" class="btn btn-lg pull-xs-right btn-primary" type="button"> </button></fieldset></form></div></div></div></div><div id="footerView"></div>',
         [
           {
             'type': bindingTypes.IF,
@@ -14843,11 +15067,11 @@
               return scope.state.errorMessages != null;
             },
 
-            'redundantAttribute': 'expr12',
-            'selector': '[expr12]',
+            'redundantAttribute': 'expr11',
+            'selector': '[expr11]',
 
             'template': template(
-              '<li expr13="expr13"></li>',
+              '<li expr12="expr12"></li>',
               [
                 {
                   'type': bindingTypes.EACH,
@@ -14874,8 +15098,8 @@
                     ]
                   ),
 
-                  'redundantAttribute': 'expr13',
-                  'selector': '[expr13]',
+                  'redundantAttribute': 'expr12',
+                  'selector': '[expr12]',
                   'itemName': 'message',
                   'indexName': null,
 
@@ -14889,8 +15113,8 @@
             )
           },
           {
-            'redundantAttribute': 'expr14',
-            'selector': '[expr14]',
+            'redundantAttribute': 'expr13',
+            'selector': '[expr13]',
 
             'expressions': [
               {
@@ -15168,7 +15392,7 @@
       getComponent
     ) {
       return template(
-        '<template expr65="expr65"></template>',
+        '<template expr24="expr24"></template>',
         [
           {
             'type': bindingTypes.IF,
@@ -15179,15 +15403,15 @@
               return scope.state.profile != null;
             },
 
-            'redundantAttribute': 'expr65',
-            'selector': '[expr65]',
+            'redundantAttribute': 'expr24',
+            'selector': '[expr24]',
 
             'template': template(
-              '<img expr66="expr66" class="user-img"/><h4 expr67="expr67"> </h4><p expr68="expr68"> </p><button expr69="expr69"><i expr70="expr70"></i> </button>',
+              '<img expr25="expr25" class="user-img"/><h4 expr26="expr26"> </h4><p expr27="expr27"> </p><button expr28="expr28"><i expr29="expr29"></i> </button>',
               [
                 {
-                  'redundantAttribute': 'expr66',
-                  'selector': '[expr66]',
+                  'redundantAttribute': 'expr25',
+                  'selector': '[expr25]',
 
                   'expressions': [
                     {
@@ -15203,8 +15427,8 @@
                   ]
                 },
                 {
-                  'redundantAttribute': 'expr67',
-                  'selector': '[expr67]',
+                  'redundantAttribute': 'expr26',
+                  'selector': '[expr26]',
 
                   'expressions': [
                     {
@@ -15220,8 +15444,8 @@
                   ]
                 },
                 {
-                  'redundantAttribute': 'expr68',
-                  'selector': '[expr68]',
+                  'redundantAttribute': 'expr27',
+                  'selector': '[expr27]',
 
                   'expressions': [
                     {
@@ -15237,8 +15461,8 @@
                   ]
                 },
                 {
-                  'redundantAttribute': 'expr69',
-                  'selector': '[expr69]',
+                  'redundantAttribute': 'expr28',
+                  'selector': '[expr28]',
 
                   'expressions': [
                     {
@@ -15278,8 +15502,8 @@
                   ]
                 },
                 {
-                  'redundantAttribute': 'expr70',
-                  'selector': '[expr70]',
+                  'redundantAttribute': 'expr29',
+                  'selector': '[expr29]',
 
                   'expressions': [
                     {
@@ -15633,11 +15857,11 @@
       getComponent
     ) {
       return template(
-        '<div class="home-page"><div id="headerView"></div><div class="banner"><div class="container"><h1 expr19="expr19" class="logo-font"> <br/>\n            Sorry, Please back <a class="spotlink" href="/">home</a>.\n            </h1></div></div><div id="footerView"></div></div>',
+        '<div class="home-page"><div id="headerView"></div><div class="banner"><div class="container"><h1 expr14="expr14" class="logo-font"> <br/>\n            Sorry, Please back <a class="spotlink" href="/">home</a>.\n            </h1></div></div><div id="footerView"></div></div>',
         [
           {
-            'redundantAttribute': 'expr19',
-            'selector': '[expr19]',
+            'redundantAttribute': 'expr14',
+            'selector': '[expr14]',
 
             'expressions': [
               {
