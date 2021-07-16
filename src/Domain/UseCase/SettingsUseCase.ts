@@ -31,7 +31,7 @@ export default class SettingsUseCase {
         return this.conduit.updateUser( this.storage.user().token, new PostUser(email, username, bio, image, password) )
     }
 
-    logoutAfterJumpToHome = () => {
+    logoutThenJumpToHome = () => {
         this.storage.setUser( null )
         this.jumpToHome()
     }

@@ -358,7 +358,7 @@
     self.fetch.polyfill = true;
   })();
 
-  /* Riot v5.4.5, @license MIT */
+  /* Riot v6.0.1, @license MIT */
   /**
    * Convert a string from camel case to dash-case
    * @param   {string} string - probably a component tag name
@@ -528,7 +528,7 @@
 
   /**
    * Create the <template> fragments text nodes
-   * @return {Object} {{head: TextNode, tail: TextNode}}
+   * @return {Object} {{head: Text, tail: Text}}
    */
 
   function createHeadTailPlaceholders() {
@@ -561,6 +561,60 @@
       tail,
       children: [head, ...Array.from(fragment.childNodes), tail]
     };
+  }
+
+  /**
+   * Helper function to set an immutable property
+   * @param   {Object} source - object where the new property will be set
+   * @param   {string} key - object key where the new property will be stored
+   * @param   {*} value - value of the new property
+   * @param   {Object} options - set the propery overriding the default options
+   * @returns {Object} - the original object modified
+   */
+  function defineProperty(source, key, value, options) {
+    if (options === void 0) {
+      options = {};
+    }
+
+    /* eslint-disable fp/no-mutating-methods */
+    Object.defineProperty(source, key, Object.assign({
+      value,
+      enumerable: false,
+      writable: false,
+      configurable: true
+    }, options));
+    /* eslint-enable fp/no-mutating-methods */
+
+    return source;
+  }
+  /**
+   * Define multiple properties on a target object
+   * @param   {Object} source - object where the new properties will be set
+   * @param   {Object} properties - object containing as key pair the key + value properties
+   * @param   {Object} options - set the propery overriding the default options
+   * @returns {Object} the original object modified
+   */
+
+  function defineProperties(source, properties, options) {
+    Object.entries(properties).forEach(_ref => {
+      let [key, value] = _ref;
+      defineProperty(source, key, value, options);
+    });
+    return source;
+  }
+  /**
+   * Define default properties if they don't exist on the source object
+   * @param   {Object} source - object that will receive the default properties
+   * @param   {Object} defaults - object containing additional optional keys
+   * @returns {Object} the original object received enhanced
+   */
+
+  function defineDefaults(source, defaults) {
+    Object.entries(defaults).forEach(_ref2 => {
+      let [key, value] = _ref2;
+      if (!source[key]) source[key] = value;
+    });
+    return source;
   }
 
   /**
@@ -888,7 +942,7 @@
           nodes.pop(); // notice that we pass null as last argument because
           // the root node and its children will be removed by domdiff
 
-          if (nodes.length === 0) {
+          if (!nodes.length) {
             // we have cleared all the children nodes and we can unmount this template
             redundant.pop();
             template.unmount(context, parentScope, null);
@@ -908,11 +962,12 @@
 
 
   function mustFilterItem(condition, context) {
-    return condition ? Boolean(condition(context)) === false : false;
+    return condition ? !condition(context) : false;
   }
   /**
    * Extend the scope of the looped template
    * @param   {Object} scope - current template scope
+   * @param   {Object} options - options
    * @param   {string} options.itemName - key to identify the looped item in the new context
    * @param   {string} options.indexName - key to identify the index of the looped item
    * @param   {number} options.index - current index
@@ -928,8 +983,8 @@
       index,
       item
     } = _ref;
-    scope[itemName] = item;
-    if (indexName) scope[indexName] = index;
+    defineProperty(scope, itemName, item);
+    if (indexName) defineProperty(scope, indexName, index);
     return scope;
   }
   /**
@@ -950,7 +1005,7 @@
    * @param   {Array} items - expression collection value
    * @param   {*} scope - template scope
    * @param   {*} parentScope - scope of the parent template
-   * @param   {EeachBinding} binding - each binding object instance
+   * @param   {EachBinding} binding - each binding object instance
    * @returns {Object} data
    * @returns {Map} data.newChildrenMap - a Map containing the new children template structure
    * @returns {Array} data.batches - array containing the template lifecycle functions to trigger
@@ -1226,7 +1281,7 @@
 
 
   function shouldRemoveAttribute(value) {
-    return isNil(value) || value === false || value === '';
+    return !value && value !== 0;
   }
   /**
    * This methods handles the DOM attributes updates
@@ -1279,8 +1334,7 @@
 
   function normalizeValue(name, value) {
     // be sure that expressions like selected={ true } will be always rendered as selected='selected'
-    if (value === true) return name;
-    return value;
+    return value === true ? name : value;
   }
 
   const RE_EVENTS_PREFIX = /^on/;
@@ -1347,7 +1401,7 @@
    * Get the the target text node to update or create one from of a comment node
    * @param   {HTMLElement} node - any html element containing childNodes
    * @param   {number} childNodeIndex - index of the text node in the childNodes list
-   * @returns {HTMLTextNode} the text node to update
+   * @returns {Text} the text node to update
    */
 
   const getTextNode = (node, childNodeIndex) => {
@@ -1520,11 +1574,12 @@
       this.template = templateData && create(templateData.html, templateData.bindings).createDOM(parentNode);
 
       if (this.template) {
+        cleanNode(this.node);
         this.template.mount(this.node, this.getTemplateScope(scope, realParent), realParent);
         this.template.children = Array.from(this.node.childNodes);
-        moveSlotInnerContent(this.node);
       }
 
+      moveSlotInnerContent(this.node);
       removeChild(this.node);
       return this;
     },
@@ -1562,7 +1617,8 @@
   /**
    * Create a single slot binding
    * @param   {HTMLElement} node - slot node
-   * @param   {string} options.name - slot id
+   * @param   {string} name - slot id
+   * @param   {AttributeExpressionData[]} attributes - slot attributes
    * @returns {Object} Slot binding object
    */
 
@@ -1724,7 +1780,7 @@
   /**
    * Bind a new expression object to a DOM node
    * @param   {HTMLElement} root - DOM node where to bind the expression
-   * @param   {Object} binding - binding data
+   * @param   {TagBindingData} binding - binding data
    * @param   {number|null} templateTagOffset - if it's defined we need to fix the text expressions childNodeIndex offset
    * @returns {Binding} Binding object
    */
@@ -1776,7 +1832,7 @@
   /**
    * Inject the DOM tree into a target node
    * @param   {HTMLElement} el - target element
-   * @param   {HTMLFragment|SVGElement} dom - dom tree to inject
+   * @param   {DocumentFragment|SVGElement} dom - dom tree to inject
    * @returns {undefined}
    */
 
@@ -1798,8 +1854,8 @@
   /**
    * Create the Template DOM skeleton
    * @param   {HTMLElement} el - root node where the DOM will be injected
-   * @param   {string} html - markup that will be injected into the root node
-   * @returns {HTMLFragment} fragment that will be injected into the root node
+   * @param   {string|HTMLElement} html - HTML markup or HTMLElement that will be injected into the root node
+   * @returns {?DocumentFragment} fragment that will be injected into the root node
    */
 
   function createTemplateDOM(el, html) {
@@ -1917,35 +1973,42 @@
      * @returns {TemplateChunk} self
      */
     unmount(scope, parentScope, mustRemoveRoot) {
-      if (this.el) {
-        this.bindings.forEach(b => b.unmount(scope, parentScope, mustRemoveRoot));
-
-        switch (true) {
-          // pure components should handle the DOM unmount updates by themselves
-          case this.el[IS_PURE_SYMBOL]:
-            break;
-          // <template> tags should be treated a bit differently
-          // we need to clear their children only if it's explicitly required by the caller
-          // via mustRemoveRoot !== null
-
-          case this.children && mustRemoveRoot !== null:
-            clearChildren(this.children);
-            break;
-          // remove the root node only if the mustRemoveRoot === true
-
-          case mustRemoveRoot === true:
-            removeChild(this.el);
-            break;
-          // otherwise we clean the node children
-
-          case mustRemoveRoot !== null:
-            cleanNode(this.el);
-            break;
-        }
-
-        this.el = null;
+      if (mustRemoveRoot === void 0) {
+        mustRemoveRoot = false;
       }
 
+      const el = this.el;
+
+      if (!el) {
+        return this;
+      }
+
+      this.bindings.forEach(b => b.unmount(scope, parentScope, mustRemoveRoot));
+
+      switch (true) {
+        // pure components should handle the DOM unmount updates by themselves
+        // for mustRemoveRoot === null don't touch the DOM
+        case el[IS_PURE_SYMBOL] || mustRemoveRoot === null:
+          break;
+        // if children are declared, clear them
+        // applicable for <template> and <slot/> bindings
+
+        case Array.isArray(this.children):
+          clearChildren(this.children);
+          break;
+        // clean the node children only
+
+        case !mustRemoveRoot:
+          cleanNode(el);
+          break;
+        // remove the root node only if the mustRemoveRoot is truly
+
+        case !!mustRemoveRoot:
+          removeChild(el);
+          break;
+      }
+
+      this.el = null;
       return this;
     },
 
@@ -1964,7 +2027,7 @@
   /**
    * Create a template chunk wiring also the bindings
    * @param   {string|HTMLElement} html - template string
-   * @param   {Array} bindings - bindings collection
+   * @param   {BindingData[]} bindings - bindings collection
    * @returns {TemplateChunk} a new TemplateChunk copy
    */
 
@@ -2003,60 +2066,6 @@
 
   function callOrAssign(source) {
     return isFunction(source) ? source.prototype && source.prototype.constructor ? new source() : source() : source;
-  }
-
-  /**
-   * Helper function to set an immutable property
-   * @param   {Object} source - object where the new property will be set
-   * @param   {string} key - object key where the new property will be stored
-   * @param   {*} value - value of the new property
-   * @param   {Object} options - set the propery overriding the default options
-   * @returns {Object} - the original object modified
-   */
-  function defineProperty(source, key, value, options) {
-    if (options === void 0) {
-      options = {};
-    }
-
-    /* eslint-disable fp/no-mutating-methods */
-    Object.defineProperty(source, key, Object.assign({
-      value,
-      enumerable: false,
-      writable: false,
-      configurable: true
-    }, options));
-    /* eslint-enable fp/no-mutating-methods */
-
-    return source;
-  }
-  /**
-   * Define multiple properties on a target object
-   * @param   {Object} source - object where the new properties will be set
-   * @param   {Object} properties - object containing as key pair the key + value properties
-   * @param   {Object} options - set the propery overriding the default options
-   * @returns {Object} the original object modified
-   */
-
-  function defineProperties(source, properties, options) {
-    Object.entries(properties).forEach(_ref => {
-      let [key, value] = _ref;
-      defineProperty(source, key, value, options);
-    });
-    return source;
-  }
-  /**
-   * Define default properties if they don't exist on the source object
-   * @param   {Object} source - object that will receive the default properties
-   * @param   {Object} defaults - object containing additional optional keys
-   * @returns {Object} the original object received enhanced
-   */
-
-  function defineDefaults(source, defaults) {
-    Object.entries(defaults).forEach(_ref2 => {
-      let [key, value] = _ref2;
-      if (!source[key]) source[key] = value;
-    });
-    return source;
   }
 
   /**
@@ -2303,7 +2312,7 @@
   });
   /**
    * Performance optimization for the recursive components
-   * @param  {RiotComponentShell} componentShell - riot compiler generated object
+   * @param  {RiotComponentWrapper} componentWrapper - riot compiler generated object
    * @returns {Object} component like interface
    */
 
@@ -2347,16 +2356,16 @@
   /**
    * Factory function to create the component templates only once
    * @param   {Function} template - component template creation function
-   * @param   {RiotComponentShell} componentShell - riot compiler generated object
+   * @param   {RiotComponentWrapper} componentWrapper - riot compiler generated object
    * @returns {TemplateChunk} template chunk object
    */
 
 
-  function componentTemplateFactory(template, componentShell) {
-    const components = createSubcomponents(componentShell.exports ? componentShell.exports.components : {});
+  function componentTemplateFactory(template, componentWrapper) {
+    const components = createSubcomponents(componentWrapper.exports ? componentWrapper.exports.components : {});
     return template(create, expressionTypes, bindingTypes, name => {
       // improve support for recursive components
-      if (name === componentShell.name) return memoizedCreateComponent(componentShell); // return the registered components
+      if (name === componentWrapper.name) return memoizedCreateComponent(componentWrapper); // return the registered components
 
       return components[name] || COMPONENTS_IMPLEMENTATION_MAP$1.get(name);
     });
@@ -2408,23 +2417,23 @@
   }
   /**
    * Create the component interface needed for the @riotjs/dom-bindings tag bindings
-   * @param   {RiotComponentShell} componentShell - riot compiler generated object
-   * @param   {string} componentShell.css - component css
-   * @param   {Function} componentShell.template - function that will return the dom-bindings template function
-   * @param   {Object} componentShell.exports - component interface
-   * @param   {string} componentShell.name - component name
+   * @param   {RiotComponentWrapper} componentWrapper - riot compiler generated object
+   * @param   {string} componentWrapper.css - component css
+   * @param   {Function} componentWrapper.template - function that will return the dom-bindings template function
+   * @param   {Object} componentWrapper.exports - component interface
+   * @param   {string} componentWrapper.name - component name
    * @returns {Object} component like interface
    */
 
 
-  function createComponent(componentShell) {
+  function createComponent(componentWrapper) {
     const {
       css,
       template,
       exports,
       name
-    } = componentShell;
-    const templateFn = template ? componentTemplateFactory(template, componentShell) : MOCKED_TEMPLATE_INTERFACE;
+    } = componentWrapper;
+    const templateFn = template ? componentTemplateFactory(template, componentWrapper) : MOCKED_TEMPLATE_INTERFACE;
     return _ref2 => {
       let {
         slots,
@@ -4240,10 +4249,10 @@
                       'childNodeIndex': 3,
 
                       'evaluate': function(
-                        scope
+                        _scope
                       ) {
                         return [
-                          scope.item.title
+                          _scope.item.title
                         ].join(
                           ''
                         );
@@ -4254,9 +4263,9 @@
                       'name': 'class',
 
                       'evaluate': function(
-                        scope
+                        _scope
                       ) {
-                        return scope.navItemClassName(scope.item.isActive);
+                        return _scope.navItemClassName(_scope.item.isActive);
                       }
                     },
                     {
@@ -4264,9 +4273,9 @@
                       'name': 'href',
 
                       'evaluate': function(
-                        scope
+                        _scope
                       ) {
-                        return scope.item.href;
+                        return _scope.item.href;
                       }
                     }
                   ]
@@ -4275,9 +4284,9 @@
                   'type': bindingTypes.IF,
 
                   'evaluate': function(
-                    scope
+                    _scope
                   ) {
-                    return scope.item.icon !== null;
+                    return _scope.item.icon !== null;
                   },
 
                   'redundantAttribute': 'expr22',
@@ -4293,9 +4302,9 @@
                             'name': 'class',
 
                             'evaluate': function(
-                              scope
+                              _scope
                             ) {
-                              return scope.item.icon;
+                              return _scope.item.icon;
                             }
                           }
                         ]
@@ -4307,9 +4316,9 @@
                   'type': bindingTypes.IF,
 
                   'evaluate': function(
-                    scope
+                    _scope
                   ) {
-                    return scope.item.image !== null;
+                    return _scope.item.image !== null;
                   },
 
                   'redundantAttribute': 'expr23',
@@ -4325,9 +4334,9 @@
                             'name': 'src',
 
                             'evaluate': function(
-                              scope
+                              _scope
                             ) {
-                              return scope.item.image;
+                              return _scope.item.image;
                             }
                           }
                         ]
@@ -4344,9 +4353,9 @@
             'indexName': null,
 
             'evaluate': function(
-              scope
+              _scope
             ) {
-              return scope.state.items;
+              return _scope.state.items;
             }
           }
         ]
@@ -4392,19 +4401,19 @@
       getComponent
     ) {
       return template(
-        '<div expr61="expr61" class="banner"></div>',
+        '<div expr24="expr24" class="banner"></div>',
         [
           {
             'type': bindingTypes.IF,
 
             'evaluate': function(
-              scope
+              _scope
             ) {
-              return scope.state.isVisible;
+              return _scope.state.isVisible;
             },
 
-            'redundantAttribute': 'expr61',
-            'selector': '[expr61]',
+            'redundantAttribute': 'expr24',
+            'selector': '[expr24]',
 
             'template': template(
               '<div class="container"><h1 class="logo-font">conduit</h1><p>A place to share your <a class="spotlink" href="https://riot.js.org" target="blank">RIOT</a> knowledge.</p></div>',
@@ -4443,11 +4452,11 @@
       getComponent
     ) {
       return template(
-        '<div expr32="expr32"><ul class="nav nav-pills outline-active"><li expr33="expr33" class="nav-item"></li></ul></div>',
+        '<div expr27="expr27"><ul class="nav nav-pills outline-active"><li expr28="expr28" class="nav-item"></li></ul></div>',
         [
           {
-            'redundantAttribute': 'expr32',
-            'selector': '[expr32]',
+            'redundantAttribute': 'expr27',
+            'selector': '[expr27]',
 
             'expressions': [
               {
@@ -4455,9 +4464,9 @@
                 'name': 'class',
 
                 'evaluate': function(
-                  scope
+                  _scope
                 ) {
-                  return scope.props.toggleStyle;
+                  return _scope.props.toggleStyle;
                 }
               }
             ]
@@ -4468,11 +4477,11 @@
             'condition': null,
 
             'template': template(
-              '<a expr34="expr34"> </a>',
+              '<a expr29="expr29"> </a>',
               [
                 {
-                  'redundantAttribute': 'expr34',
-                  'selector': '[expr34]',
+                  'redundantAttribute': 'expr29',
+                  'selector': '[expr29]',
 
                   'expressions': [
                     {
@@ -4480,9 +4489,9 @@
                       'childNodeIndex': 0,
 
                       'evaluate': function(
-                        scope
+                        _scope
                       ) {
-                        return scope.item.title;
+                        return _scope.item.title;
                       }
                     },
                     {
@@ -4490,9 +4499,9 @@
                       'name': 'class',
 
                       'evaluate': function(
-                        scope
+                        _scope
                       ) {
-                        return scope.navItemClassName( scope.item.isActive );
+                        return _scope.navItemClassName( _scope.item.isActive );
                       }
                     },
                     {
@@ -4500,9 +4509,9 @@
                       'name': 'onclick',
 
                       'evaluate': function(
-                        scope
+                        _scope
                       ) {
-                        return () => scope.actionOfClickTab( scope.item );
+                        return () => _scope.actionOfClickTab( _scope.item );
                       }
                     }
                   ]
@@ -4510,15 +4519,15 @@
               ]
             ),
 
-            'redundantAttribute': 'expr33',
-            'selector': '[expr33]',
+            'redundantAttribute': 'expr28',
+            'selector': '[expr28]',
             'itemName': 'item',
             'indexName': null,
 
             'evaluate': function(
-              scope
+              _scope
             ) {
-              return scope.state.items;
+              return _scope.state.items;
             }
           }
         ]
@@ -4561,7 +4570,7 @@
       getComponent
     ) {
       return template(
-        '<div expr49="expr49" class="article-preview"></div>',
+        '<div expr30="expr30" class="article-preview"></div>',
         [
           {
             'type': bindingTypes.EACH,
@@ -4569,11 +4578,11 @@
             'condition': null,
 
             'template': template(
-              '<div class="article-meta"><a expr50="expr50"><img expr51="expr51"/></a><div class="info"><a expr52="expr52" class="author author-link"> </a><span class="date">January 20th</span></div><button expr53="expr53"><i class="ion-heart"></i> </button></div><a expr54="expr54" class="preview-link"><h1 expr55="expr55"> </h1><p expr56="expr56"> </p><span>Read more...</span><ul class="tag-list"><li expr57="expr57" class="tag-default tag-pill tag-outline"></li></ul></a>',
+              '<div class="article-meta"><a expr31="expr31"><img expr32="expr32"/></a><div class="info"><a expr33="expr33" class="author author-link"> </a><span class="date">January 20th</span></div><button expr34="expr34"><i class="ion-heart"></i> </button></div><a expr35="expr35" class="preview-link"><h1 expr36="expr36"> </h1><p expr37="expr37"> </p><span>Read more...</span><ul class="tag-list"><li expr38="expr38" class="tag-default tag-pill tag-outline"></li></ul></a>',
               [
                 {
-                  'redundantAttribute': 'expr50',
-                  'selector': '[expr50]',
+                  'redundantAttribute': 'expr31',
+                  'selector': '[expr31]',
 
                   'expressions': [
                     {
@@ -4581,16 +4590,16 @@
                       'name': 'onclick',
 
                       'evaluate': function(
-                        scope
+                        _scope
                       ) {
-                        return scope.actionOfClickProfile;
+                        return _scope.actionOfClickProfile;
                       }
                     }
                   ]
                 },
                 {
-                  'redundantAttribute': 'expr51',
-                  'selector': '[expr51]',
+                  'redundantAttribute': 'expr32',
+                  'selector': '[expr32]',
 
                   'expressions': [
                     {
@@ -4598,16 +4607,16 @@
                       'name': 'src',
 
                       'evaluate': function(
-                        scope
+                        _scope
                       ) {
-                        return scope.article.author.image;
+                        return _scope.article.author.image;
                       }
                     }
                   ]
                 },
                 {
-                  'redundantAttribute': 'expr52',
-                  'selector': '[expr52]',
+                  'redundantAttribute': 'expr33',
+                  'selector': '[expr33]',
 
                   'expressions': [
                     {
@@ -4615,9 +4624,9 @@
                       'childNodeIndex': 0,
 
                       'evaluate': function(
-                        scope
+                        _scope
                       ) {
-                        return scope.article.author.username;
+                        return _scope.article.author.username;
                       }
                     },
                     {
@@ -4625,16 +4634,16 @@
                       'name': 'onclick',
 
                       'evaluate': function(
-                        scope
+                        _scope
                       ) {
-                        return () => scope.actionOfClickProfile( scope.article.author );
+                        return () => _scope.actionOfClickProfile( _scope.article.author );
                       }
                     }
                   ]
                 },
                 {
-                  'redundantAttribute': 'expr53',
-                  'selector': '[expr53]',
+                  'redundantAttribute': 'expr34',
+                  'selector': '[expr34]',
 
                   'expressions': [
                     {
@@ -4642,10 +4651,10 @@
                       'childNodeIndex': 1,
 
                       'evaluate': function(
-                        scope
+                        _scope
                       ) {
                         return [
-                          scope.article.favoritesCount
+                          _scope.article.favoritesCount
                         ].join(
                           ''
                         );
@@ -4656,9 +4665,9 @@
                       'name': 'onclick',
 
                       'evaluate': function(
-                        scope
+                        _scope
                       ) {
-                        return () => scope.actionOfFavoriteButton(scope.article);
+                        return () => _scope.actionOfFavoriteButton(_scope.article);
                       }
                     },
                     {
@@ -4666,16 +4675,16 @@
                       'name': 'class',
 
                       'evaluate': function(
-                        scope
+                        _scope
                       ) {
-                        return scope.favoriteButtonClassName(scope.article.favorited);
+                        return _scope.favoriteButtonClassName(_scope.article.favorited);
                       }
                     }
                   ]
                 },
                 {
-                  'redundantAttribute': 'expr54',
-                  'selector': '[expr54]',
+                  'redundantAttribute': 'expr35',
+                  'selector': '[expr35]',
 
                   'expressions': [
                     {
@@ -4683,16 +4692,16 @@
                       'name': 'onclick',
 
                       'evaluate': function(
-                        scope
+                        _scope
                       ) {
-                        return () => scope.actionOfClickArticle( scope.article );
+                        return () => _scope.actionOfClickArticle( _scope.article );
                       }
                     }
                   ]
                 },
                 {
-                  'redundantAttribute': 'expr55',
-                  'selector': '[expr55]',
+                  'redundantAttribute': 'expr36',
+                  'selector': '[expr36]',
 
                   'expressions': [
                     {
@@ -4700,10 +4709,10 @@
                       'childNodeIndex': 0,
 
                       'evaluate': function(
-                        scope
+                        _scope
                       ) {
                         return [
-                          scope.article.title
+                          _scope.article.title
                         ].join(
                           ''
                         );
@@ -4712,8 +4721,8 @@
                   ]
                 },
                 {
-                  'redundantAttribute': 'expr56',
-                  'selector': '[expr56]',
+                  'redundantAttribute': 'expr37',
+                  'selector': '[expr37]',
 
                   'expressions': [
                     {
@@ -4721,9 +4730,9 @@
                       'childNodeIndex': 0,
 
                       'evaluate': function(
-                        scope
+                        _scope
                       ) {
-                        return scope.article.description;
+                        return _scope.article.description;
                       }
                     }
                   ]
@@ -4743,9 +4752,9 @@
                             'childNodeIndex': 0,
 
                             'evaluate': function(
-                              scope
+                              _scope
                             ) {
-                              return scope.tagWord;
+                              return _scope.tagWord;
                             }
                           }
                         ]
@@ -4753,29 +4762,29 @@
                     ]
                   ),
 
-                  'redundantAttribute': 'expr57',
-                  'selector': '[expr57]',
+                  'redundantAttribute': 'expr38',
+                  'selector': '[expr38]',
                   'itemName': 'tagWord',
                   'indexName': null,
 
                   'evaluate': function(
-                    scope
+                    _scope
                   ) {
-                    return scope.article.tagList;
+                    return _scope.article.tagList;
                   }
                 }
               ]
             ),
 
-            'redundantAttribute': 'expr49',
-            'selector': '[expr49]',
+            'redundantAttribute': 'expr30',
+            'selector': '[expr30]',
             'itemName': 'article',
             'indexName': null,
 
             'evaluate': function(
-              scope
+              _scope
             ) {
-              return scope.state.articles;
+              return _scope.state.articles;
             }
           }
         ]
@@ -4802,7 +4811,7 @@
       getComponent
     ) {
       return template(
-        '<div class="sidebar"><p>Popular Tags</p><div class="tag-list"><a expr62="expr62" class="tag-pill tag-default"></a></div></div>',
+        '<div class="sidebar"><p>Popular Tags</p><div class="tag-list"><a expr39="expr39" class="tag-pill tag-default"></a></div></div>',
         [
           {
             'type': bindingTypes.EACH,
@@ -4819,9 +4828,9 @@
                       'childNodeIndex': 0,
 
                       'evaluate': function(
-                        scope
+                        _scope
                       ) {
-                        return scope.tag;
+                        return _scope.tag;
                       }
                     },
                     {
@@ -4829,11 +4838,11 @@
                       'name': 'href',
 
                       'evaluate': function(
-                        scope
+                        _scope
                       ) {
                         return [
                           '#/articles/tag/',
-                          scope.tag
+                          _scope.tag
                         ].join(
                           ''
                         );
@@ -4844,15 +4853,15 @@
               ]
             ),
 
-            'redundantAttribute': 'expr62',
-            'selector': '[expr62]',
+            'redundantAttribute': 'expr39',
+            'selector': '[expr39]',
             'itemName': 'tag',
             'indexName': null,
 
             'evaluate': function(
-              scope
+              _scope
             ) {
-              return scope.state.tagWords;
+              return _scope.state.tagWords;
             }
           }
         ]
@@ -4897,7 +4906,7 @@
       getComponent
     ) {
       return template(
-        '<ul class="pagination"><li expr30="expr30"></li></ul>',
+        '<ul class="pagination"><li expr25="expr25"></li></ul>',
         [
           {
             'type': bindingTypes.EACH,
@@ -4905,7 +4914,7 @@
             'condition': null,
 
             'template': template(
-              '<a expr31="expr31" class="page-link"> </a>',
+              '<a expr26="expr26" class="page-link"> </a>',
               [
                 {
                   'expressions': [
@@ -4914,16 +4923,16 @@
                       'name': 'class',
 
                       'evaluate': function(
-                        scope
+                        _scope
                       ) {
-                        return scope.pageItemClassName( scope.page );
+                        return _scope.pageItemClassName( _scope.page );
                       }
                     }
                   ]
                 },
                 {
-                  'redundantAttribute': 'expr31',
-                  'selector': '[expr31]',
+                  'redundantAttribute': 'expr26',
+                  'selector': '[expr26]',
 
                   'expressions': [
                     {
@@ -4931,9 +4940,9 @@
                       'childNodeIndex': 0,
 
                       'evaluate': function(
-                        scope
+                        _scope
                       ) {
-                        return scope.page;
+                        return _scope.page;
                       }
                     },
                     {
@@ -4941,9 +4950,9 @@
                       'name': 'onclick',
 
                       'evaluate': function(
-                        scope
+                        _scope
                       ) {
-                        return () => scope.actionOfClickPageLink(scope.page);
+                        return () => _scope.actionOfClickPageLink(_scope.page);
                       }
                     }
                   ]
@@ -4951,15 +4960,15 @@
               ]
             ),
 
-            'redundantAttribute': 'expr30',
-            'selector': '[expr30]',
+            'redundantAttribute': 'expr25',
+            'selector': '[expr25]',
             'itemName': 'page',
             'indexName': null,
 
             'evaluate': function(
-              scope
+              _scope
             ) {
-              return scope.arrayOfPageNumber();
+              return _scope.arrayOfPageNumber();
             }
           }
         ]
@@ -10924,26 +10933,26 @@
       getComponent
     ) {
       return template(
-        '<div expr35="expr35" class="article-meta"></div>',
+        '<div expr43="expr43" class="article-meta"></div>',
         [
           {
             'type': bindingTypes.IF,
 
             'evaluate': function(
-              scope
+              _scope
             ) {
-              return scope.state.article != null;
+              return _scope.state.article != null;
             },
 
-            'redundantAttribute': 'expr35',
-            'selector': '[expr35]',
+            'redundantAttribute': 'expr43',
+            'selector': '[expr43]',
 
             'template': template(
-              '<a expr36="expr36"><img expr37="expr37"/></a><div class="info"><a expr38="expr38" class="author"> </a><span expr39="expr39" class="date"> </span></div><template expr40="expr40"></template><template expr44="expr44"></template>',
+              '<a expr44="expr44"><img expr45="expr45"/></a><div class="info"><a expr46="expr46" class="author"> </a><span expr47="expr47" class="date"> </span></div><template expr48="expr48"></template><template expr52="expr52"></template>',
               [
                 {
-                  'redundantAttribute': 'expr36',
-                  'selector': '[expr36]',
+                  'redundantAttribute': 'expr44',
+                  'selector': '[expr44]',
 
                   'expressions': [
                     {
@@ -10951,16 +10960,16 @@
                       'name': 'href',
 
                       'evaluate': function(
-                        scope
+                        _scope
                       ) {
-                        return "#/profile/" + scope.state.article.author.username;
+                        return "#/profile/" + _scope.state.article.author.username;
                       }
                     }
                   ]
                 },
                 {
-                  'redundantAttribute': 'expr37',
-                  'selector': '[expr37]',
+                  'redundantAttribute': 'expr45',
+                  'selector': '[expr45]',
 
                   'expressions': [
                     {
@@ -10968,16 +10977,16 @@
                       'name': 'src',
 
                       'evaluate': function(
-                        scope
+                        _scope
                       ) {
-                        return scope.state.article.author.image;
+                        return _scope.state.article.author.image;
                       }
                     }
                   ]
                 },
                 {
-                  'redundantAttribute': 'expr38',
-                  'selector': '[expr38]',
+                  'redundantAttribute': 'expr46',
+                  'selector': '[expr46]',
 
                   'expressions': [
                     {
@@ -10985,9 +10994,9 @@
                       'childNodeIndex': 0,
 
                       'evaluate': function(
-                        scope
+                        _scope
                       ) {
-                        return scope.state.article.author.username;
+                        return _scope.state.article.author.username;
                       }
                     },
                     {
@@ -10995,16 +11004,16 @@
                       'name': 'href',
 
                       'evaluate': function(
-                        scope
+                        _scope
                       ) {
-                        return "#/profile/" + scope.state.article.author.username;
+                        return "#/profile/" + _scope.state.article.author.username;
                       }
                     }
                   ]
                 },
                 {
-                  'redundantAttribute': 'expr39',
-                  'selector': '[expr39]',
+                  'redundantAttribute': 'expr47',
+                  'selector': '[expr47]',
 
                   'expressions': [
                     {
@@ -11012,9 +11021,9 @@
                       'childNodeIndex': 0,
 
                       'evaluate': function(
-                        scope
+                        _scope
                       ) {
-                        return scope.formattedDate( scope.state.article.createdAt );
+                        return _scope.formattedDate( _scope.state.article.createdAt );
                       }
                     }
                   ]
@@ -11023,20 +11032,20 @@
                   'type': bindingTypes.IF,
 
                   'evaluate': function(
-                    scope
+                    _scope
                   ) {
-                    return scope.isOwnArticle() == false;
+                    return _scope.isOwnArticle() == false;
                   },
 
-                  'redundantAttribute': 'expr40',
-                  'selector': '[expr40]',
+                  'redundantAttribute': 'expr48',
+                  'selector': '[expr48]',
 
                   'template': template(
-                    '<button expr41="expr41"><i class="ion-plus-round"></i> </button>\n        &nbsp;\n        <button expr42="expr42"><i class="ion-heart"></i> <span expr43="expr43" class="counter"> </span></button>',
+                    '<button expr49="expr49"><i class="ion-plus-round"></i> </button>\n        &nbsp;\n        <button expr50="expr50"><i class="ion-heart"></i> <span expr51="expr51" class="counter"> </span></button>',
                     [
                       {
-                        'redundantAttribute': 'expr41',
-                        'selector': '[expr41]',
+                        'redundantAttribute': 'expr49',
+                        'selector': '[expr49]',
 
                         'expressions': [
                           {
@@ -11044,10 +11053,10 @@
                             'childNodeIndex': 1,
 
                             'evaluate': function(
-                              scope
+                              _scope
                             ) {
                               return [
-                                (scope.state.article.author.following ? "Unfollow" : "Follow") + " " + scope.state.article.author.username
+                                (_scope.state.article.author.following ? "Unfollow" : "Follow") + " " + _scope.state.article.author.username
                               ].join(
                                 ''
                               );
@@ -11058,9 +11067,9 @@
                             'name': 'onclick',
 
                             'evaluate': function(
-                              scope
+                              _scope
                             ) {
-                              return scope.actionOfFollowButton;
+                              return _scope.actionOfFollowButton;
                             }
                           },
                           {
@@ -11068,16 +11077,16 @@
                             'name': 'class',
 
                             'evaluate': function(
-                              scope
+                              _scope
                             ) {
-                              return scope.followButtonClassName( scope.state.article.author.following );
+                              return _scope.followButtonClassName( _scope.state.article.author.following );
                             }
                           }
                         ]
                       },
                       {
-                        'redundantAttribute': 'expr42',
-                        'selector': '[expr42]',
+                        'redundantAttribute': 'expr50',
+                        'selector': '[expr50]',
 
                         'expressions': [
                           {
@@ -11085,10 +11094,10 @@
                             'childNodeIndex': 1,
 
                             'evaluate': function(
-                              scope
+                              _scope
                             ) {
                               return [
-                                (scope.state.article.favorited ? "Unfavorite" : "Favorite") + " Article"
+                                (_scope.state.article.favorited ? "Unfavorite" : "Favorite") + " Article"
                               ].join(
                                 ''
                               );
@@ -11099,9 +11108,9 @@
                             'name': 'onclick',
 
                             'evaluate': function(
-                              scope
+                              _scope
                             ) {
-                              return scope.actionOfFavoriteButton;
+                              return _scope.actionOfFavoriteButton;
                             }
                           },
                           {
@@ -11109,16 +11118,16 @@
                             'name': 'class',
 
                             'evaluate': function(
-                              scope
+                              _scope
                             ) {
-                              return scope.favoriteButtonClassName( scope.state.article.favorited );
+                              return _scope.favoriteButtonClassName( _scope.state.article.favorited );
                             }
                           }
                         ]
                       },
                       {
-                        'redundantAttribute': 'expr43',
-                        'selector': '[expr43]',
+                        'redundantAttribute': 'expr51',
+                        'selector': '[expr51]',
 
                         'expressions': [
                           {
@@ -11126,11 +11135,11 @@
                             'childNodeIndex': 0,
 
                             'evaluate': function(
-                              scope
+                              _scope
                             ) {
                               return [
                                 '(',
-                                scope.state.article.favoritesCount,
+                                _scope.state.article.favoritesCount,
                                 ')'
                               ].join(
                                 ''
@@ -11146,20 +11155,20 @@
                   'type': bindingTypes.IF,
 
                   'evaluate': function(
-                    scope
+                    _scope
                   ) {
-                    return scope.isOwnArticle();
+                    return _scope.isOwnArticle();
                   },
 
-                  'redundantAttribute': 'expr44',
-                  'selector': '[expr44]',
+                  'redundantAttribute': 'expr52',
+                  'selector': '[expr52]',
 
                   'template': template(
-                    '<button expr45="expr45" class="btn btn-sm btn-outline-secondary"><i class="ion-edit"></i> Edit Article\n        </button>\n        &nbsp;\n        <button expr46="expr46" class="btn btn-sm btn-outline-danger"><i class="ion-trash-a"></i> Delete Article\n        </button>',
+                    '<button expr53="expr53" class="btn btn-sm btn-outline-secondary"><i class="ion-edit"></i> Edit Article\n        </button>\n        &nbsp;\n        <button expr54="expr54" class="btn btn-sm btn-outline-danger"><i class="ion-trash-a"></i> Delete Article\n        </button>',
                     [
                       {
-                        'redundantAttribute': 'expr45',
-                        'selector': '[expr45]',
+                        'redundantAttribute': 'expr53',
+                        'selector': '[expr53]',
 
                         'expressions': [
                           {
@@ -11167,16 +11176,16 @@
                             'name': 'onclick',
 
                             'evaluate': function(
-                              scope
+                              _scope
                             ) {
-                              return scope.actionOfEditingButton;
+                              return _scope.actionOfEditingButton;
                             }
                           }
                         ]
                       },
                       {
-                        'redundantAttribute': 'expr46',
-                        'selector': '[expr46]',
+                        'redundantAttribute': 'expr54',
+                        'selector': '[expr54]',
 
                         'expressions': [
                           {
@@ -11184,9 +11193,9 @@
                             'name': 'onclick',
 
                             'evaluate': function(
-                              scope
+                              _scope
                             ) {
-                              return scope.actionOfDeleteButton;
+                              return _scope.actionOfDeleteButton;
                             }
                           }
                         ]
@@ -14023,22 +14032,22 @@
       getComponent
     ) {
       return template(
-        '<template expr47="expr47"></template>',
+        '<template expr61="expr61"></template>',
         [
           {
             'type': bindingTypes.IF,
 
             'evaluate': function(
-              scope
+              _scope
             ) {
-              return scope.state.article != null;
+              return _scope.state.article != null;
             },
 
-            'redundantAttribute': 'expr47',
-            'selector': '[expr47]',
+            'redundantAttribute': 'expr61',
+            'selector': '[expr61]',
 
             'template': template(
-              '<div id="articleBodyField"></div><ul class="tag-list"><li expr48="expr48" class="tag-default tag-pill tag-outline"></li></ul>',
+              '<div id="articleBodyField"></div><ul class="tag-list"><li expr62="expr62" class="tag-default tag-pill tag-outline"></li></ul>',
               [
                 {
                   'type': bindingTypes.EACH,
@@ -14055,9 +14064,9 @@
                             'childNodeIndex': 0,
 
                             'evaluate': function(
-                              scope
+                              _scope
                             ) {
-                              return scope.tagWord;
+                              return _scope.tagWord;
                             }
                           }
                         ]
@@ -14065,15 +14074,15 @@
                     ]
                   ),
 
-                  'redundantAttribute': 'expr48',
-                  'selector': '[expr48]',
+                  'redundantAttribute': 'expr62',
+                  'selector': '[expr62]',
                   'itemName': 'tagWord',
                   'indexName': null,
 
                   'evaluate': function(
-                    scope
+                    _scope
                   ) {
-                    return scope.state.article.tagList;
+                    return _scope.state.article.tagList;
                   }
                 }
               ]
@@ -14113,26 +14122,26 @@
       getComponent
     ) {
       return template(
-        '<form class="card comment-form"><div class="card-block"><textarea id="commentArea" class="form-control" placeholder="Write a comment..." rows="3"></textarea></div><div class="card-footer"><template expr58="expr58"></template><button expr60="expr60" type="button" class="btn btn-sm btn-primary">\n        Post Comment\n        </button></div></form>',
+        '<form class="card comment-form"><div class="card-block"><textarea id="commentArea" class="form-control" placeholder="Write a comment..." rows="3"></textarea></div><div class="card-footer"><template expr40="expr40"></template><button expr42="expr42" type="button" class="btn btn-sm btn-primary">\n        Post Comment\n        </button></div></form>',
         [
           {
             'type': bindingTypes.IF,
 
             'evaluate': function(
-              scope
+              _scope
             ) {
-              return scope.state.profile != null;
+              return _scope.state.profile != null;
             },
 
-            'redundantAttribute': 'expr58',
-            'selector': '[expr58]',
+            'redundantAttribute': 'expr40',
+            'selector': '[expr40]',
 
             'template': template(
-              '<img expr59="expr59" class="comment-author-img"/>',
+              '<img expr41="expr41" class="comment-author-img"/>',
               [
                 {
-                  'redundantAttribute': 'expr59',
-                  'selector': '[expr59]',
+                  'redundantAttribute': 'expr41',
+                  'selector': '[expr41]',
 
                   'expressions': [
                     {
@@ -14140,9 +14149,9 @@
                       'name': 'src',
 
                       'evaluate': function(
-                        scope
+                        _scope
                       ) {
-                        return scope.state.profile.image;
+                        return _scope.state.profile.image;
                       }
                     }
                   ]
@@ -14151,8 +14160,8 @@
             )
           },
           {
-            'redundantAttribute': 'expr60',
-            'selector': '[expr60]',
+            'redundantAttribute': 'expr42',
+            'selector': '[expr42]',
 
             'expressions': [
               {
@@ -14160,9 +14169,9 @@
                 'name': 'onclick',
 
                 'evaluate': function(
-                  scope
+                  _scope
                 ) {
-                  return scope.actionOfPostCommentButton;
+                  return _scope.actionOfPostCommentButton;
                 }
               }
             ]
@@ -14237,9 +14246,9 @@
                       'name': 'body',
 
                       'evaluate': function(
-                        scope
+                        _scope
                       ) {
-                        return scope.comment.body;
+                        return _scope.comment.body;
                       }
                     }
                   ]
@@ -14254,9 +14263,9 @@
                       'name': 'href',
 
                       'evaluate': function(
-                        scope
+                        _scope
                       ) {
-                        return "#/profile/" + scope.comment.author.username;
+                        return "#/profile/" + _scope.comment.author.username;
                       }
                     }
                   ]
@@ -14271,9 +14280,9 @@
                       'name': 'src',
 
                       'evaluate': function(
-                        scope
+                        _scope
                       ) {
-                        return scope.comment.author.image;
+                        return _scope.comment.author.image;
                       }
                     }
                   ]
@@ -14288,10 +14297,10 @@
                       'childNodeIndex': 0,
 
                       'evaluate': function(
-                        scope
+                        _scope
                       ) {
                         return [
-                          scope.comment.author.username
+                          _scope.comment.author.username
                         ].join(
                           ''
                         );
@@ -14302,9 +14311,9 @@
                       'name': 'href',
 
                       'evaluate': function(
-                        scope
+                        _scope
                       ) {
-                        return "#/profile/" + scope.comment.author.username;
+                        return "#/profile/" + _scope.comment.author.username;
                       }
                     }
                   ]
@@ -14319,9 +14328,9 @@
                       'childNodeIndex': 0,
 
                       'evaluate': function(
-                        scope
+                        _scope
                       ) {
-                        return scope.formattedDate( scope.comment.createdAt );
+                        return _scope.formattedDate( _scope.comment.createdAt );
                       }
                     }
                   ]
@@ -14330,9 +14339,9 @@
                   'type': bindingTypes.IF,
 
                   'evaluate': function(
-                    scope
+                    _scope
                   ) {
-                    return scope.isDeletable( scope.comment );
+                    return _scope.isDeletable( _scope.comment );
                   },
 
                   'redundantAttribute': 'expr69',
@@ -14351,9 +14360,9 @@
                             'name': 'onclick',
 
                             'evaluate': function(
-                              scope
+                              _scope
                             ) {
-                              return () => scope.actionOfTrashButton( scope.comment.id );
+                              return () => _scope.actionOfTrashButton( _scope.comment.id );
                             }
                           }
                         ]
@@ -14370,9 +14379,9 @@
             'indexName': null,
 
             'evaluate': function(
-              scope
+              _scope
             ) {
-              return scope.state.comments;
+              return _scope.state.comments;
             }
           }
         ]
@@ -14451,9 +14460,9 @@
                 'childNodeIndex': 0,
 
                 'evaluate': function(
-                  scope
+                  _scope
                 ) {
-                  return scope.state.owner.currentArticleTitle();
+                  return _scope.state.owner.currentArticleTitle();
                 }
               }
             ]
@@ -14565,9 +14574,9 @@
             'type': bindingTypes.IF,
 
             'evaluate': function(
-              scope
+              _scope
             ) {
-              return scope.state.errorMessages != null;
+              return _scope.state.errorMessages != null;
             },
 
             'redundantAttribute': 'expr6',
@@ -14591,9 +14600,9 @@
                             'childNodeIndex': 0,
 
                             'evaluate': function(
-                              scope
+                              _scope
                             ) {
-                              return scope.message;
+                              return _scope.message;
                             }
                           }
                         ]
@@ -14607,9 +14616,9 @@
                   'indexName': null,
 
                   'evaluate': function(
-                    scope
+                    _scope
                   ) {
-                    return scope.state.errorMessages;
+                    return _scope.state.errorMessages;
                   }
                 }
               ]
@@ -14625,9 +14634,9 @@
                 'name': 'oninput',
 
                 'evaluate': function(
-                  scope
+                  _scope
                 ) {
-                  return scope.shouldSubmit;
+                  return _scope.shouldSubmit;
                 }
               }
             ]
@@ -14642,9 +14651,9 @@
                 'name': 'oninput',
 
                 'evaluate': function(
-                  scope
+                  _scope
                 ) {
-                  return scope.shouldSubmit;
+                  return _scope.shouldSubmit;
                 }
               }
             ]
@@ -14659,9 +14668,9 @@
                 'name': 'onclick',
 
                 'evaluate': function(
-                  scope
+                  _scope
                 ) {
-                  return scope.actionOfSubmitButton;
+                  return _scope.actionOfSubmitButton;
                 }
               }
             ]
@@ -14777,9 +14786,9 @@
             'type': bindingTypes.IF,
 
             'evaluate': function(
-              scope
+              _scope
             ) {
-              return scope.state.errorMessages != null;
+              return _scope.state.errorMessages != null;
             },
 
             'redundantAttribute': 'expr0',
@@ -14803,9 +14812,9 @@
                             'childNodeIndex': 0,
 
                             'evaluate': function(
-                              scope
+                              _scope
                             ) {
-                              return scope.message;
+                              return _scope.message;
                             }
                           }
                         ]
@@ -14819,9 +14828,9 @@
                   'indexName': null,
 
                   'evaluate': function(
-                    scope
+                    _scope
                   ) {
-                    return scope.state.errorMessages;
+                    return _scope.state.errorMessages;
                   }
                 }
               ]
@@ -14837,9 +14846,9 @@
                 'name': 'oninput',
 
                 'evaluate': function(
-                  scope
+                  _scope
                 ) {
-                  return scope.shouldSubmit;
+                  return _scope.shouldSubmit;
                 }
               }
             ]
@@ -14854,9 +14863,9 @@
                 'name': 'oninput',
 
                 'evaluate': function(
-                  scope
+                  _scope
                 ) {
-                  return scope.shouldSubmit;
+                  return _scope.shouldSubmit;
                 }
               }
             ]
@@ -14871,9 +14880,9 @@
                 'name': 'oninput',
 
                 'evaluate': function(
-                  scope
+                  _scope
                 ) {
-                  return scope.shouldSubmit;
+                  return _scope.shouldSubmit;
                 }
               }
             ]
@@ -14888,9 +14897,9 @@
                 'name': 'onclick',
 
                 'evaluate': function(
-                  scope
+                  _scope
                 ) {
-                  return scope.actionOfSubmitButton;
+                  return _scope.actionOfSubmitButton;
                 }
               }
             ]
@@ -15062,9 +15071,9 @@
             'type': bindingTypes.IF,
 
             'evaluate': function(
-              scope
+              _scope
             ) {
-              return scope.state.errorMessages != null;
+              return _scope.state.errorMessages != null;
             },
 
             'redundantAttribute': 'expr11',
@@ -15088,9 +15097,9 @@
                             'childNodeIndex': 0,
 
                             'evaluate': function(
-                              scope
+                              _scope
                             ) {
-                              return scope.message;
+                              return _scope.message;
                             }
                           }
                         ]
@@ -15104,9 +15113,9 @@
                   'indexName': null,
 
                   'evaluate': function(
-                    scope
+                    _scope
                   ) {
-                    return scope.state.errorMessages;
+                    return _scope.state.errorMessages;
                   }
                 }
               ]
@@ -15122,10 +15131,10 @@
                 'childNodeIndex': 0,
 
                 'evaluate': function(
-                  scope
+                  _scope
                 ) {
                   return [
-                    scope.state.owner.submitButtonTitle()
+                    _scope.state.owner.submitButtonTitle()
                   ].join(
                     ''
                   );
@@ -15136,9 +15145,9 @@
                 'name': 'onclick',
 
                 'evaluate': function(
-                  scope
+                  _scope
                 ) {
-                  return scope.actionOfSubmitButton;
+                  return _scope.actionOfSubmitButton;
                 }
               }
             ]
@@ -15392,26 +15401,26 @@
       getComponent
     ) {
       return template(
-        '<template expr24="expr24"></template>',
+        '<template expr55="expr55"></template>',
         [
           {
             'type': bindingTypes.IF,
 
             'evaluate': function(
-              scope
+              _scope
             ) {
-              return scope.state.profile != null;
+              return _scope.state.profile != null;
             },
 
-            'redundantAttribute': 'expr24',
-            'selector': '[expr24]',
+            'redundantAttribute': 'expr55',
+            'selector': '[expr55]',
 
             'template': template(
-              '<img expr25="expr25" class="user-img"/><h4 expr26="expr26"> </h4><p expr27="expr27"> </p><button expr28="expr28"><i expr29="expr29"></i> </button>',
+              '<img expr56="expr56" class="user-img"/><h4 expr57="expr57"> </h4><p expr58="expr58"> </p><button expr59="expr59"><i expr60="expr60"></i> </button>',
               [
                 {
-                  'redundantAttribute': 'expr25',
-                  'selector': '[expr25]',
+                  'redundantAttribute': 'expr56',
+                  'selector': '[expr56]',
 
                   'expressions': [
                     {
@@ -15419,16 +15428,16 @@
                       'name': 'src',
 
                       'evaluate': function(
-                        scope
+                        _scope
                       ) {
-                        return scope.state.profile.image;
+                        return _scope.state.profile.image;
                       }
                     }
                   ]
                 },
                 {
-                  'redundantAttribute': 'expr26',
-                  'selector': '[expr26]',
+                  'redundantAttribute': 'expr57',
+                  'selector': '[expr57]',
 
                   'expressions': [
                     {
@@ -15436,16 +15445,16 @@
                       'childNodeIndex': 0,
 
                       'evaluate': function(
-                        scope
+                        _scope
                       ) {
-                        return scope.state.profile.username;
+                        return _scope.state.profile.username;
                       }
                     }
                   ]
                 },
                 {
-                  'redundantAttribute': 'expr27',
-                  'selector': '[expr27]',
+                  'redundantAttribute': 'expr58',
+                  'selector': '[expr58]',
 
                   'expressions': [
                     {
@@ -15453,16 +15462,16 @@
                       'childNodeIndex': 0,
 
                       'evaluate': function(
-                        scope
+                        _scope
                       ) {
-                        return scope.state.profile.bio;
+                        return _scope.state.profile.bio;
                       }
                     }
                   ]
                 },
                 {
-                  'redundantAttribute': 'expr28',
-                  'selector': '[expr28]',
+                  'redundantAttribute': 'expr59',
+                  'selector': '[expr59]',
 
                   'expressions': [
                     {
@@ -15470,10 +15479,10 @@
                       'childNodeIndex': 1,
 
                       'evaluate': function(
-                        scope
+                        _scope
                       ) {
                         return [
-                          scope.buttonTitle()
+                          _scope.buttonTitle()
                         ].join(
                           ''
                         );
@@ -15484,9 +15493,9 @@
                       'name': 'onclick',
 
                       'evaluate': function(
-                        scope
+                        _scope
                       ) {
-                        return scope.actionOfProfileButton;
+                        return _scope.actionOfProfileButton;
                       }
                     },
                     {
@@ -15494,16 +15503,16 @@
                       'name': 'class',
 
                       'evaluate': function(
-                        scope
+                        _scope
                       ) {
-                        return "btn btn-sm action-btn" + ( scope.state.profile.following ? " btn-secondary" : " btn-outline-secondary" );
+                        return "btn btn-sm action-btn" + ( _scope.state.profile.following ? " btn-secondary" : " btn-outline-secondary" );
                       }
                     }
                   ]
                 },
                 {
-                  'redundantAttribute': 'expr29',
-                  'selector': '[expr29]',
+                  'redundantAttribute': 'expr60',
+                  'selector': '[expr60]',
 
                   'expressions': [
                     {
@@ -15511,9 +15520,9 @@
                       'name': 'class',
 
                       'evaluate': function(
-                        scope
+                        _scope
                       ) {
-                        return scope.isOwn === true ? "ion-gear-a" : "ion-plus-round";
+                        return _scope.isOwn === true ? "ion-gear-a" : "ion-plus-round";
                       }
                     }
                   ]
@@ -15629,7 +15638,7 @@
           this.post = (email, username, bio, image, password) => {
               return this.conduit.updateUser(this.storage.user().token, new PostUser(email, username, bio, image, password));
           };
-          this.logoutAfterJumpToHome = () => {
+          this.logoutThenJumpToHome = () => {
               this.storage.setUser(null);
               this.jumpToHome();
           };
@@ -15682,7 +15691,7 @@
               });
           };
           this.logout = () => {
-              this.useCase.logoutAfterJumpToHome();
+              this.useCase.logoutThenJumpToHome();
           };
       }
   }
@@ -15742,22 +15751,22 @@
       getComponent
     ) {
       return template(
-        '<div id="headerView"></div><div class="settings-page"><div class="container page"><div class="row"><div class="col-md-6 offset-md-3 col-xs-12"><h1 class="text-xs-center">Your Settings</h1><ul expr15="expr15" class="error-messages"></ul><form><fieldset><fieldset class="form-group"><input id="iconUrlField" class="form-control" type="text" placeholder="URL of profile picture"/></fieldset><fieldset class="form-group"><input id="usernameField" class="form-control form-control-lg" type="text" placeholder="Your Name"/></fieldset><fieldset class="form-group"><textarea id="bioField" class="form-control form-control-lg" rows="8" placeholder="Short bio about you"></textarea></fieldset><fieldset class="form-group"><input id="emailField" class="form-control form-control-lg" type="text" placeholder="Email"/></fieldset><fieldset class="form-group"><input id="passwordField" class="form-control form-control-lg" type="password" placeholder="Password"/></fieldset><button expr17="expr17" class="btn btn-lg btn-primary pull-xs-right" type="button">\n                        Update Settings\n                    </button></fieldset></form><hr/><button expr18="expr18" class="btn btn-outline-danger"> Or click here to logout. </button></div></div></div></div><div id="footerView"></div>',
+        '<div id="headerView"></div><div class="settings-page"><div class="container page"><div class="row"><div class="col-md-6 offset-md-3 col-xs-12"><h1 class="text-xs-center">Your Settings</h1><ul expr14="expr14" class="error-messages"></ul><form><fieldset><fieldset class="form-group"><input id="iconUrlField" class="form-control" type="text" placeholder="URL of profile picture"/></fieldset><fieldset class="form-group"><input id="usernameField" class="form-control form-control-lg" type="text" placeholder="Your Name"/></fieldset><fieldset class="form-group"><textarea id="bioField" class="form-control form-control-lg" rows="8" placeholder="Short bio about you"></textarea></fieldset><fieldset class="form-group"><input id="emailField" class="form-control form-control-lg" type="text" placeholder="Email"/></fieldset><fieldset class="form-group"><input id="passwordField" class="form-control form-control-lg" type="password" placeholder="Password"/></fieldset><button expr16="expr16" class="btn btn-lg btn-primary pull-xs-right" type="button">\n                        Update Settings\n                    </button></fieldset></form><hr/><button expr17="expr17" class="btn btn-outline-danger"> Or click here to logout. </button></div></div></div></div><div id="footerView"></div>',
         [
           {
             'type': bindingTypes.IF,
 
             'evaluate': function(
-              scope
+              _scope
             ) {
-              return scope.state.errorMessages != null;
+              return _scope.state.errorMessages != null;
             },
 
-            'redundantAttribute': 'expr15',
-            'selector': '[expr15]',
+            'redundantAttribute': 'expr14',
+            'selector': '[expr14]',
 
             'template': template(
-              '<li expr16="expr16"></li>',
+              '<li expr15="expr15"></li>',
               [
                 {
                   'type': bindingTypes.EACH,
@@ -15774,9 +15783,9 @@
                             'childNodeIndex': 0,
 
                             'evaluate': function(
-                              scope
+                              _scope
                             ) {
-                              return scope.message;
+                              return _scope.message;
                             }
                           }
                         ]
@@ -15784,19 +15793,36 @@
                     ]
                   ),
 
-                  'redundantAttribute': 'expr16',
-                  'selector': '[expr16]',
+                  'redundantAttribute': 'expr15',
+                  'selector': '[expr15]',
                   'itemName': 'message',
                   'indexName': null,
 
                   'evaluate': function(
-                    scope
+                    _scope
                   ) {
-                    return scope.state.errorMessages;
+                    return _scope.state.errorMessages;
                   }
                 }
               ]
             )
+          },
+          {
+            'redundantAttribute': 'expr16',
+            'selector': '[expr16]',
+
+            'expressions': [
+              {
+                'type': expressionTypes.EVENT,
+                'name': 'onclick',
+
+                'evaluate': function(
+                  _scope
+                ) {
+                  return _scope.actionOfUpdateButton;
+                }
+              }
+            ]
           },
           {
             'redundantAttribute': 'expr17',
@@ -15808,26 +15834,9 @@
                 'name': 'onclick',
 
                 'evaluate': function(
-                  scope
+                  _scope
                 ) {
-                  return scope.actionOfUpdateButton;
-                }
-              }
-            ]
-          },
-          {
-            'redundantAttribute': 'expr18',
-            'selector': '[expr18]',
-
-            'expressions': [
-              {
-                'type': expressionTypes.EVENT,
-                'name': 'onclick',
-
-                'evaluate': function(
-                  scope
-                ) {
-                  return scope.actionOfLogoutButton;
+                  return _scope.actionOfLogoutButton;
                 }
               }
             ]
@@ -15857,11 +15866,11 @@
       getComponent
     ) {
       return template(
-        '<div class="home-page"><div id="headerView"></div><div class="banner"><div class="container"><h1 expr14="expr14" class="logo-font"> <br/>\n            Sorry, Please back <a class="spotlink" href="/">home</a>.\n            </h1></div></div><div id="footerView"></div></div>',
+        '<div class="home-page"><div id="headerView"></div><div class="banner"><div class="container"><h1 expr18="expr18" class="logo-font"> <br/>\n            Sorry, Please back <a class="spotlink" href="/">home</a>.\n            </h1></div></div><div id="footerView"></div></div>',
         [
           {
-            'redundantAttribute': 'expr14',
-            'selector': '[expr14]',
+            'redundantAttribute': 'expr18',
+            'selector': '[expr18]',
 
             'expressions': [
               {
@@ -15869,10 +15878,10 @@
                 'childNodeIndex': 0,
 
                 'evaluate': function(
-                  scope
+                  _scope
                 ) {
                   return [
-                    scope.props.message
+                    _scope.props.message
                   ].join(
                     ''
                   );

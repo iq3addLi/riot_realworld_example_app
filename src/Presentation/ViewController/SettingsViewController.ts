@@ -41,6 +41,6 @@ export default class SettingsViewController {
     }
 
     logout = () => {
-        this.useCase.logoutAfterJumpToHome()
+        this.useCase.logoutThenJumpToHome()
     }
 }
