@@ -7,6 +7,5 @@
 
     // endpoint of Conduit API ( '/' suffix is unneed )
     //"endpoint": "https://conduit.productionready.io/api"
-    //"endpoint": "http://127.0.0.1:8080"
-    "endpoint": "http://svlre-app-listener-a0429d6-1443868670.us-east-1.elb.amazonaws.com"
+    "endpoint": "http://127.0.0.1:8080"
 }
