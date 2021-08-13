@@ -14,7 +14,7 @@
     "tasks": [
         {
             "label" : "build",
-            "args" : ["npm run build"],
+            "command": "npm run build",
             "type" : "shell",
             "group": {
                 "kind": "build",
