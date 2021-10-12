@@ -6,6 +6,6 @@
     "countOfArticleInView" : 10,
 
     // endpoint of Conduit API ( '/' suffix is unneed )
-    //"endpoint": "https://conduit.productionready.io/api"
-    "endpoint": "http://127.0.0.1:8080"
+    "endpoint": "https://conduit.productionready.io/api"
+    //"endpoint": "http://127.0.0.1:8080"
 }

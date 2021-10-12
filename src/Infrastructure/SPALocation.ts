@@ -1,7 +1,7 @@
 import HTTPURLParser from "./HTTPURLParser"
 
 /**
- * Location parser specialized in SPA.
+ * Location parser in Hash Based Url
  */
 export default class SPALocation {
 
