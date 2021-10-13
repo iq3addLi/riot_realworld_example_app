@@ -272,7 +272,7 @@ Since the access method to childView was cut off from riot, I had to push the id
 
 ## For guys interested in Riot.js
 
-I've been using Riot.js since 2016 to develop our services. Riot.js is very simple as declared. Since Riot.js does not have many functions by itself, there is not much discussion about itself. That's why you don't see many names on the web. This is because you can spend more time learning how to use CSS frameworks such as `bulma`, or useful libraries such as `moment`, `i18next`, `inversity`, and `marked`.
+I've been using Riot.js since 2016 to develop our services. Riot.js is very simple as declared. Since Riot.js does not have many functions by itself, there is not much discussion about itself. That's why you don't see many names on the web. This is because you can spend more time learning how to use CSS frameworks such as `tailwindcss`, or useful libraries such as `Luxon`, `i18next`, `inversity`, and `marked`.
 
 I would like to list two important facts here
 * Riot.js made iOS Developer possible for web development.
