@@ -1,7 +1,7 @@
 {
   "name": "riot_realworld_example_app",
-  "version": "6.0.2",
-  "description": "Exemplary real world application built with Riot.js v6 ✊✊✊✊✊✊",
+  "version": "7.0.0",
+  "description": "Exemplary real world application built with Riot.js v7 🖐✌️",
   "scripts": {
     "build": "gulp",
     "rollup": "rollup -c",
@@ -25,49 +25,46 @@
     "url": "https://github.com/iq3addLi/riot_realworld_example_app/issues"
   },
   "homepage": "https://github.com/iq3addLi/riot_realworld_example_app",
-  "dependencies": {
-    "fetch-polyfill": "^0.8.2",
-    "i18next": "^20.6.1",
-    "jwt-decode": "^3.0.0",
-    "kind-of": ">=6.0.3",
-    "marked": "^4.0.10",
-    "moment": "^2.29.4",
-    "natives": "^1.1.6",
-    "reflect-metadata": "^0.1.13",
-    "riot": "^6.0.4",
-    "riot-route": "^3.1.4"
-  },
   "devDependencies": {
     "@types/chai": "^4.2.22",
     "@types/gulp": "^4.0.9",
     "@types/gulp-connect": "^5.0.5",
     "@types/gulp-replace": "^0.0.31",
-    "@types/marked": "^0.6.5",
+    "@types/marked": "^4.0.0",
     "@types/mocha": "^5.2.7",
     "@types/riot-route": "^3.1.1",
     "chai": "^4.3.4",
+    "fetch-polyfill": "^0.8.2",
     "gulp": "^4.0.0",
     "gulp-connect": "^5.7.0",
     "gulp-hjson": "^2.4.3",
     "gulp-replace": "^1.1.3",
     "gulp-tslint": "^8.1.4",
     "gulp-uglify": "^3.0.2",
+    "i18next": "^21.0.0",
+    "jwt-decode": "^3.0.0",
+    "kind-of": ">=6.0.3",
+    "marked": "^4.0.10",
     "mocha": "^8.4.0",
-    "rollup": "^2.58.0",
+    "moment": "^2.29.4",
+    "natives": "^1.1.6",
+    "reflect-metadata": "^0.1.13",
+    "riot": "^7.0.0",
+    "riot-route": "^3.1.4",
+    "rollup": "^2.78.0",
     "rollup-plugin-commonjs": "^10.1.0",
     "rollup-plugin-node-resolve": "^5.2.0",
     "rollup-plugin-riot": "^6.0.0",
     "rollup-plugin-typescript": "^1.0.1",
-    "ts-node": "^10.3.0",
-    "typescript": "^4.4.3",
+    "ts-node": "^10.9.1",
+    "typescript": "^4.7.4",
     "typescript-simple": "^8.0.6",
-    "uglify-es": "^3.3.9",
-    "yargs-parser": "^20.2.9"
+    "uglify-es": "^3.3.9"
   },
   "optionalDependencies": {
     "tslint": "^6.0.0"
   },
   "volta": {
-    "node": "14.18.0"
+    "node": "16.16.0"
   }
 }

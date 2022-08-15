@@ -358,152 +358,12 @@
     self.fetch.polyfill = true;
   })();
 
-  /* Riot v6.0.4, @license MIT */
-  /**
-   * Convert a string from camel case to dash-case
-   * @param   {string} string - probably a component tag name
-   * @returns {string} component name normalized
-   */
-  function camelToDashCase(string) {
-    return string.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
-  }
-  /**
-   * Convert a string containing dashes to camel case
-   * @param   {string} string - input string
-   * @returns {string} my-string -> myString
-   */
-
-  function dashToCamelCase(string) {
-    return string.replace(/-(\w)/g, (_, c) => c.toUpperCase());
-  }
-
-  /**
-   * Get all the element attributes as object
-   * @param   {HTMLElement} element - DOM node we want to parse
-   * @returns {Object} all the attributes found as a key value pairs
-   */
-
-  function DOMattributesToObject(element) {
-    return Array.from(element.attributes).reduce((acc, attribute) => {
-      acc[dashToCamelCase(attribute.name)] = attribute.value;
-      return acc;
-    }, {});
-  }
-  /**
-   * Move all the child nodes from a source tag to another
-   * @param   {HTMLElement} source - source node
-   * @param   {HTMLElement} target - target node
-   * @returns {undefined} it's a void method ¯\_(ツ)_/¯
-   */
-  // Ignore this helper because it's needed only for svg tags
-
-  function moveChildren(source, target) {
-    if (source.firstChild) {
-      target.appendChild(source.firstChild);
-      moveChildren(source, target);
-    }
-  }
-  /**
-   * Remove the child nodes from any DOM node
-   * @param   {HTMLElement} node - target node
-   * @returns {undefined}
-   */
-
-  function cleanNode(node) {
-    clearChildren(node.childNodes);
-  }
-  /**
-   * Clear multiple children in a node
-   * @param   {HTMLElement[]} children - direct children nodes
-   * @returns {undefined}
-   */
-
-  function clearChildren(children) {
-    Array.from(children).forEach(removeChild);
-  }
-  /**
-   * Remove a node
-   * @param {HTMLElement}node - node to remove
-   * @returns {undefined}
-   */
-
-  const removeChild = node => node && node.parentNode && node.parentNode.removeChild(node);
-  /**
-   * Insert before a node
-   * @param {HTMLElement} newNode - node to insert
-   * @param {HTMLElement} refNode - ref child
-   * @returns {undefined}
-   */
-
-  const insertBefore = (newNode, refNode) => refNode && refNode.parentNode && refNode.parentNode.insertBefore(newNode, refNode);
-  /**
-   * Replace a node
-   * @param {HTMLElement} newNode - new node to add to the DOM
-   * @param {HTMLElement} replaced - node to replace
-   * @returns {undefined}
-   */
-
-  const replaceChild = (newNode, replaced) => replaced && replaced.parentNode && replaced.parentNode.replaceChild(newNode, replaced);
-
-  // Riot.js constants that can be used accross more modules
-  const COMPONENTS_IMPLEMENTATION_MAP$1 = new Map(),
-        DOM_COMPONENT_INSTANCE_PROPERTY$1 = Symbol('riot-component'),
-        PLUGINS_SET$1 = new Set(),
-        IS_DIRECTIVE = 'is',
-        VALUE_ATTRIBUTE = 'value',
-        MOUNT_METHOD_KEY = 'mount',
-        UPDATE_METHOD_KEY = 'update',
-        UNMOUNT_METHOD_KEY = 'unmount',
-        SHOULD_UPDATE_KEY = 'shouldUpdate',
-        ON_BEFORE_MOUNT_KEY = 'onBeforeMount',
-        ON_MOUNTED_KEY = 'onMounted',
-        ON_BEFORE_UPDATE_KEY = 'onBeforeUpdate',
-        ON_UPDATED_KEY = 'onUpdated',
-        ON_BEFORE_UNMOUNT_KEY = 'onBeforeUnmount',
-        ON_UNMOUNTED_KEY = 'onUnmounted',
-        PROPS_KEY = 'props',
-        STATE_KEY = 'state',
-        SLOTS_KEY = 'slots',
-        ROOT_KEY = 'root',
-        IS_PURE_SYMBOL = Symbol('pure'),
-        IS_COMPONENT_UPDATING = Symbol('is_updating'),
-        PARENT_KEY_SYMBOL = Symbol('parent'),
-        ATTRIBUTES_KEY_SYMBOL = Symbol('attributes'),
-        TEMPLATE_KEY_SYMBOL = Symbol('template');
-
-  var globals = /*#__PURE__*/Object.freeze({
-    __proto__: null,
-    COMPONENTS_IMPLEMENTATION_MAP: COMPONENTS_IMPLEMENTATION_MAP$1,
-    DOM_COMPONENT_INSTANCE_PROPERTY: DOM_COMPONENT_INSTANCE_PROPERTY$1,
-    PLUGINS_SET: PLUGINS_SET$1,
-    IS_DIRECTIVE: IS_DIRECTIVE,
-    VALUE_ATTRIBUTE: VALUE_ATTRIBUTE,
-    MOUNT_METHOD_KEY: MOUNT_METHOD_KEY,
-    UPDATE_METHOD_KEY: UPDATE_METHOD_KEY,
-    UNMOUNT_METHOD_KEY: UNMOUNT_METHOD_KEY,
-    SHOULD_UPDATE_KEY: SHOULD_UPDATE_KEY,
-    ON_BEFORE_MOUNT_KEY: ON_BEFORE_MOUNT_KEY,
-    ON_MOUNTED_KEY: ON_MOUNTED_KEY,
-    ON_BEFORE_UPDATE_KEY: ON_BEFORE_UPDATE_KEY,
-    ON_UPDATED_KEY: ON_UPDATED_KEY,
-    ON_BEFORE_UNMOUNT_KEY: ON_BEFORE_UNMOUNT_KEY,
-    ON_UNMOUNTED_KEY: ON_UNMOUNTED_KEY,
-    PROPS_KEY: PROPS_KEY,
-    STATE_KEY: STATE_KEY,
-    SLOTS_KEY: SLOTS_KEY,
-    ROOT_KEY: ROOT_KEY,
-    IS_PURE_SYMBOL: IS_PURE_SYMBOL,
-    IS_COMPONENT_UPDATING: IS_COMPONENT_UPDATING,
-    PARENT_KEY_SYMBOL: PARENT_KEY_SYMBOL,
-    ATTRIBUTES_KEY_SYMBOL: ATTRIBUTES_KEY_SYMBOL,
-    TEMPLATE_KEY_SYMBOL: TEMPLATE_KEY_SYMBOL
-  });
-
   const EACH = 0;
   const IF = 1;
   const SIMPLE = 2;
   const TAG = 3;
   const SLOT = 4;
+
   var bindingTypes = {
     EACH,
     IF,
@@ -512,10 +372,190 @@
     SLOT
   };
 
+  /**
+   * Quick type checking
+   * @param   {*} element - anything
+   * @param   {string} type - type definition
+   * @returns {boolean} true if the type corresponds
+   */
+  function checkType(element, type) {
+    return typeof element === type
+  }
+
+  /**
+   * Check if an element is part of an svg
+   * @param   {HTMLElement}  el - element to check
+   * @returns {boolean} true if we are in an svg context
+   */
+  function isSvg(el) {
+    const owner = el.ownerSVGElement;
+
+    return !!owner || owner === null
+  }
+
+  /**
+   * Check if an element is a template tag
+   * @param   {HTMLElement}  el - element to check
+   * @returns {boolean} true if it's a <template>
+   */
+  function isTemplate(el) {
+    return el.tagName.toLowerCase() === 'template'
+  }
+
+  /**
+   * Check that will be passed if its argument is a function
+   * @param   {*} value - value to check
+   * @returns {boolean} - true if the value is a function
+   */
+  function isFunction(value) {
+    return checkType(value, 'function')
+  }
+
+  /**
+   * Check if a value is a Boolean
+   * @param   {*}  value - anything
+   * @returns {boolean} true only for the value is a boolean
+   */
+  function isBoolean(value) {
+    return checkType(value, 'boolean')
+  }
+
+  /**
+   * Check if a value is an Object
+   * @param   {*}  value - anything
+   * @returns {boolean} true only for the value is an object
+   */
+  function isObject(value) {
+    return !isNil(value) && value.constructor === Object
+  }
+
+  /**
+   * Check if a value is null or undefined
+   * @param   {*}  value - anything
+   * @returns {boolean} true only for the 'undefined' and 'null' types
+   */
+  function isNil(value) {
+    return value === null || value === undefined
+  }
+
+  // Riot.js constants that can be used accross more modules
+
+  const COMPONENTS_IMPLEMENTATION_MAP = new Map(),
+    DOM_COMPONENT_INSTANCE_PROPERTY = Symbol('riot-component'),
+    PLUGINS_SET = new Set(),
+    IS_DIRECTIVE = 'is',
+    MOUNT_METHOD_KEY = 'mount',
+    UPDATE_METHOD_KEY = 'update',
+    UNMOUNT_METHOD_KEY = 'unmount',
+    SHOULD_UPDATE_KEY = 'shouldUpdate',
+    ON_BEFORE_MOUNT_KEY = 'onBeforeMount',
+    ON_MOUNTED_KEY = 'onMounted',
+    ON_BEFORE_UPDATE_KEY = 'onBeforeUpdate',
+    ON_UPDATED_KEY = 'onUpdated',
+    ON_BEFORE_UNMOUNT_KEY = 'onBeforeUnmount',
+    ON_UNMOUNTED_KEY = 'onUnmounted',
+    PROPS_KEY = 'props',
+    STATE_KEY = 'state',
+    SLOTS_KEY = 'slots',
+    ROOT_KEY = 'root',
+    IS_PURE_SYMBOL = Symbol('pure'),
+    IS_COMPONENT_UPDATING = Symbol('is_updating'),
+    PARENT_KEY_SYMBOL = Symbol('parent'),
+    ATTRIBUTES_KEY_SYMBOL = Symbol('attributes'),
+    TEMPLATE_KEY_SYMBOL = Symbol('template');
+
+  /**
+   * Convert a string from camel case to dash-case
+   * @param   {string} string - probably a component tag name
+   * @returns {string} component name normalized
+   */
+  function camelToDashCase(string) {
+    return string.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase()
+  }
+
+  /**
+   * Convert a string containing dashes to camel case
+   * @param   {string} string - input string
+   * @returns {string} my-string -> myString
+   */
+  function dashToCamelCase(string) {
+    return string.replace(/-(\w)/g, (_, c) => c.toUpperCase())
+  }
+
+  /**
+   * Get all the element attributes as object
+   * @param   {HTMLElement} element - DOM node we want to parse
+   * @returns {Object} all the attributes found as a key value pairs
+   */
+  function DOMattributesToObject(element) {
+    return Array.from(element.attributes).reduce((acc, attribute) => {
+      acc[dashToCamelCase(attribute.name)] = attribute.value;
+      return acc
+    }, {})
+  }
+
+  /**
+   * Move all the child nodes from a source tag to another
+   * @param   {HTMLElement} source - source node
+   * @param   {HTMLElement} target - target node
+   * @returns {undefined} it's a void method ¯\_(ツ)_/¯
+   */
+
+  // Ignore this helper because it's needed only for svg tags
+  function moveChildren(source, target) {
+    if (source.firstChild) {
+      target.appendChild(source.firstChild);
+      moveChildren(source, target);
+    }
+  }
+
+  /**
+   * Remove the child nodes from any DOM node
+   * @param   {HTMLElement} node - target node
+   * @returns {undefined}
+   */
+  function cleanNode(node) {
+    clearChildren(node.childNodes);
+  }
+
+  /**
+   * Clear multiple children in a node
+   * @param   {HTMLElement[]} children - direct children nodes
+   * @returns {undefined}
+   */
+  function clearChildren(children) {
+    Array.from(children).forEach(removeChild);
+  }
+
+
+  /**
+   * Remove a node
+   * @param {HTMLElement}node - node to remove
+   * @returns {undefined}
+   */
+  const removeChild = node => node && node.parentNode && node.parentNode.removeChild(node);
+
+  /**
+   * Insert before a node
+   * @param {HTMLElement} newNode - node to insert
+   * @param {HTMLElement} refNode - ref child
+   * @returns {undefined}
+   */
+  const insertBefore = (newNode, refNode) => refNode && refNode.parentNode && refNode.parentNode.insertBefore(newNode, refNode);
+
+  /**
+   * Replace a node
+   * @param {HTMLElement} newNode - new node to add to the DOM
+   * @param {HTMLElement} replaced - node to replace
+   * @returns {undefined}
+   */
+  const replaceChild = (newNode, replaced) => replaced && replaced.parentNode && replaced.parentNode.replaceChild(newNode, replaced);
+
   const ATTRIBUTE = 0;
   const EVENT = 1;
   const TEXT = 2;
   const VALUE = 3;
+
   var expressionTypes = {
     ATTRIBUTE,
     EVENT,
@@ -523,44 +563,86 @@
     VALUE
   };
 
-  const HEAD_SYMBOL = Symbol('head');
-  const TAIL_SYMBOL = Symbol('tail');
-
-  /**
-   * Create the <template> fragments text nodes
-   * @return {Object} {{head: Text, tail: Text}}
-   */
-
-  function createHeadTailPlaceholders() {
-    const head = document.createTextNode('');
-    const tail = document.createTextNode('');
-    head[HEAD_SYMBOL] = true;
-    tail[TAIL_SYMBOL] = true;
-    return {
-      head,
-      tail
-    };
+  // does simply nothing
+  function noop() {
+    return this
   }
 
   /**
-   * Create the template meta object in case of <template> fragments
-   * @param   {TemplateChunk} componentTemplate - template chunk object
-   * @returns {Object} the meta property that will be passed to the mount function of the TemplateChunk
+   * Autobind the methods of a source object to itself
+   * @param   {Object} source - probably a riot tag instance
+   * @param   {Array<string>} methods - list of the methods to autobind
+   * @returns {Object} the original object received
    */
+  function autobindMethods(source, methods) {
+    methods.forEach(method => {
+      source[method] = source[method].bind(source);
+    });
 
-  function createTemplateMeta(componentTemplate) {
-    const fragment = componentTemplate.dom.cloneNode(true);
-    const {
-      head,
-      tail
-    } = createHeadTailPlaceholders();
-    return {
-      avoidDOMInjection: true,
-      fragment,
-      head,
-      tail,
-      children: [head, ...Array.from(fragment.childNodes), tail]
+    return source
+  }
+
+  /**
+   * Call the first argument received only if it's a function otherwise return it as it is
+   * @param   {*} source - anything
+   * @returns {*} anything
+   */
+  function callOrAssign(source) {
+    return isFunction(source) ? (source.prototype && source.prototype.constructor ?
+      new source() : source()
+    ) : source
+  }
+
+  /**
+   * Throw an error with a descriptive message
+   * @param   { string } message - error message
+   * @returns { undefined } hoppla.. at this point the program should stop working
+   */
+  function panic(message) {
+    throw new Error(message)
+  }
+  /**
+   * Returns the memoized (cached) function.
+   * // borrowed from https://www.30secondsofcode.org/js/s/memoize
+   * @param {Function} fn - function to memoize
+   * @returns {Function} memoize function
+   */
+  function memoize(fn) {
+    const cache = new Map();
+    const cached = val => {
+      return cache.has(val) ? cache.get(val) : cache.set(val, fn.call(this, val)) && cache.get(val)
     };
+    cached.cache = cache;
+    return cached
+  }
+
+  /**
+   * Evaluate a list of attribute expressions
+   * @param   {Array} attributes - attribute expressions generated by the riot compiler
+   * @returns {Object} key value pairs with the result of the computation
+   */
+  function evaluateAttributeExpressions(attributes) {
+    return attributes.reduce((acc, attribute) => {
+      const {value, type} = attribute;
+
+      switch (true) {
+      // spread attribute
+      case !attribute.name && type === ATTRIBUTE:
+        return {
+          ...acc,
+          ...value
+        }
+      // value attribute
+      case type === VALUE:
+        acc.value = attribute.value;
+        break
+      // normal attributes
+      default:
+        acc[dashToCamelCase(attribute.name)] = attribute.value;
+      }
+
+      return acc
+    }, {})
   }
 
   /**
@@ -571,22 +653,20 @@
    * @param   {Object} options - set the propery overriding the default options
    * @returns {Object} - the original object modified
    */
-  function defineProperty(source, key, value, options) {
-    if (options === void 0) {
-      options = {};
-    }
-
+  function defineProperty(source, key, value, options = {}) {
     /* eslint-disable fp/no-mutating-methods */
-    Object.defineProperty(source, key, Object.assign({
+    Object.defineProperty(source, key, {
       value,
       enumerable: false,
       writable: false,
-      configurable: true
-    }, options));
+      configurable: true,
+      ...options
+    });
     /* eslint-enable fp/no-mutating-methods */
 
-    return source;
+    return source
   }
+
   /**
    * Define multiple properties on a target object
    * @param   {Object} source - object where the new properties will be set
@@ -594,132 +674,76 @@
    * @param   {Object} options - set the propery overriding the default options
    * @returns {Object} the original object modified
    */
-
   function defineProperties(source, properties, options) {
-    Object.entries(properties).forEach(_ref => {
-      let [key, value] = _ref;
+    Object.entries(properties).forEach(([key, value]) => {
       defineProperty(source, key, value, options);
     });
-    return source;
+
+    return source
   }
+
   /**
    * Define default properties if they don't exist on the source object
    * @param   {Object} source - object that will receive the default properties
    * @param   {Object} defaults - object containing additional optional keys
    * @returns {Object} the original object received enhanced
    */
-
   function defineDefaults(source, defaults) {
-    Object.entries(defaults).forEach(_ref2 => {
-      let [key, value] = _ref2;
+    Object.entries(defaults).forEach(([key, value]) => {
       if (!source[key]) source[key] = value;
     });
-    return source;
+
+    return source
+  }
+
+  /* Riot WIP, @license MIT */
+
+  const PURE_COMPONENT_API = Object.freeze({
+    [MOUNT_METHOD_KEY]: noop,
+    [UPDATE_METHOD_KEY]: noop,
+    [UNMOUNT_METHOD_KEY]: noop
+  });
+
+  /* Riot WIP, @license MIT */
+
+  const MOCKED_TEMPLATE_INTERFACE = Object.assign({}, PURE_COMPONENT_API, {
+    clone: noop,
+    createDOM: noop
+  });
+
+  const HEAD_SYMBOL = Symbol();
+  const TAIL_SYMBOL = Symbol();
+
+  /**
+   * Create the <template> fragments text nodes
+   * @return {Object} {{head: Text, tail: Text}}
+   */
+  function createHeadTailPlaceholders() {
+    const head = document.createTextNode('');
+    const tail = document.createTextNode('');
+
+    head[HEAD_SYMBOL] = true;
+    tail[TAIL_SYMBOL] = true;
+
+    return {head, tail}
   }
 
   /**
-   * Get the current <template> fragment children located in between the head and tail comments
-   * @param {Comment} head - head comment node
-   * @param {Comment} tail - tail comment node
-   * @return {Array[]} children list of the nodes found in this template fragment
+   * Create the template meta object in case of <template> fragments
+   * @param   {TemplateChunk} componentTemplate - template chunk object
+   * @returns {Object} the meta property that will be passed to the mount function of the TemplateChunk
    */
+  function createTemplateMeta(componentTemplate) {
+    const fragment = componentTemplate.dom.cloneNode(true);
+    const {head, tail} = createHeadTailPlaceholders();
 
-  function getFragmentChildren(_ref) {
-    let {
+    return {
+      avoidDOMInjection: true,
+      fragment,
       head,
-      tail
-    } = _ref;
-    const nodes = walkNodes([head], head.nextSibling, n => n === tail, false);
-    nodes.push(tail);
-    return nodes;
-  }
-  /**
-   * Recursive function to walk all the <template> children nodes
-   * @param {Array[]} children - children nodes collection
-   * @param {ChildNode} node - current node
-   * @param {Function} check - exit function check
-   * @param {boolean} isFilterActive - filter flag to skip nodes managed by other bindings
-   * @returns {Array[]} children list of the nodes found in this template fragment
-   */
-
-  function walkNodes(children, node, check, isFilterActive) {
-    const {
-      nextSibling
-    } = node; // filter tail and head nodes together with all the nodes in between
-    // this is needed only to fix a really ugly edge case https://github.com/riot/riot/issues/2892
-
-    if (!isFilterActive && !node[HEAD_SYMBOL] && !node[TAIL_SYMBOL]) {
-      children.push(node);
+      tail,
+      children: [head, ...Array.from(fragment.childNodes), tail]
     }
-
-    if (!nextSibling || check(node)) return children;
-    return walkNodes(children, nextSibling, check, // activate the filters to skip nodes between <template> fragments that will be managed by other bindings
-    isFilterActive && !node[TAIL_SYMBOL] || nextSibling[HEAD_SYMBOL]);
-  }
-
-  /**
-   * Quick type checking
-   * @param   {*} element - anything
-   * @param   {string} type - type definition
-   * @returns {boolean} true if the type corresponds
-   */
-  function checkType(element, type) {
-    return typeof element === type;
-  }
-  /**
-   * Check if an element is part of an svg
-   * @param   {HTMLElement}  el - element to check
-   * @returns {boolean} true if we are in an svg context
-   */
-
-  function isSvg(el) {
-    const owner = el.ownerSVGElement;
-    return !!owner || owner === null;
-  }
-  /**
-   * Check if an element is a template tag
-   * @param   {HTMLElement}  el - element to check
-   * @returns {boolean} true if it's a <template>
-   */
-
-  function isTemplate(el) {
-    return el.tagName.toLowerCase() === 'template';
-  }
-  /**
-   * Check that will be passed if its argument is a function
-   * @param   {*} value - value to check
-   * @returns {boolean} - true if the value is a function
-   */
-
-  function isFunction(value) {
-    return checkType(value, 'function');
-  }
-  /**
-   * Check if a value is a Boolean
-   * @param   {*}  value - anything
-   * @returns {boolean} true only for the value is a boolean
-   */
-
-  function isBoolean(value) {
-    return checkType(value, 'boolean');
-  }
-  /**
-   * Check if a value is an Object
-   * @param   {*}  value - anything
-   * @returns {boolean} true only for the value is an object
-   */
-
-  function isObject(value) {
-    return !isNil(value) && value.constructor === Object;
-  }
-  /**
-   * Check if a value is null or undefined
-   * @param   {*}  value - anything
-   * @returns {boolean} true only for the 'undefined' and 'null' types
-   */
-
-  function isNil(value) {
-    return value === null || value === undefined;
   }
 
   /**
@@ -739,9 +763,9 @@
    * OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
    * PERFORMANCE OF THIS SOFTWARE.
    */
+
   // fork of https://github.com/WebReflection/udomdiff version 1.1.0
   // due to https://github.com/WebReflection/udomdiff/pull/2
-
   /* eslint-disable */
 
   /**
@@ -752,15 +776,13 @@
    * @param {Node} [before] The optional node used as anchor to insert before.
    * @returns {Node[]} The same list of future children.
    */
-
-  var udomdiff = ((a, b, get, before) => {
+  var udomdiff = (a, b, get, before) => {
     const bLength = b.length;
     let aEnd = a.length;
     let bEnd = bLength;
     let aStart = 0;
     let bStart = 0;
     let map = null;
-
     while (aStart < aEnd || bStart < bEnd) {
       // append head, tail, or nodes in between: fast path
       if (aEnd === aStart) {
@@ -768,28 +790,40 @@
         // need to be added are not at the end, and in such case
         // the node to `insertBefore`, if the index is more than 0
         // must be retrieved, otherwise it's gonna be the first item.
-        const node = bEnd < bLength ? bStart ? get(b[bStart - 1], -0).nextSibling : get(b[bEnd - bStart], 0) : before;
-
-        while (bStart < bEnd) insertBefore(get(b[bStart++], 1), node);
-      } // remove head or tail: fast path
+        const node = bEnd < bLength ?
+          (bStart ?
+            (get(b[bStart - 1], -0).nextSibling) :
+            get(b[bEnd - bStart], 0)) :
+          before;
+        while (bStart < bEnd)
+          insertBefore(get(b[bStart++], 1), node);
+      }
+      // remove head or tail: fast path
       else if (bEnd === bStart) {
         while (aStart < aEnd) {
           // remove the node only if it's unknown or not live
-          if (!map || !map.has(a[aStart])) removeChild(get(a[aStart], -1));
+          if (!map || !map.has(a[aStart]))
+            removeChild(get(a[aStart], -1));
           aStart++;
         }
-      } // same node: fast path
+      }
+      // same node: fast path
       else if (a[aStart] === b[bStart]) {
         aStart++;
         bStart++;
-      } // same tail: fast path
+      }
+      // same tail: fast path
       else if (a[aEnd - 1] === b[bEnd - 1]) {
         aEnd--;
         bEnd--;
-      } // The once here single last swap "fast path" has been removed in v1.1.0
+      }
+      // The once here single last swap "fast path" has been removed in v1.1.0
       // https://github.com/WebReflection/udomdiff/blob/single-final-swap/esm/index.js#L69-L85
       // reverse swap: also fast path
-      else if (a[aStart] === b[bEnd - 1] && b[bStart] === a[aEnd - 1]) {
+      else if (
+        a[aStart] === b[bEnd - 1] &&
+        b[bStart] === a[aEnd - 1]
+      ) {
         // this is a "shrink" operation that could happen in these cases:
         // [1, 2, 3, 4, 5]
         // [1, 4, 3, 2, 5]
@@ -797,16 +831,20 @@
         // [1, 2, 3, 4, 5]
         // [1, 2, 3, 5, 6, 4]
         const node = get(a[--aEnd], -1).nextSibling;
-        insertBefore(get(b[bStart++], 1), get(a[aStart++], -1).nextSibling);
-        insertBefore(get(b[--bEnd], 1), node); // mark the future index as identical (yeah, it's dirty, but cheap 👍)
+        insertBefore(
+          get(b[bStart++], 1),
+          get(a[aStart++], -1).nextSibling
+        );
+        insertBefore(get(b[--bEnd], 1), node);
+        // mark the future index as identical (yeah, it's dirty, but cheap 👍)
         // The main reason to do this, is that when a[aEnd] will be reached,
         // the loop will likely be on the fast path, as identical to b[bEnd].
         // In the best case scenario, the next loop will skip the tail,
         // but in the worst one, this node will be considered as already
         // processed, bailing out pretty quickly from the map index check
-
         a[aEnd] = b[bEnd];
-      } // map based fallback, "slow" path
+      }
+      // map based fallback, "slow" path
       else {
         // the map requires an O(bEnd - bStart) operation once
         // to store all future nodes indexes for later purposes.
@@ -814,23 +852,23 @@
         // and such scenario happens at least when all nodes are different,
         // but also if both first and last items of the lists are different
         if (!map) {
-          map = new Map();
+          map = new Map;
           let i = bStart;
-
-          while (i < bEnd) map.set(b[i], i++);
-        } // if it's a future node, hence it needs some handling
-
-
+          while (i < bEnd)
+            map.set(b[i], i++);
+        }
+        // if it's a future node, hence it needs some handling
         if (map.has(a[aStart])) {
           // grab the index of such node, 'cause it might have been processed
-          const index = map.get(a[aStart]); // if it's not already processed, look on demand for the next LCS
-
+          const index = map.get(a[aStart]);
+          // if it's not already processed, look on demand for the next LCS
           if (bStart < index && index < bEnd) {
-            let i = aStart; // counts the amount of nodes that are the same in the future
-
+            let i = aStart;
+            // counts the amount of nodes that are the same in the future
             let sequence = 1;
-
-            while (++i < aEnd && i < bEnd && map.get(a[i]) === index + sequence) sequence++; // effort decision here: if the sequence is longer than replaces
+            while (++i < aEnd && i < bEnd && map.get(a[i]) === (index + sequence))
+              sequence++;
+            // effort decision here: if the sequence is longer than replaces
             // needed to reach such sequence, which would brings again this loop
             // to the fast path, prepend the difference before a sequence,
             // and move only the future list index forward, so that aStart
@@ -840,31 +878,37 @@
             // b: [7, 1, 2, 3, 6]
             // this would place 7 before 1 and, from that time on, 1, 2, and 3
             // will be processed at zero cost
-
-
-            if (sequence > index - bStart) {
+            if (sequence > (index - bStart)) {
               const node = get(a[aStart], 0);
-
-              while (bStart < index) insertBefore(get(b[bStart++], 1), node);
-            } // if the effort wasn't good enough, fallback to a replace,
+              while (bStart < index)
+                insertBefore(get(b[bStart++], 1), node);
+            }
+            // if the effort wasn't good enough, fallback to a replace,
             // moving both source and target indexes forward, hoping that some
             // similar node will be found later on, to go back to the fast path
             else {
-              replaceChild(get(b[bStart++], 1), get(a[aStart++], -1));
+              replaceChild(
+                get(b[bStart++], 1),
+                get(a[aStart++], -1)
+              );
             }
-          } // otherwise move the source forward, 'cause there's nothing to do
-          else aStart++;
-        } // this node has no meaning in the future list, so it's more than safe
+          }
+          // otherwise move the source forward, 'cause there's nothing to do
+          else
+            aStart++;
+        }
+        // this node has no meaning in the future list, so it's more than safe
         // to remove it, and check the next live node out instead, meaning
         // that only the live list index should be forwarded
-        else removeChild(get(a[aStart++], -1));
+        else
+          removeChild(get(a[aStart++], -1));
       }
     }
-
     return b;
-  });
+  };
 
   const UNMOUNT_SCOPE = Symbol('unmount');
+
   const EachBinding = {
     // dynamic binding properties
     // childrenMap: null,
@@ -875,56 +919,61 @@
     // template: null,
     // isTemplateTag: false,
     nodes: [],
-
     // getKey: null,
     // indexName: null,
     // itemName: null,
     // afterPlaceholder: null,
     // placeholder: null,
+
     // API methods
     mount(scope, parentScope) {
-      return this.update(scope, parentScope);
+      return this.update(scope, parentScope)
     },
-
     update(scope, parentScope) {
-      const {
-        placeholder,
-        nodes,
-        childrenMap
-      } = this;
+      const {placeholder, nodes, childrenMap} = this;
       const collection = scope === UNMOUNT_SCOPE ? null : this.evaluate(scope);
-      const items = collection ? Array.from(collection) : []; // prepare the diffing
+      const items = collection ? Array.from(collection) : [];
 
+      // prepare the diffing
       const {
         newChildrenMap,
         batches,
         futureNodes
-      } = createPatch(items, scope, parentScope, this); // patch the DOM only if there are new nodes
+      } = createPatch(items, scope, parentScope, this);
 
-      udomdiff(nodes, futureNodes, patch(Array.from(childrenMap.values()), parentScope), placeholder); // trigger the mounts and the updates
+      // patch the DOM only if there are new nodes
+      udomdiff(
+        nodes,
+        futureNodes,
+        patch(
+          Array.from(childrenMap.values()),
+          parentScope
+        ),
+        placeholder
+      );
 
-      batches.forEach(fn => fn()); // update the children map
+      // trigger the mounts and the updates
+      batches.forEach(fn => fn());
 
+      // update the children map
       this.childrenMap = newChildrenMap;
-      this.nodes = futureNodes; // make sure that the loop edge nodes are marked
+      this.nodes = futureNodes;
 
-      markEdgeNodes(this.nodes);
-      return this;
+      return this
     },
-
     unmount(scope, parentScope) {
       this.update(UNMOUNT_SCOPE, parentScope);
-      return this;
-    }
 
+      return this
+    }
   };
+
   /**
    * Patch the DOM while diffing
    * @param   {any[]} redundant - list of all the children (template, nodes, context) added via each
    * @param   {*} parentScope - scope of the parent template
    * @returns {Function} patch function used by domdiff
    */
-
   function patch(redundant, parentScope) {
     return (item, info) => {
       if (info < 0) {
@@ -933,15 +982,12 @@
 
         if (element) {
           // get the nodes and the template in stored in the last child of the childrenMap
-          const {
-            template,
-            nodes,
-            context
-          } = element; // remove the last node (notice <template> tags might have more children nodes)
+          const {template, nodes, context} = element;
+          // remove the last node (notice <template> tags might have more children nodes)
+          nodes.pop();
 
-          nodes.pop(); // notice that we pass null as last argument because
+          // notice that we pass null as last argument because
           // the root node and its children will be removed by domdiff
-
           if (!nodes.length) {
             // we have cleared all the children nodes and we can unmount this template
             redundant.pop();
@@ -950,20 +996,20 @@
         }
       }
 
-      return item;
-    };
+      return item
+    }
   }
+
   /**
    * Check whether a template must be filtered from a loop
    * @param   {Function} condition - filter function
    * @param   {Object} context - argument passed to the filter function
    * @returns {boolean} true if this item should be skipped
    */
-
-
   function mustFilterItem(condition, context) {
-    return condition ? !condition(context) : false;
+    return condition ? !condition(context) : false
   }
+
   /**
    * Extend the scope of the looped template
    * @param   {Object} scope - current template scope
@@ -974,32 +1020,13 @@
    * @param   {*} options.item - collection item looped
    * @returns {Object} enhanced scope object
    */
-
-
-  function extendScope(scope, _ref) {
-    let {
-      itemName,
-      indexName,
-      index,
-      item
-    } = _ref;
+  function extendScope(scope, {itemName, indexName, index, item}) {
     defineProperty(scope, itemName, item);
     if (indexName) defineProperty(scope, indexName, index);
-    return scope;
-  }
-  /**
-   * Mark the first and last nodes in order to ignore them in case we need to retrieve the <template> fragment nodes
-   * @param {Array[]} nodes - each binding nodes list
-   * @returns {undefined} void function
-   */
 
-
-  function markEdgeNodes(nodes) {
-    const first = nodes[0];
-    const last = nodes[nodes.length - 1];
-    if (first) first[HEAD_SYMBOL] = true;
-    if (last) last[TAIL_SYMBOL] = true;
+    return scope
   }
+
   /**
    * Loop the current template items
    * @param   {Array} items - expression collection value
@@ -1011,35 +1038,20 @@
    * @returns {Array} data.batches - array containing the template lifecycle functions to trigger
    * @returns {Array} data.futureNodes - array containing the nodes we need to diff
    */
-
-
   function createPatch(items, scope, parentScope, binding) {
-    const {
-      condition,
-      template,
-      childrenMap,
-      itemName,
-      getKey,
-      indexName,
-      root,
-      isTemplateTag
-    } = binding;
+    const {condition, template, childrenMap, itemName, getKey, indexName, root, isTemplateTag} = binding;
     const newChildrenMap = new Map();
     const batches = [];
     const futureNodes = [];
+
     items.forEach((item, index) => {
-      const context = extendScope(Object.create(scope), {
-        itemName,
-        indexName,
-        index,
-        item
-      });
+      const context = extendScope(Object.create(scope), {itemName, indexName, index, item});
       const key = getKey ? getKey(context) : index;
       const oldItem = childrenMap.get(key);
       const nodes = [];
 
       if (mustFilterItem(condition, context)) {
-        return;
+        return
       }
 
       const mustMount = !oldItem;
@@ -1051,20 +1063,21 @@
         batches.push(() => componentTemplate.mount(el, context, parentScope, meta));
       } else {
         batches.push(() => componentTemplate.update(context, parentScope));
-      } // create the collection of nodes to update or to add
+      }
+
+      // create the collection of nodes to update or to add
       // in case of template tags we need to add all its children nodes
-
-
       if (isTemplateTag) {
-        nodes.push(...(mustMount ? meta.children : getFragmentChildren(meta)));
+        nodes.push(...meta.children);
       } else {
         nodes.push(el);
-      } // delete the old item from the children map
+      }
 
-
+      // delete the old item from the children map
       childrenMap.delete(key);
-      futureNodes.push(...nodes); // update the children map
+      futureNodes.push(...nodes);
 
+      // update the children map
       newChildrenMap.set(key, {
         nodes,
         template: componentTemplate,
@@ -1072,27 +1085,23 @@
         index
       });
     });
+
     return {
       newChildrenMap,
       batches,
       futureNodes
-    };
+    }
   }
 
-  function create$6(node, _ref2) {
-    let {
-      evaluate,
-      condition,
-      itemName,
-      indexName,
-      getKey,
-      template
-    } = _ref2;
+  function create$6(node, {evaluate, condition, itemName, indexName, getKey, template}) {
     const placeholder = document.createTextNode('');
     const root = node.cloneNode();
-    insertBefore(placeholder, node);
+
+    insertBefore(placeholder,  node);
     removeChild(node);
-    return Object.assign({}, EachBinding, {
+
+    return {
+      ...EachBinding,
       childrenMap: new Map(),
       node,
       root,
@@ -1104,13 +1113,12 @@
       indexName,
       itemName,
       placeholder
-    });
+    }
   }
 
   /**
    * Binding responsible for the `if` directive
    */
-
   const IfBinding = {
     // dynamic binding properties
     // node: null,
@@ -1118,122 +1126,62 @@
     // isTemplateTag: false,
     // placeholder: null,
     // template: null,
+
     // API methods
     mount(scope, parentScope) {
-      return this.update(scope, parentScope);
+      return this.update(scope, parentScope)
     },
-
     update(scope, parentScope) {
       const value = !!this.evaluate(scope);
       const mustMount = !this.value && value;
       const mustUnmount = this.value && !value;
-
       const mount = () => {
         const pristine = this.node.cloneNode();
+
         insertBefore(pristine, this.placeholder);
         this.template = this.template.clone();
         this.template.mount(pristine, scope, parentScope);
       };
 
       switch (true) {
-        case mustMount:
-          mount();
-          break;
-
-        case mustUnmount:
-          this.unmount(scope);
-          break;
-
-        default:
-          if (value) this.template.update(scope, parentScope);
+      case mustMount:
+        mount();
+        break
+      case mustUnmount:
+        this.unmount(scope);
+        break
+      default:
+        if (value) this.template.update(scope, parentScope);
       }
 
       this.value = value;
-      return this;
-    },
 
+      return this
+    },
     unmount(scope, parentScope) {
       this.template.unmount(scope, parentScope, true);
-      return this;
-    }
 
+      return this
+    }
   };
-  function create$5(node, _ref) {
-    let {
-      evaluate,
-      template
-    } = _ref;
+
+  function create$5(node, { evaluate, template }) {
     const placeholder = document.createTextNode('');
+
     insertBefore(placeholder, node);
     removeChild(node);
-    return Object.assign({}, IfBinding, {
+
+    return {
+      ...IfBinding,
       node,
       evaluate,
       placeholder,
       template: template.createDOM(node)
-    });
-  }
-
-  /**
-   * Throw an error with a descriptive message
-   * @param   { string } message - error message
-   * @returns { undefined } hoppla.. at this point the program should stop working
-   */
-
-  function panic(message) {
-    throw new Error(message);
-  }
-  /**
-   * Returns the memoized (cached) function.
-   * // borrowed from https://www.30secondsofcode.org/js/s/memoize
-   * @param {Function} fn - function to memoize
-   * @returns {Function} memoize function
-   */
-
-  function memoize(fn) {
-    const cache = new Map();
-
-    const cached = val => {
-      return cache.has(val) ? cache.get(val) : cache.set(val, fn.call(this, val)) && cache.get(val);
-    };
-
-    cached.cache = cache;
-    return cached;
-  }
-  /**
-   * Evaluate a list of attribute expressions
-   * @param   {Array} attributes - attribute expressions generated by the riot compiler
-   * @returns {Object} key value pairs with the result of the computation
-   */
-
-  function evaluateAttributeExpressions(attributes) {
-    return attributes.reduce((acc, attribute) => {
-      const {
-        value,
-        type
-      } = attribute;
-
-      switch (true) {
-        // spread attribute
-        case !attribute.name && type === ATTRIBUTE:
-          return Object.assign({}, acc, value);
-        // value attribute
-
-        case type === VALUE:
-          acc.value = attribute.value;
-          break;
-        // normal attributes
-
-        default:
-          acc[dashToCamelCase(attribute.name)] = attribute.value;
-      }
-
-      return acc;
-    }, {});
+    }
   }
 
   const ElementProto = typeof Element === 'undefined' ? {} : Element.prototype;
-  const isNativeHtmlProperty = memoize(name => ElementProto.hasOwnProperty(name)); // eslint-disable-line
+  const isNativeHtmlProperty = memoize(name => ElementProto.hasOwnProperty(name) ); // eslint-disable-line
 
   /**
    * Add all the attributes provided
@@ -1241,15 +1189,12 @@
    * @param   {Object} attributes - object containing the attributes names and values
    * @returns {undefined} sorry it's a void function :(
    */
-
   function setAllAttributes(node, attributes) {
-    Object.entries(attributes).forEach(_ref => {
-      let [name, value] = _ref;
-      return attributeExpression(node, {
-        name
-      }, value);
-    });
+    Object
+      .entries(attributes)
+      .forEach(([name, value]) => attributeExpression(node, { name }, value));
   }
+
   /**
    * Remove all the attributes provided
    * @param   {HTMLElement} node - target node
@@ -1257,32 +1202,33 @@
    * @param   {Object} oldAttributes - object containing all the old attribute names
    * @returns {undefined} sorry it's a void function :(
    */
-
-
   function removeAllAttributes(node, newAttributes, oldAttributes) {
     const newKeys = newAttributes ? Object.keys(newAttributes) : [];
-    Object.keys(oldAttributes).filter(name => !newKeys.includes(name)).forEach(attribute => node.removeAttribute(attribute));
+
+    Object
+      .keys(oldAttributes)
+      .filter(name => !newKeys.includes(name))
+      .forEach(attribute => node.removeAttribute(attribute));
   }
+
   /**
    * Check whether the attribute value can be rendered
    * @param {*} value - expression value
    * @returns {boolean} true if we can render this attribute value
    */
-
-
   function canRenderAttribute(value) {
-    return value === true || ['string', 'number'].includes(typeof value);
+    return value === true || ['string', 'number'].includes(typeof value)
   }
+
   /**
    * Check whether the attribute should be removed
    * @param {*} value - expression value
    * @returns {boolean} boolean - true if the attribute can be removed}
    */
-
-
   function shouldRemoveAttribute(value) {
-    return !value && value !== 0;
+    return !value && value !== 0
   }
+
   /**
    * This methods handles the DOM attributes updates
    * @param   {HTMLElement} node - target node
@@ -1292,30 +1238,30 @@
    * @param   {*} oldValue - the old expression cached value
    * @returns {undefined}
    */
-
-
-  function attributeExpression(node, _ref2, value, oldValue) {
-    let {
-      name
-    } = _ref2;
-
+  function attributeExpression(node, { name }, value, oldValue) {
     // is it a spread operator? {...attributes}
     if (!name) {
       if (oldValue) {
         // remove all the old attributes
         removeAllAttributes(node, value, oldValue);
-      } // is the value still truthy?
+      }
 
-
+      // is the value still truthy?
       if (value) {
         setAllAttributes(node, value);
       }
 
-      return;
-    } // handle boolean attributes
+      return
+    }
 
-
-    if (!isNativeHtmlProperty(name) && (isBoolean(value) || isObject(value) || isFunction(value))) {
+    // handle boolean attributes
+    if (
+      !isNativeHtmlProperty(name) && (
+        isBoolean(value) ||
+        isObject(value) ||
+        isFunction(value)
+      )
+    ) {
       node[name] = value;
     }
 
@@ -1325,36 +1271,36 @@
       node.setAttribute(name, normalizeValue(name, value));
     }
   }
+
   /**
    * Get the value as string
    * @param   {string} name - attribute name
    * @param   {*} value - user input value
    * @returns {string} input value as string
    */
-
   function normalizeValue(name, value) {
     // be sure that expressions like selected={ true } will be always rendered as selected='selected'
-    return value === true ? name : value;
+    return (value === true) ? name : value
   }
 
   const RE_EVENTS_PREFIX = /^on/;
 
-  const getCallbackAndOptions = value => Array.isArray(value) ? value : [value, false]; // see also https://medium.com/@WebReflection/dom-handleevent-a-cross-platform-standard-since-year-2000-5bf17287fd38
+  const getCallbackAndOptions = value => Array.isArray(value) ? value : [value, false];
 
-
+  // see also https://medium.com/@WebReflection/dom-handleevent-a-cross-platform-standard-since-year-2000-5bf17287fd38
   const EventListener = {
     handleEvent(event) {
       this[event.type](event);
     }
-
   };
   const ListenersWeakMap = new WeakMap();
 
   const createListener = node => {
     const listener = Object.create(EventListener);
     ListenersWeakMap.set(node, listener);
-    return listener;
+    return listener
   };
+
   /**
    * Set a new event listener
    * @param   {HTMLElement} node - target node
@@ -1363,12 +1309,7 @@
    * @param   {*} value - new expression value
    * @returns {value} the callback just received
    */
-
-
-  function eventExpression(node, _ref, value) {
-    let {
-      name
-    } = _ref;
+  function eventExpression(node, { name }, value) {
     const normalizedEventName = name.replace(RE_EVENTS_PREFIX, '');
     const eventListener = ListenersWeakMap.get(node) || createListener(node);
     const [callback, options] = getCallbackAndOptions(value);
@@ -1392,9 +1333,8 @@
    * @param   {*} value - user input value
    * @returns {string} hopefully a string
    */
-
   function normalizeStringValue(value) {
-    return isNil(value) ? '' : value;
+    return isNil(value) ? '' : value
   }
 
   /**
@@ -1403,18 +1343,19 @@
    * @param   {number} childNodeIndex - index of the text node in the childNodes list
    * @returns {Text} the text node to update
    */
-
   const getTextNode = (node, childNodeIndex) => {
     const target = node.childNodes[childNodeIndex];
 
     if (target.nodeType === Node.COMMENT_NODE) {
       const textNode = document.createTextNode('');
       node.replaceChild(textNode, target);
-      return textNode;
+
+      return textNode
     }
 
-    return target;
+    return target
   };
+
   /**
    * This methods handles a simple text expression update
    * @param   {HTMLElement} node - target node
@@ -1422,7 +1363,6 @@
    * @param   {*} value - new expression value
    * @returns {undefined}
    */
-
   function textExpression(node, data, value) {
     node.data = normalizeStringValue(value);
   }
@@ -1434,7 +1374,6 @@
    * @param   {*} value - new expression value
    * @returns {undefined}
    */
-
   function valueExpression(node, expression, value) {
     node.value = normalizeStringValue(value);
   }
@@ -1450,8 +1389,8 @@
     // Static props
     // node: null,
     // value: null,
-    // API methods
 
+    // API methods
     /**
      * Mount the expression evaluating its initial value
      * @param   {*} scope - argument passed to the expression to evaluate its current values
@@ -1459,12 +1398,13 @@
      */
     mount(scope) {
       // hopefully a pure function
-      this.value = this.evaluate(scope); // IO() DOM updates
+      this.value = this.evaluate(scope);
 
+      // IO() DOM updates
       apply(this, this.value);
-      return this;
-    },
 
+      return this
+    },
     /**
      * Update the expression if its value changed
      * @param   {*} scope - argument passed to the expression to evaluate its current values
@@ -1480,9 +1420,8 @@
         this.value = value;
       }
 
-      return this;
+      return this
     },
-
     /**
      * Expression teardown method
      * @returns {Expression} self
@@ -1490,25 +1429,29 @@
     unmount() {
       // unmount only the event handling expressions
       if (this.type === EVENT) apply(this, null);
-      return this;
-    }
 
+      return this
+    }
   };
+
   /**
    * IO() function to handle the DOM updates
    * @param {Expression} expression - expression object
    * @param {*} value - current expression value
    * @returns {undefined}
    */
-
   function apply(expression, value) {
-    return expressions[expression.type](expression.node, expression, value, expression.value);
+    return expressions[expression.type](expression.node, expression, value, expression.value)
   }
 
   function create$4(node, data) {
-    return Object.assign({}, Expression, data, {
-      node: data.type === TEXT ? getTextNode(node, data.childNodeIndex) : node
-    });
+    return {
+      ...Expression,
+      ...data,
+      node: data.type === TEXT ?
+        getTextNode(node, data.childNodeIndex) :
+        node
+    }
   }
 
   /**
@@ -1521,31 +1464,40 @@
    */
   function flattenCollectionMethods(collection, methods, context) {
     return methods.reduce((acc, method) => {
-      return Object.assign({}, acc, {
-        [method]: scope => {
-          return collection.map(item => item[method](scope)) && context;
+      return {
+        ...acc,
+        [method]: (scope) => {
+          return collection.map(item => item[method](scope)) && context
         }
-      });
-    }, {});
+      }
+    }, {})
   }
 
-  function create$3(node, _ref) {
-    let {
-      expressions
-    } = _ref;
-    return Object.assign({}, flattenCollectionMethods(expressions.map(expression => create$4(node, expression)), ['mount', 'update', 'unmount']));
+  function create$3(node, { expressions }) {
+    return {
+      ...flattenCollectionMethods(
+        expressions.map(expression => create$4(node, expression)),
+        ['mount', 'update', 'unmount']
+      )
+    }
   }
 
   function extendParentScope(attributes, scope, parentScope) {
-    if (!attributes || !attributes.length) return parentScope;
-    const expressions = attributes.map(attr => Object.assign({}, attr, {
+    if (!attributes || !attributes.length) return parentScope
+
+    const expressions = attributes.map(attr => ({
+      ...attr,
       value: attr.evaluate(scope)
     }));
-    return Object.assign(Object.create(parentScope || null), evaluateAttributeExpressions(expressions));
-  } // this function is only meant to fix an edge case
+
+    return Object.assign(
+      Object.create(parentScope || null),
+      evaluateAttributeExpressions(expressions)
+    )
+  }
+
+  // this function is only meant to fix an edge case
   // https://github.com/riot/riot/issues/2842
-
-
   const getRealParent = (scope, parentScope) => scope[PARENT_KEY_SYMBOL] || parentScope;
 
   const SlotBinding = {
@@ -1553,25 +1505,22 @@
     // node: null,
     // name: null,
     attributes: [],
-
     // template: null,
+
     getTemplateScope(scope, parentScope) {
-      return extendParentScope(this.attributes, scope, parentScope);
+      return extendParentScope(this.attributes, scope, parentScope)
     },
 
     // API methods
     mount(scope, parentScope) {
-      const templateData = scope.slots ? scope.slots.find(_ref => {
-        let {
-          id
-        } = _ref;
-        return id === this.name;
-      }) : false;
-      const {
-        parentNode
-      } = this.node;
+      const templateData = scope.slots ? scope.slots.find(({id}) => id === this.name) : false;
+      const {parentNode} = this.node;
       const realParent = getRealParent(scope, parentScope);
-      this.template = templateData && create(templateData.html, templateData.bindings).createDOM(parentNode);
+
+      this.template = templateData && create(
+        templateData.html,
+        templateData.bindings
+      ).createDOM(parentNode);
 
       if (this.template) {
         cleanNode(this.node);
@@ -1581,39 +1530,40 @@
 
       moveSlotInnerContent(this.node);
       removeChild(this.node);
-      return this;
-    },
 
+      return this
+    },
     update(scope, parentScope) {
       if (this.template) {
         const realParent = getRealParent(scope, parentScope);
         this.template.update(this.getTemplateScope(scope, realParent), realParent);
       }
 
-      return this;
+      return this
     },
-
     unmount(scope, parentScope, mustRemoveRoot) {
       if (this.template) {
         this.template.unmount(this.getTemplateScope(scope, parentScope), null, mustRemoveRoot);
       }
 
-      return this;
+      return this
     }
-
   };
+
   /**
    * Move the inner content of the slots outside of them
    * @param   {HTMLElement} slot - slot node
    * @returns {undefined} it's a void method ¯\_(ツ)_/¯
    */
-
   function moveSlotInnerContent(slot) {
     const child = slot && slot.firstChild;
-    if (!child) return;
+
+    if (!child) return
+
     insertBefore(child, slot);
     moveSlotInnerContent(slot);
   }
+
   /**
    * Create a single slot binding
    * @param   {HTMLElement} node - slot node
@@ -1621,18 +1571,13 @@
    * @param   {AttributeExpressionData[]} attributes - slot attributes
    * @returns {Object} Slot binding object
    */
-
-
-  function createSlot(node, _ref2) {
-    let {
-      name,
-      attributes
-    } = _ref2;
-    return Object.assign({}, SlotBinding, {
+  function createSlot(node, { name, attributes }) {
+    return {
+      ...SlotBinding,
       attributes,
       node,
       name
-    });
+    }
   }
 
   /**
@@ -1643,62 +1588,48 @@
    * @param   {Array} attributes - dynamic attributes that will be received by the tag element
    * @returns {TagImplementation|TemplateChunk} a tag implementation or a template chunk as fallback
    */
-
-  function getTag(component, slots, attributes) {
-    if (slots === void 0) {
-      slots = [];
-    }
-
-    if (attributes === void 0) {
-      attributes = [];
-    }
-
+  function getTag(component, slots = [], attributes = []) {
     // if this tag was registered before we will return its implementation
     if (component) {
-      return component({
-        slots,
-        attributes
-      });
-    } // otherwise we return a template chunk
+      return component({slots, attributes})
+    }
 
-
-    return create(slotsToMarkup(slots), [...slotBindings(slots), {
-      // the attributes should be registered as binding
-      // if we fallback to a normal template chunk
-      expressions: attributes.map(attr => {
-        return Object.assign({
-          type: ATTRIBUTE
-        }, attr);
-      })
-    }]);
+    // otherwise we return a template chunk
+    return create(slotsToMarkup(slots), [
+      ...slotBindings(slots), {
+        // the attributes should be registered as binding
+        // if we fallback to a normal template chunk
+        expressions: attributes.map(attr => {
+          return {
+            type: ATTRIBUTE,
+            ...attr
+          }
+        })
+      }
+    ])
   }
+
+
   /**
    * Merge all the slots bindings into a single array
    * @param   {Array<Object>} slots - slots collection
    * @returns {Array<Bindings>} flatten bindings array
    */
-
-
   function slotBindings(slots) {
-    return slots.reduce((acc, _ref) => {
-      let {
-        bindings
-      } = _ref;
-      return acc.concat(bindings);
-    }, []);
+    return slots.reduce((acc, {bindings}) => acc.concat(bindings), [])
   }
+
   /**
    * Merge all the slots together in a single markup string
    * @param   {Array<Object>} slots - slots collection
    * @returns {string} markup of all the slots in a single string
    */
-
-
   function slotsToMarkup(slots) {
     return slots.reduce((acc, slot) => {
-      return acc + slot.html;
-    }, '');
+      return acc + slot.html
+    }, '')
   }
+
 
   const TagBinding = {
     // dynamic binding properties
@@ -1709,51 +1640,47 @@
     // tag: null,
     // attributes: null,
     // getComponent: null,
+
     mount(scope) {
-      return this.update(scope);
+      return this.update(scope)
     },
-
     update(scope, parentScope) {
-      const name = this.evaluate(scope); // simple update
+      const name = this.evaluate(scope);
 
+      // simple update
       if (name && name === this.name) {
         this.tag.update(scope);
       } else {
         // unmount the old tag if it exists
-        this.unmount(scope, parentScope, true); // mount the new tag
+        this.unmount(scope, parentScope, true);
 
+        // mount the new tag
         this.name = name;
         this.tag = getTag(this.getComponent(name), this.slots, this.attributes);
         this.tag.mount(this.node, scope);
       }
 
-      return this;
+      return this
     },
-
     unmount(scope, parentScope, keepRootTag) {
       if (this.tag) {
         // keep the root tag
         this.tag.unmount(keepRootTag);
       }
 
-      return this;
+      return this
     }
-
   };
-  function create$2(node, _ref2) {
-    let {
-      evaluate,
-      getComponent,
-      slots,
-      attributes
-    } = _ref2;
-    return Object.assign({}, TagBinding, {
+
+  function create$2(node, {evaluate, getComponent, slots, attributes}) {
+    return {
+      ...TagBinding,
       node,
       evaluate,
       slots,
       attributes,
       getComponent
-    });
+    }
   }
 
   var bindings = {
@@ -1771,12 +1698,13 @@
    * @param   {number} textExpressionsOffset - offset of the <template> tag
    * @returns {Expression[]} expressions containing the text expressions normalized
    */
-
   function fixTextExpressionsOffset(expressions, textExpressionsOffset) {
-    return expressions.map(e => e.type === TEXT ? Object.assign({}, e, {
+    return expressions.map(e => e.type === TEXT ? {
+      ...e,
       childNodeIndex: e.childNodeIndex + textExpressionsOffset
-    }) : e);
+    } : e)
   }
+
   /**
    * Bind a new expression object to a DOM node
    * @param   {HTMLElement} root - DOM node where to bind the expression
@@ -1784,49 +1712,60 @@
    * @param   {number|null} templateTagOffset - if it's defined we need to fix the text expressions childNodeIndex offset
    * @returns {Binding} Binding object
    */
-
-
   function create$1(root, binding, templateTagOffset) {
-    const {
-      selector,
-      type,
-      redundantAttribute,
-      expressions
-    } = binding; // find the node to apply the bindings
+    const { selector, type, redundantAttribute, expressions } = binding;
+    // find the node to apply the bindings
+    const node = selector ? root.querySelector(selector) : root;
 
-    const node = selector ? root.querySelector(selector) : root; // remove eventually additional attributes created only to select this node
-
+    // remove eventually additional attributes created only to select this node
     if (redundantAttribute) node.removeAttribute(redundantAttribute);
-    const bindingExpressions = expressions || []; // init the binding
+    const bindingExpressions = expressions || [];
 
-    return (bindings[type] || bindings[SIMPLE])(node, Object.assign({}, binding, {
-      expressions: templateTagOffset && !selector ? fixTextExpressionsOffset(bindingExpressions, templateTagOffset) : bindingExpressions
-    }));
+    // init the binding
+    return (bindings[type] || bindings[SIMPLE])(
+      node,
+      {
+        ...binding,
+        expressions: templateTagOffset && !selector ?
+          fixTextExpressionsOffset(bindingExpressions, templateTagOffset) :
+          bindingExpressions
+      }
+    )
   }
 
+  // in this case a simple innerHTML is enough
   function createHTMLTree(html, root) {
     const template = isTemplate(root) ? root : document.createElement('template');
     template.innerHTML = html;
-    return template.content;
-  } // for svg nodes we need a bit more work
+    return template.content
+  }
 
-
+  // for svg nodes we need a bit more work
   function createSVGTree(html, container) {
     // create the SVGNode
-    const svgNode = container.ownerDocument.importNode(new window.DOMParser().parseFromString(`<svg xmlns="http://www.w3.org/2000/svg">${html}</svg>`, 'application/xml').documentElement, true);
-    return svgNode;
+    const svgNode = container.ownerDocument.importNode(
+      new window.DOMParser()
+        .parseFromString(
+          `<svg xmlns="http://www.w3.org/2000/svg">${html}</svg>`,
+          'application/xml'
+        )
+        .documentElement,
+      true
+    );
+
+    return svgNode
   }
+
   /**
    * Create the DOM that will be injected
    * @param {Object} root - DOM node to find out the context where the fragment will be created
    * @param   {string} html - DOM to create as string
    * @returns {HTMLDocumentFragment|HTMLElement} a new html fragment
    */
-
-
   function createDOMTree(root, html) {
-    if (isSvg(root)) return createSVGTree(html, root);
-    return createHTMLTree(html, root);
+    if (isSvg(root)) return createSVGTree(html, root)
+
+    return createHTMLTree(html, root)
   }
 
   /**
@@ -1835,19 +1774,16 @@
    * @param   {DocumentFragment|SVGElement} dom - dom tree to inject
    * @returns {undefined}
    */
-
   function injectDOM(el, dom) {
     switch (true) {
-      case isSvg(el):
-        moveChildren(dom, el);
-        break;
-
-      case isTemplate(el):
-        el.parentNode.replaceChild(dom, el);
-        break;
-
-      default:
-        el.appendChild(dom);
+    case isSvg(el):
+      moveChildren(dom, el);
+      break
+    case isTemplate(el):
+      el.parentNode.replaceChild(dom, el);
+      break
+    default:
+      el.appendChild(dom);
     }
   }
 
@@ -1857,10 +1793,12 @@
    * @param   {string|HTMLElement} html - HTML markup or HTMLElement that will be injected into the root node
    * @returns {?DocumentFragment} fragment that will be injected into the root node
    */
-
   function createTemplateDOM(el, html) {
-    return html && (typeof html === 'string' ? createDOMTree(el, html) : html);
+    return html && (typeof html === 'string' ?
+      createDOMTree(el, html) :
+      html)
   }
+
   /**
    * Get the offset of the <template> tag
    * @param {HTMLElement} parentNode - template tag parent node
@@ -1868,19 +1806,21 @@
    * @param   {Object} meta - meta properties needed to handle the <template> tags in loops
    * @returns {number} offset of the <template> tag calculated from its siblings DOM nodes
    */
-
-
   function getTemplateTagOffset(parentNode, el, meta) {
     const siblings = Array.from(parentNode.childNodes);
-    return Math.max(siblings.indexOf(el), siblings.indexOf(meta.head) + 1, 0);
+
+    return Math.max(
+      siblings.indexOf(el),
+      siblings.indexOf(meta.head) + 1,
+      0
+    )
   }
+
   /**
    * Template Chunk model
    * @type {Object}
    */
-
-
-  const TemplateChunk = Object.freeze({
+  const TemplateChunk = {
     // Static props
     // bindings: null,
     // bindingsData: null,
@@ -1899,11 +1839,11 @@
     createDOM(el) {
       // make sure that the DOM gets created before cloning the template
       this.dom = this.dom || createTemplateDOM(el, this.html) || document.createDocumentFragment();
-      return this;
+
+      return this
     },
 
     // API methods
-
     /**
      * Attach the template to a DOM node
      * @param   {HTMLElement} el - target DOM node
@@ -1912,45 +1852,49 @@
      * @param   {Object} meta - meta properties needed to handle the <template> tags in loops
      * @returns {TemplateChunk} self
      */
-    mount(el, scope, parentScope, meta) {
-      if (meta === void 0) {
-        meta = {};
-      }
+    mount(el, scope, parentScope, meta = {}) {
+      if (!el) panic('Please provide DOM node to mount properly your template');
 
-      if (!el) throw new Error('Please provide DOM node to mount properly your template');
-      if (this.el) this.unmount(scope); // <template> tags require a bit more work
+      if (this.el) this.unmount(scope);
+
+      // <template> tags require a bit more work
       // the template fragment might be already created via meta outside of this call
-
-      const {
-        fragment,
-        children,
-        avoidDOMInjection
-      } = meta; // <template> bindings of course can not have a root element
+      const {fragment, children, avoidDOMInjection} = meta;
+      // <template> bindings of course can not have a root element
       // so we check the parent node to set the query selector bindings
-
-      const {
-        parentNode
-      } = children ? children[0] : el;
+      const {parentNode} = children ? children[0] : el;
       const isTemplateTag = isTemplate(el);
-      const templateTagOffset = isTemplateTag ? getTemplateTagOffset(parentNode, el, meta) : null; // create the DOM if it wasn't created before
+      const templateTagOffset = isTemplateTag ? getTemplateTagOffset(parentNode, el, meta) : null;
 
-      this.createDOM(el); // create the DOM of this template cloning the original DOM structure stored in this instance
+      // create the DOM if it wasn't created before
+      this.createDOM(el);
+
+      // create the DOM of this template cloning the original DOM structure stored in this instance
       // notice that if a documentFragment was passed (via meta) we will use it instead
+      const cloneNode = fragment || this.dom.cloneNode(true);
 
-      const cloneNode = fragment || this.dom.cloneNode(true); // store root node
+      // store root node
       // notice that for template tags the root note will be the parent tag
+      this.el = isTemplateTag ? parentNode : el;
 
-      this.el = isTemplateTag ? parentNode : el; // create the children array only for the <template> fragments
+      // create the children array only for the <template> fragments
+      this.children = isTemplateTag ? children || Array.from(cloneNode.childNodes) : null;
 
-      this.children = isTemplateTag ? children || Array.from(cloneNode.childNodes) : null; // inject the DOM into the el only if a fragment is available
+      // inject the DOM into the el only if a fragment is available
+      if (!avoidDOMInjection && cloneNode) injectDOM(el, cloneNode);
 
-      if (!avoidDOMInjection && cloneNode) injectDOM(el, cloneNode); // create the bindings
+      // create the bindings
+      this.bindings = this.bindingsData.map(binding => create$1(
+        this.el,
+        binding,
+        templateTagOffset
+      ));
+      this.bindings.forEach(b => b.mount(scope, parentScope));
 
-      this.bindings = this.bindingsData.map(binding => create$1(this.el, binding, templateTagOffset));
-      this.bindings.forEach(b => b.mount(scope, parentScope)); // store the template meta properties
-
+      // store the template meta properties
       this.meta = meta;
-      return this;
+
+      return this
     },
 
     /**
@@ -1961,7 +1905,8 @@
      */
     update(scope, parentScope) {
       this.bindings.forEach(b => b.update(scope, parentScope));
-      return this;
+
+      return this
     },
 
     /**
@@ -1972,44 +1917,41 @@
      * if false or undefined clean the root tag content, if null don't touch the DOM
      * @returns {TemplateChunk} self
      */
-    unmount(scope, parentScope, mustRemoveRoot) {
-      if (mustRemoveRoot === void 0) {
-        mustRemoveRoot = false;
-      }
-
+    unmount(scope, parentScope, mustRemoveRoot = false) {
       const el = this.el;
 
       if (!el) {
-        return this;
+        return this
       }
 
       this.bindings.forEach(b => b.unmount(scope, parentScope, mustRemoveRoot));
 
       switch (true) {
-        // pure components should handle the DOM unmount updates by themselves
-        // for mustRemoveRoot === null don't touch the DOM
-        case el[IS_PURE_SYMBOL] || mustRemoveRoot === null:
-          break;
-        // if children are declared, clear them
-        // applicable for <template> and <slot/> bindings
+      // pure components should handle the DOM unmount updates by themselves
+      // for mustRemoveRoot === null don't touch the DOM
+      case (el[IS_PURE_SYMBOL] || mustRemoveRoot === null):
+        break
 
-        case Array.isArray(this.children):
-          clearChildren(this.children);
-          break;
-        // clean the node children only
+      // if children are declared, clear them
+      // applicable for <template> and <slot/> bindings
+      case Array.isArray(this.children):
+        clearChildren(this.children);
+        break
 
-        case !mustRemoveRoot:
-          cleanNode(el);
-          break;
-        // remove the root node only if the mustRemoveRoot is truly
+      // clean the node children only
+      case !mustRemoveRoot:
+        el.innerHTML = '';
+        break
 
-        case !!mustRemoveRoot:
-          removeChild(el);
-          break;
+      // remove the root node only if the mustRemoveRoot is truly
+      case !!mustRemoveRoot:
+        removeChild(el);
+        break
       }
 
       this.el = null;
-      return this;
+
+      return this
     },
 
     /**
@@ -2017,55 +1959,139 @@
      * @returns {TemplateChunk} a clone of this object resetting the this.el property
      */
     clone() {
-      return Object.assign({}, this, {
+      return {
+        ...this,
         meta: {},
         el: null
-      });
+      }
     }
+  };
 
-  });
+
   /**
    * Create a template chunk wiring also the bindings
    * @param   {string|HTMLElement} html - template string
    * @param   {BindingData[]} bindings - bindings collection
    * @returns {TemplateChunk} a new TemplateChunk copy
    */
-
-  function create(html, bindings) {
-    if (bindings === void 0) {
-      bindings = [];
-    }
-
-    return Object.assign({}, TemplateChunk, {
+  function create(html, bindings = []) {
+    return {
+      ...TemplateChunk,
       html,
       bindingsData: bindings
+    }
+  }
+
+  /* Riot WIP, @license MIT */
+
+  /**
+   * Create the subcomponents that can be included inside a tag in runtime
+   * @param   {Object} components - components imported in runtime
+   * @returns {Object} all the components transformed into Riot.Component factory functions
+   */
+
+  function createChildrenComponentsObject(components) {
+    if (components === void 0) {
+      components = {};
+    }
+
+    return Object.entries(callOrAssign(components)).reduce((acc, _ref) => {
+      let [key, value] = _ref;
+      acc[camelToDashCase(key)] = createComponentFromWrapper(value);
+      return acc;
+    }, {});
+  }
+
+  /* Riot WIP, @license MIT */
+
+  /**
+   * Factory function to create the component templates only once
+   * @param   {Function} template - component template creation function
+   * @param   {RiotComponentWrapper} componentWrapper - riot compiler generated object
+   * @returns {TemplateChunk} template chunk object
+   */
+
+  function componentTemplateFactory(template$1, componentWrapper) {
+    const components = createChildrenComponentsObject(componentWrapper.exports ? componentWrapper.exports.components : {});
+    return template$1(create, expressionTypes, bindingTypes, name => {
+      // improve support for recursive components
+      if (name === componentWrapper.name) return memoizedCreateComponentFromWrapper(componentWrapper); // return the registered components
+
+      return components[name] || COMPONENTS_IMPLEMENTATION_MAP.get(name);
     });
   }
 
-  function noop() {
-    return this;
-  }
+  /* Riot WIP, @license MIT */
+
   /**
-   * Autobind the methods of a source object to itself
-   * @param   {Object} source - probably a riot tag instance
-   * @param   {Array<string>} methods - list of the methods to autobind
-   * @returns {Object} the original object received
+   * Bind a DOM node to its component object
+   * @param   {HTMLElement} node - html node mounted
+   * @param   {Object} component - Riot.js component object
+   * @returns {Object} the component object received as second argument
    */
 
-  function autobindMethods(source, methods) {
-    methods.forEach(method => {
-      source[method] = source[method].bind(source);
+  const bindDOMNodeToComponentInstance = (node, component) => node[DOM_COMPONENT_INSTANCE_PROPERTY] = component;
+
+  /* Riot WIP, @license MIT */
+
+  /**
+   * Wrap the Riot.js core API methods using a mapping function
+   * @param   {Function} mapFunction - lifting function
+   * @returns {Object} an object having the { mount, update, unmount } functions
+   */
+
+  function createCoreAPIMethods(mapFunction) {
+    return [MOUNT_METHOD_KEY, UPDATE_METHOD_KEY, UNMOUNT_METHOD_KEY].reduce((acc, method) => {
+      acc[method] = mapFunction(method);
+      return acc;
+    }, {});
+  }
+
+  /* Riot WIP, @license MIT */
+
+  /**
+   * Create a pure component
+   * @param   {Function} pureFactoryFunction - pure component factory function
+   * @param   {Array} options.slots - component slots
+   * @param   {Array} options.attributes - component attributes
+   * @param   {Array} options.template - template factory function
+   * @param   {Array} options.template - template factory function
+   * @param   {any} options.props - initial component properties
+   * @returns {Object} pure component object
+   */
+
+  function createPureComponent(pureFactoryFunction, _ref) {
+    let {
+      slots,
+      attributes,
+      props,
+      css,
+      template
+    } = _ref;
+    if (template) panic('Pure components can not have html');
+    if (css) panic('Pure components do not have css');
+    const component = defineDefaults(pureFactoryFunction({
+      slots,
+      attributes,
+      props
+    }), PURE_COMPONENT_API);
+    return createCoreAPIMethods(method => function () {
+      for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+        args[_key] = arguments[_key];
+      }
+
+      // intercept the mount calls to bind the DOM node to the pure object created
+      // see also https://github.com/riot/riot/issues/2806
+      if (method === MOUNT_METHOD_KEY) {
+        const [element] = args; // mark this node as pure element
+
+        defineProperty(element, IS_PURE_SYMBOL, true);
+        bindDOMNodeToComponentInstance(element, component);
+      }
+
+      component[method](...args);
+      return component;
     });
-    return source;
-  }
-  /**
-   * Call the first argument received only if it's a function otherwise return it as it is
-   * @param   {*} source - anything
-   * @returns {*} anything
-   */
-
-  function callOrAssign(source) {
-    return isFunction(source) ? source.prototype && source.prototype.constructor ? new source() : source() : source;
   }
 
   /**
@@ -2077,25 +2103,59 @@
     // can this object be already looped?
     if (!Array.isArray(els)) {
       // is it a node list?
-      if (/^\[object (HTMLCollection|NodeList|Object)\]$/.test(Object.prototype.toString.call(els)) && typeof els.length === 'number') return Array.from(els);else // if it's a single node
+      if (
+        /^\[object (HTMLCollection|NodeList|Object)\]$/
+          .test(Object.prototype.toString.call(els))
+          && typeof els.length === 'number'
+      )
+        return Array.from(els)
+      else
+        // if it's a single node
         // it will be returned as "array" with one single entry
-        return [els];
-    } // this object could be looped out of the box
-
-
-    return els;
+        return [els]
+    }
+    // this object could be looped out of the box
+    return els
   }
 
   /**
    * Simple helper to find DOM nodes returning them as array like loopable object
    * @param   { string|DOMNodeList } selector - either the query or the DOM nodes to arraify
-   * @param   { HTMLElement }        ctx      - context defining where the query will search for the DOM nodes
+   * @param   { HTMLElement }        scope      - context defining where the query will search for the DOM nodes
    * @returns { Array } DOM nodes found as array
    */
-
-  function $(selector, ctx) {
-    return domToArray(typeof selector === 'string' ? (ctx || document).querySelectorAll(selector) : selector);
+  function $(selector, scope) {
+    return domToArray(typeof selector === 'string' ?
+      (scope || document).querySelectorAll(selector) :
+      selector
+    )
   }
+
+  /* Riot WIP, @license MIT */
+
+  const COMPONENT_DOM_SELECTORS = Object.freeze({
+    // component helpers
+    $(selector) {
+      return $(selector, this.root)[0];
+    },
+
+    $$(selector) {
+      return $(selector, this.root);
+    }
+
+  });
+
+  /* Riot WIP, @license MIT */
+
+  const COMPONENT_LIFECYCLE_METHODS = Object.freeze({
+    [SHOULD_UPDATE_KEY]: noop,
+    [ON_BEFORE_MOUNT_KEY]: noop,
+    [ON_MOUNTED_KEY]: noop,
+    [ON_BEFORE_UPDATE_KEY]: noop,
+    [ON_UPDATED_KEY]: noop,
+    [ON_BEFORE_UNMOUNT_KEY]: noop,
+    [ON_UNMOUNTED_KEY]: noop
+  });
 
   /**
    * Normalize the return values, in case of a single value we avoid to return an array
@@ -2103,8 +2163,8 @@
    * @returns { Array|string|boolean } either the whole list of values or the single one found
    * @private
    */
-
   const normalize$1 = values => values.length === 1 ? values[0] : values;
+
   /**
    * Parse all the nodes received to get/remove/check their attributes
    * @param   { HTMLElement|NodeList|Array } els    - DOM node/s to parse
@@ -2113,14 +2173,13 @@
    * @returns { Array|string } result of the parsing in a list or a single value
    * @private
    */
-
-
   function parseNodes(els, name, method) {
     const names = typeof name === 'string' ? [name] : name;
     return normalize$1(domToArray(els).map(el => {
-      return normalize$1(names.map(n => el[method](n)));
-    }));
+      return normalize$1(names.map(n => el[method](n)))
+    }))
   }
+
   /**
    * Set any attribute on a single or a list of DOM nodes
    * @param   { HTMLElement|NodeList|Array } els   - DOM node/s to parse
@@ -2144,18 +2203,16 @@
    * })
    *
    */
-
-
   function set(els, name, value) {
-    const attrs = typeof name === 'object' ? name : {
-      [name]: value
-    };
+    const attrs = typeof name === 'object' ? name : { [name]: value };
     const props = Object.keys(attrs);
+
     domToArray(els).forEach(el => {
       props.forEach(prop => el.setAttribute(prop, attrs[prop]));
     });
-    return els;
+    return els
   }
+
   /**
    * Get any attribute from a single or a list of DOM nodes
    * @param   { HTMLElement|NodeList|Array } els   - DOM node/s to parse
@@ -2176,10 +2233,11 @@
    * // or also
    * get([img1, img2], ['width', 'height']) // => [['200', '300'], ['500', '200']]
    */
-
   function get(els, name) {
-    return parseNodes(els, name, 'getAttribute');
+    return parseNodes(els, name, 'getAttribute')
   }
+
+  /* Riot WIP, @license MIT */
 
   const CSS_BY_NAME = new Map();
   const STYLE_NODE_SELECTOR = 'style[riot]'; // memoized curried function
@@ -2205,7 +2263,7 @@
    */
 
 
-  var cssManager = {
+  const cssManager = {
     CSS_BY_NAME,
 
     /**
@@ -2256,20 +2314,17 @@
    * @returns {Function|*} it will return a function until the target function
    *                       will receive all of its arguments
    */
-  function curry(fn) {
-    for (var _len = arguments.length, acc = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-      acc[_key - 1] = arguments[_key];
-    }
-
-    return function () {
-      for (var _len2 = arguments.length, args = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
-        args[_key2] = arguments[_key2];
-      }
-
+  function curry(fn, ...acc) {
+    return (...args) => {
       args = [...acc, ...args];
-      return args.length < fn.length ? curry(fn, ...args) : fn(...args);
-    };
+
+      return args.length < fn.length ?
+        curry(fn, ...args) :
+        fn(...args)
+    }
   }
+
+  /* Riot WIP, @license MIT */
 
   /**
    * Get the tag name of any DOM node
@@ -2281,42 +2336,36 @@
     return get(element, IS_DIRECTIVE) || element.tagName.toLowerCase();
   }
 
-  const COMPONENT_CORE_HELPERS = Object.freeze({
-    // component helpers
-    $(selector) {
-      return $(selector, this.root)[0];
-    },
+  /* Riot WIP, @license MIT */
 
-    $$(selector) {
-      return $(selector, this.root);
-    }
-
-  });
-  const PURE_COMPONENT_API = Object.freeze({
-    [MOUNT_METHOD_KEY]: noop,
-    [UPDATE_METHOD_KEY]: noop,
-    [UNMOUNT_METHOD_KEY]: noop
-  });
-  const COMPONENT_LIFECYCLE_METHODS = Object.freeze({
-    [SHOULD_UPDATE_KEY]: noop,
-    [ON_BEFORE_MOUNT_KEY]: noop,
-    [ON_MOUNTED_KEY]: noop,
-    [ON_BEFORE_UPDATE_KEY]: noop,
-    [ON_UPDATED_KEY]: noop,
-    [ON_BEFORE_UNMOUNT_KEY]: noop,
-    [ON_UNMOUNTED_KEY]: noop
-  });
-  const MOCKED_TEMPLATE_INTERFACE = Object.assign({}, PURE_COMPONENT_API, {
-    clone: noop,
-    createDOM: noop
-  });
   /**
-   * Performance optimization for the recursive components
-   * @param  {RiotComponentWrapper} componentWrapper - riot compiler generated object
-   * @returns {Object} component like interface
+   * Add eventually the "is" attribute to link this DOM node to its css
+   * @param {HTMLElement} element - target root node
+   * @param {string} name - name of the component mounted
+   * @returns {undefined} it's a void function
    */
 
-  const memoizedCreateComponent = memoize(createComponent);
+  function addCssHook(element, name) {
+    if (getName(element) !== name) {
+      set(element, IS_DIRECTIVE, name);
+    }
+  }
+
+  /* Riot WIP, @license MIT */
+
+  /**
+   * Compute the component current state merging it with its previous state
+   * @param   {Object} oldState - previous state object
+   * @param   {Object} newState - new state given to the `update` call
+   * @returns {Object} new object state
+   */
+
+  function computeComponentState(oldState, newState) {
+    return Object.assign({}, oldState, callOrAssign(newState));
+  }
+
+  /* Riot WIP, @license MIT */
+
   /**
    * Evaluate the component properties either from its real attributes or from its initial user properties
    * @param   {HTMLElement} element - component root
@@ -2324,191 +2373,16 @@
    * @returns {Object} component props key value pairs
    */
 
-  function evaluateInitialProps(element, initialProps) {
+  function computeInitialProps(element, initialProps) {
     if (initialProps === void 0) {
       initialProps = {};
     }
 
     return Object.assign({}, DOMattributesToObject(element), callOrAssign(initialProps));
   }
-  /**
-   * Bind a DOM node to its component object
-   * @param   {HTMLElement} node - html node mounted
-   * @param   {Object} component - Riot.js component object
-   * @returns {Object} the component object received as second argument
-   */
 
+  /* Riot WIP, @license MIT */
 
-  const bindDOMNodeToComponentObject = (node, component) => node[DOM_COMPONENT_INSTANCE_PROPERTY$1] = component;
-  /**
-   * Wrap the Riot.js core API methods using a mapping function
-   * @param   {Function} mapFunction - lifting function
-   * @returns {Object} an object having the { mount, update, unmount } functions
-   */
-
-
-  function createCoreAPIMethods(mapFunction) {
-    return [MOUNT_METHOD_KEY, UPDATE_METHOD_KEY, UNMOUNT_METHOD_KEY].reduce((acc, method) => {
-      acc[method] = mapFunction(method);
-      return acc;
-    }, {});
-  }
-  /**
-   * Factory function to create the component templates only once
-   * @param   {Function} template - component template creation function
-   * @param   {RiotComponentWrapper} componentWrapper - riot compiler generated object
-   * @returns {TemplateChunk} template chunk object
-   */
-
-
-  function componentTemplateFactory(template, componentWrapper) {
-    const components = createSubcomponents(componentWrapper.exports ? componentWrapper.exports.components : {});
-    return template(create, expressionTypes, bindingTypes, name => {
-      // improve support for recursive components
-      if (name === componentWrapper.name) return memoizedCreateComponent(componentWrapper); // return the registered components
-
-      return components[name] || COMPONENTS_IMPLEMENTATION_MAP$1.get(name);
-    });
-  }
-  /**
-   * Create a pure component
-   * @param   {Function} pureFactoryFunction - pure component factory function
-   * @param   {Array} options.slots - component slots
-   * @param   {Array} options.attributes - component attributes
-   * @param   {Array} options.template - template factory function
-   * @param   {Array} options.template - template factory function
-   * @param   {any} options.props - initial component properties
-   * @returns {Object} pure component object
-   */
-
-
-  function createPureComponent(pureFactoryFunction, _ref) {
-    let {
-      slots,
-      attributes,
-      props,
-      css,
-      template
-    } = _ref;
-    if (template) panic('Pure components can not have html');
-    if (css) panic('Pure components do not have css');
-    const component = defineDefaults(pureFactoryFunction({
-      slots,
-      attributes,
-      props
-    }), PURE_COMPONENT_API);
-    return createCoreAPIMethods(method => function () {
-      for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
-        args[_key] = arguments[_key];
-      }
-
-      // intercept the mount calls to bind the DOM node to the pure object created
-      // see also https://github.com/riot/riot/issues/2806
-      if (method === MOUNT_METHOD_KEY) {
-        const [element] = args; // mark this node as pure element
-
-        defineProperty(element, IS_PURE_SYMBOL, true);
-        bindDOMNodeToComponentObject(element, component);
-      }
-
-      component[method](...args);
-      return component;
-    });
-  }
-  /**
-   * Create the component interface needed for the @riotjs/dom-bindings tag bindings
-   * @param   {RiotComponentWrapper} componentWrapper - riot compiler generated object
-   * @param   {string} componentWrapper.css - component css
-   * @param   {Function} componentWrapper.template - function that will return the dom-bindings template function
-   * @param   {Object} componentWrapper.exports - component interface
-   * @param   {string} componentWrapper.name - component name
-   * @returns {Object} component like interface
-   */
-
-
-  function createComponent(componentWrapper) {
-    const {
-      css,
-      template,
-      exports,
-      name
-    } = componentWrapper;
-    const templateFn = template ? componentTemplateFactory(template, componentWrapper) : MOCKED_TEMPLATE_INTERFACE;
-    return _ref2 => {
-      let {
-        slots,
-        attributes,
-        props
-      } = _ref2;
-      // pure components rendering will be managed by the end user
-      if (exports && exports[IS_PURE_SYMBOL]) return createPureComponent(exports, {
-        slots,
-        attributes,
-        props,
-        css,
-        template
-      });
-      const componentAPI = callOrAssign(exports) || {};
-      const component = defineComponent({
-        css,
-        template: templateFn,
-        componentAPI,
-        name
-      })({
-        slots,
-        attributes,
-        props
-      }); // notice that for the components create via tag binding
-      // we need to invert the mount (state/parentScope) arguments
-      // the template bindings will only forward the parentScope updates
-      // and never deal with the component state
-
-      return {
-        mount(element, parentScope, state) {
-          return component.mount(element, state, parentScope);
-        },
-
-        update(parentScope, state) {
-          return component.update(state, parentScope);
-        },
-
-        unmount(preserveRoot) {
-          return component.unmount(preserveRoot);
-        }
-
-      };
-    };
-  }
-  /**
-   * Component definition function
-   * @param   {Object} implementation - the componen implementation will be generated via compiler
-   * @param   {Object} component - the component initial properties
-   * @returns {Object} a new component implementation object
-   */
-
-  function defineComponent(_ref3) {
-    let {
-      css,
-      template,
-      componentAPI,
-      name
-    } = _ref3;
-    // add the component css into the DOM
-    if (css && name) cssManager.add(name, css);
-    return curry(enhanceComponentAPI)(defineProperties( // set the component defaults without overriding the original component API
-    defineDefaults(componentAPI, Object.assign({}, COMPONENT_LIFECYCLE_METHODS, {
-      [PROPS_KEY]: {},
-      [STATE_KEY]: {}
-    })), Object.assign({
-      // defined during the component creation
-      [SLOTS_KEY]: null,
-      [ROOT_KEY]: null
-    }, COMPONENT_CORE_HELPERS, {
-      name,
-      css,
-      template
-    })));
-  }
   /**
    * Create the bindings to update the component attributes
    * @param   {HTMLElement} node - node where we will bind the expressions
@@ -2530,58 +2404,21 @@
       return binding;
     })));
   }
-  /**
-   * Create the subcomponents that can be included inside a tag in runtime
-   * @param   {Object} components - components imported in runtime
-   * @returns {Object} all the components transformed into Riot.Component factory functions
-   */
 
+  /* Riot WIP, @license MIT */
 
-  function createSubcomponents(components) {
-    if (components === void 0) {
-      components = {};
-    }
-
-    return Object.entries(callOrAssign(components)).reduce((acc, _ref4) => {
-      let [key, value] = _ref4;
-      acc[camelToDashCase(key)] = createComponent(value);
-      return acc;
-    }, {});
-  }
   /**
    * Run the component instance through all the plugins set by the user
    * @param   {Object} component - component instance
    * @returns {Object} the component enhanced by the plugins
    */
 
-
   function runPlugins(component) {
-    return [...PLUGINS_SET$1].reduce((c, fn) => fn(c) || c, component);
+    return [...PLUGINS_SET].reduce((c, fn) => fn(c) || c, component);
   }
-  /**
-   * Compute the component current state merging it with its previous state
-   * @param   {Object} oldState - previous state object
-   * @param   {Object} newState - new state givent to the `update` call
-   * @returns {Object} new object state
-   */
 
+  /* Riot WIP, @license MIT */
 
-  function computeState(oldState, newState) {
-    return Object.assign({}, oldState, callOrAssign(newState));
-  }
-  /**
-   * Add eventually the "is" attribute to link this DOM node to its css
-   * @param {HTMLElement} element - target root node
-   * @param {string} name - name of the component mounted
-   * @returns {undefined} it's a void function
-   */
-
-
-  function addCssHook(element, name) {
-    if (getName(element) !== name) {
-      set(element, IS_DIRECTIVE, name);
-    }
-  }
   /**
    * Component creation factory function that will enhance the user provided API
    * @param   {Object} component - a component implementation previously defined
@@ -2590,13 +2427,12 @@
    * @returns {Riot.Component} a riot component instance
    */
 
-
-  function enhanceComponentAPI(component, _ref5) {
+  function manageComponentLifecycle(component, _ref) {
     let {
       slots,
       attributes,
       props
-    } = _ref5;
+    } = _ref;
     return autobindMethods(runPlugins(defineProperties(isObject(component) ? Object.create(component) : component, {
       mount(element, state, parentScope) {
         if (state === void 0) {
@@ -2607,11 +2443,11 @@
         defineProperty(element, IS_PURE_SYMBOL, false);
         this[PARENT_KEY_SYMBOL] = parentScope;
         this[ATTRIBUTES_KEY_SYMBOL] = createAttributeBindings(element, attributes).mount(parentScope);
-        defineProperty(this, PROPS_KEY, Object.freeze(Object.assign({}, evaluateInitialProps(element, props), evaluateAttributeExpressions(this[ATTRIBUTES_KEY_SYMBOL].expressions))));
-        this[STATE_KEY] = computeState(this[STATE_KEY], state);
+        defineProperty(this, PROPS_KEY, Object.freeze(Object.assign({}, computeInitialProps(element, props), evaluateAttributeExpressions(this[ATTRIBUTES_KEY_SYMBOL].expressions))));
+        this[STATE_KEY] = computeComponentState(this[STATE_KEY], state);
         this[TEMPLATE_KEY_SYMBOL] = this.template.createDOM(element).clone(); // link this object to the DOM node
 
-        bindDOMNodeToComponentObject(element, this); // add eventually the 'is' attribute
+        bindDOMNodeToComponentInstance(element, this); // add eventually the 'is' attribute
 
         component.name && addCssHook(element, component.name); // define the root element
 
@@ -2639,7 +2475,7 @@
         const newProps = evaluateAttributeExpressions(this[ATTRIBUTES_KEY_SYMBOL].expressions);
         if (this[SHOULD_UPDATE_KEY](newProps, this[PROPS_KEY]) === false) return;
         defineProperty(this, PROPS_KEY, Object.freeze(Object.assign({}, this[PROPS_KEY], newProps)));
-        this[STATE_KEY] = computeState(this[STATE_KEY], state);
+        this[STATE_KEY] = computeComponentState(this[STATE_KEY], state);
         this[ON_BEFORE_UPDATE_KEY](this[PROPS_KEY], this[STATE_KEY]); // avoiding recursive updates
         // see also https://github.com/riot/riot/issues/2895
 
@@ -2665,56 +2501,114 @@
 
     })), Object.keys(component).filter(prop => isFunction(component[prop])));
   }
+
+  /* Riot WIP, @license MIT */
+
   /**
-   * Component initialization function starting from a DOM node
-   * @param   {HTMLElement} element - element to upgrade
-   * @param   {Object} initialProps - initial component properties
-   * @param   {string} componentName - component id
-   * @returns {Object} a new component instance bound to a DOM node
+   * Component definition function
+   * @param   {Object} implementation - the component implementation will be generated via compiler
+   * @param   {Object} component - the component initial properties
+   * @returns {Object} a new component implementation object
    */
 
-  function mountComponent(element, initialProps, componentName) {
-    const name = componentName || getName(element);
-    if (!COMPONENTS_IMPLEMENTATION_MAP$1.has(name)) panic(`The component named "${name}" was never registered`);
-    const component = COMPONENTS_IMPLEMENTATION_MAP$1.get(name)({
-      props: initialProps
-    });
-    return component.mount(element);
+  function instantiateComponent(_ref) {
+    let {
+      css,
+      template,
+      componentAPI,
+      name
+    } = _ref;
+    // add the component css into the DOM
+    if (css && name) cssManager.add(name, css);
+    return curry(manageComponentLifecycle)(defineProperties( // set the component defaults without overriding the original component API
+    defineDefaults(componentAPI, Object.assign({}, COMPONENT_LIFECYCLE_METHODS, {
+      [PROPS_KEY]: {},
+      [STATE_KEY]: {}
+    })), Object.assign({
+      // defined during the component creation
+      [SLOTS_KEY]: null,
+      [ROOT_KEY]: null
+    }, COMPONENT_DOM_SELECTORS, {
+      name,
+      css,
+      template
+    })));
   }
 
+  /* Riot WIP, @license MIT */
+
   /**
-   * Similar to compose but performs from left-to-right function composition.<br/>
-   * {@link https://30secondsofcode.org/function#composeright see also}
-   * @param   {...[function]} fns) - list of unary function
-   * @returns {*} result of the computation
-   */
-  /**
-   * Performs right-to-left function composition.<br/>
-   * Use Array.prototype.reduce() to perform right-to-left function composition.<br/>
-   * The last (rightmost) function can accept one or more arguments; the remaining functions must be unary.<br/>
-   * {@link https://30secondsofcode.org/function#compose original source code}
-   * @param   {...[function]} fns) - list of unary function
-   * @returns {*} result of the computation
+   * Create the component interface needed for the @riotjs/dom-bindings tag bindings
+   * @param   {RiotComponentWrapper} componentWrapper - riot compiler generated object
+   * @param   {string} componentWrapper.css - component css
+   * @param   {Function} componentWrapper.template - function that will return the dom-bindings template function
+   * @param   {Object} componentWrapper.exports - component interface
+   * @param   {string} componentWrapper.name - component name
+   * @returns {Object} component like interface
    */
 
-  function compose() {
-    for (var _len2 = arguments.length, fns = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
-      fns[_key2] = arguments[_key2];
-    }
+  function createComponentFromWrapper(componentWrapper) {
+    const {
+      css,
+      template,
+      exports,
+      name
+    } = componentWrapper;
+    const templateFn = template ? componentTemplateFactory(template, componentWrapper) : MOCKED_TEMPLATE_INTERFACE;
+    return _ref => {
+      let {
+        slots,
+        attributes,
+        props
+      } = _ref;
+      // pure components rendering will be managed by the end user
+      if (exports && exports[IS_PURE_SYMBOL]) return createPureComponent(exports, {
+        slots,
+        attributes,
+        props,
+        css,
+        template
+      });
+      const componentAPI = callOrAssign(exports) || {};
+      const component = instantiateComponent({
+        css,
+        template: templateFn,
+        componentAPI,
+        name
+      })({
+        slots,
+        attributes,
+        props
+      }); // notice that for the components created via tag binding
+      // we need to invert the mount (state/parentScope) arguments
+      // the template bindings will only forward the parentScope updates
+      // and never deal with the component state
 
-    return fns.reduce((f, g) => function () {
-      return f(g(...arguments));
-    });
+      return {
+        mount(element, parentScope, state) {
+          return component.mount(element, state, parentScope);
+        },
+
+        update(parentScope, state) {
+          return component.update(state, parentScope);
+        },
+
+        unmount(preserveRoot) {
+          return component.unmount(preserveRoot);
+        }
+
+      };
+    };
   }
-
-  const {
-    DOM_COMPONENT_INSTANCE_PROPERTY,
-    COMPONENTS_IMPLEMENTATION_MAP,
-    PLUGINS_SET
-  } = globals;
   /**
-   * Riot public api
+   * Performance optimization for the recursive components
+   * @param  {RiotComponentWrapper} componentWrapper - riot compiler generated object
+   * @returns {Object} component like interface
    */
+
+  const memoizedCreateComponentFromWrapper = memoize(createComponentFromWrapper);
+
+  /* Riot WIP, @license MIT */
 
   /**
    * Register a custom tag by name
@@ -2730,7 +2624,7 @@
       exports
     } = _ref;
     if (COMPONENTS_IMPLEMENTATION_MAP.has(name)) panic(`The component "${name}" was already registered`);
-    COMPONENTS_IMPLEMENTATION_MAP.set(name, createComponent({
+    COMPONENTS_IMPLEMENTATION_MAP.set(name, createComponentFromWrapper({
       name,
       css,
       template,
@@ -2738,6 +2632,30 @@
     }));
     return COMPONENTS_IMPLEMENTATION_MAP;
   }
+
+  /* Riot WIP, @license MIT */
+
+  /**
+   * Component initialization function starting from a DOM node
+   * @param   {HTMLElement} element - element to upgrade
+   * @param   {Object} initialProps - initial component properties
+   * @param   {string} componentName - component id
+   * @param   {Array} slots - component slots
+   * @returns {Object} a new component instance bound to a DOM node
+   */
+
+  function mountComponent(element, initialProps, componentName, slots) {
+    const name = componentName || getName(element);
+    if (!COMPONENTS_IMPLEMENTATION_MAP.has(name)) panic(`The component named "${name}" was never registered`);
+    const component = COMPONENTS_IMPLEMENTATION_MAP.get(name)({
+      props: initialProps,
+      slots
+    });
+    return component.mount(element);
+  }
+
+  /* Riot WIP, @license MIT */
+
   /**
    * Mounting function that will work only for the components that were globally registered
    * @param   {string|HTMLElement} selector - query for the selection or a DOM element
@@ -2749,6 +2667,9 @@
   function mount(selector, initialProps, name) {
     return $(selector).map(element => mountComponent(element, initialProps, name));
   }
+
+  /* Riot WIP, @license MIT */
+
   /**
    * Sweet unmounting helper function for the DOM node mounted manually by the user
    * @param   {string|HTMLElement} selector - query for the selection or a DOM element
@@ -2765,6 +2686,28 @@
       return element;
     });
   }
+
+  /**
+   * Similar to compose but performs from left-to-right function composition.<br/>
+   * {@link https://30secondsofcode.org/function#composeright see also}
+   * @param   {...[function]} fns) - list of unary function
+   * @returns {*} result of the computation
+   */
+
+  /**
+   * Performs right-to-left function composition.<br/>
+   * Use Array.prototype.reduce() to perform right-to-left function composition.<br/>
+   * The last (rightmost) function can accept one or more arguments; the remaining functions must be unary.<br/>
+   * {@link https://30secondsofcode.org/function#compose original source code}
+   * @param   {...[function]} fns) - list of unary function
+   * @returns {*} result of the computation
+   */
+  function compose(...fns) {
+    return fns.reduce((f, g) => (...args) => f(g(...args)))
+  }
+
+  /* Riot WIP, @license MIT */
+
   /**
    * Helper method to create component without relying on the registered ones
    * @param   {Object} implementation - component implementation
@@ -2782,7 +2725,7 @@
         props,
         slots,
         attributes
-      }), createComponent)(implementation);
+      }), createComponentFromWrapper)(implementation);
     };
   }
 
@@ -4211,9 +4154,9 @@
   }
 
   var HeaderView = {
-    'css': `header_view .nav-link .user-pic,[is="header_view"] .nav-link .user-pic{ margin-right: 0px; }`,
+    css: `header_view .nav-link .user-pic,[is="header_view"] .nav-link .user-pic{ margin-right: 0px; }`,
 
-    'exports': {
+    exports: {
       setItems( items ){
           this.state.items = items;
           this.update();
@@ -4224,215 +4167,162 @@
       }
     },
 
-    'template': function(
+    template: (
       template,
       expressionTypes,
       bindingTypes,
       getComponent
-    ) {
-      return template(
-        '<nav class="navbar navbar-light"><div class="container"><a class="navbar-brand" href="/">conduit</a><ul class="nav navbar-nav pull-xs-right"><li expr20="expr20" class="nav-item"></li></ul></div></nav>',
-        [
-          {
-            'type': bindingTypes.EACH,
-            'getKey': null,
-            'condition': null,
+    ) => template(
+      '<nav class="navbar navbar-light"><div class="container"><a class="navbar-brand" href="/">conduit</a><ul class="nav navbar-nav pull-xs-right"><li expr20="expr20" class="nav-item"></li></ul></div></nav>',
+      [
+        {
+          type: bindingTypes.EACH,
+          getKey: null,
+          condition: null,
 
-            'template': template(
-              '<a expr21="expr21">\n                    &nbsp;\n                    <i expr22="expr22"></i><img expr23="expr23" class="user-pic"/> </a>',
-              [
-                {
-                  'redundantAttribute': 'expr21',
-                  'selector': '[expr21]',
+          template: template(
+            '<a expr21="expr21">\n                    &nbsp;\n                    <i expr22="expr22"></i><img expr23="expr23" class="user-pic"/> </a>',
+            [
+              {
+                redundantAttribute: 'expr21',
+                selector: '[expr21]',
 
-                  'expressions': [
+                expressions: [
+                  {
+                    type: expressionTypes.TEXT,
+                    childNodeIndex: 3,
+
+                    evaluate: _scope => [
+                      _scope.item.title
+                    ].join(
+                      ''
+                    )
+                  },
+                  {
+                    type: expressionTypes.ATTRIBUTE,
+                    name: 'class',
+                    evaluate: _scope => _scope.navItemClassName(_scope.item.isActive)
+                  },
+                  {
+                    type: expressionTypes.ATTRIBUTE,
+                    name: 'href',
+                    evaluate: _scope => _scope.item.href
+                  }
+                ]
+              },
+              {
+                type: bindingTypes.IF,
+                evaluate: _scope => _scope.item.icon !== null,
+                redundantAttribute: 'expr22',
+                selector: '[expr22]',
+
+                template: template(
+                  null,
+                  [
                     {
-                      'type': expressionTypes.TEXT,
-                      'childNodeIndex': 3,
-
-                      'evaluate': function(
-                        _scope
-                      ) {
-                        return [
-                          _scope.item.title
-                        ].join(
-                          ''
-                        );
-                      }
-                    },
-                    {
-                      'type': expressionTypes.ATTRIBUTE,
-                      'name': 'class',
-
-                      'evaluate': function(
-                        _scope
-                      ) {
-                        return _scope.navItemClassName(_scope.item.isActive);
-                      }
-                    },
-                    {
-                      'type': expressionTypes.ATTRIBUTE,
-                      'name': 'href',
-
-                      'evaluate': function(
-                        _scope
-                      ) {
-                        return _scope.item.href;
-                      }
+                      expressions: [
+                        {
+                          type: expressionTypes.ATTRIBUTE,
+                          name: 'class',
+                          evaluate: _scope => _scope.item.icon
+                        }
+                      ]
                     }
                   ]
-                },
-                {
-                  'type': bindingTypes.IF,
+                )
+              },
+              {
+                type: bindingTypes.IF,
+                evaluate: _scope => _scope.item.image !== null,
+                redundantAttribute: 'expr23',
+                selector: '[expr23]',
 
-                  'evaluate': function(
-                    _scope
-                  ) {
-                    return _scope.item.icon !== null;
-                  },
+                template: template(
+                  null,
+                  [
+                    {
+                      expressions: [
+                        {
+                          type: expressionTypes.ATTRIBUTE,
+                          name: 'src',
+                          evaluate: _scope => _scope.item.image
+                        }
+                      ]
+                    }
+                  ]
+                )
+              }
+            ]
+          ),
 
-                  'redundantAttribute': 'expr22',
-                  'selector': '[expr22]',
+          redundantAttribute: 'expr20',
+          selector: '[expr20]',
+          itemName: 'item',
+          indexName: null,
+          evaluate: _scope => _scope.state.items
+        }
+      ]
+    ),
 
-                  'template': template(
-                    null,
-                    [
-                      {
-                        'expressions': [
-                          {
-                            'type': expressionTypes.ATTRIBUTE,
-                            'name': 'class',
-
-                            'evaluate': function(
-                              _scope
-                            ) {
-                              return _scope.item.icon;
-                            }
-                          }
-                        ]
-                      }
-                    ]
-                  )
-                },
-                {
-                  'type': bindingTypes.IF,
-
-                  'evaluate': function(
-                    _scope
-                  ) {
-                    return _scope.item.image !== null;
-                  },
-
-                  'redundantAttribute': 'expr23',
-                  'selector': '[expr23]',
-
-                  'template': template(
-                    null,
-                    [
-                      {
-                        'expressions': [
-                          {
-                            'type': expressionTypes.ATTRIBUTE,
-                            'name': 'src',
-
-                            'evaluate': function(
-                              _scope
-                            ) {
-                              return _scope.item.image;
-                            }
-                          }
-                        ]
-                      }
-                    ]
-                  )
-                }
-              ]
-            ),
-
-            'redundantAttribute': 'expr20',
-            'selector': '[expr20]',
-            'itemName': 'item',
-            'indexName': null,
-
-            'evaluate': function(
-              _scope
-            ) {
-              return _scope.state.items;
-            }
-          }
-        ]
-      );
-    },
-
-    'name': 'header_view'
+    name: 'header_view'
   };
 
   var FooterView = {
-    'css': null,
-    'exports': null,
+    css: null,
+    exports: null,
 
-    'template': function(
+    template: (
       template,
       expressionTypes,
       bindingTypes,
       getComponent
-    ) {
-      return template(
-        '<footer><div class="container"><a href="/" class="logo-font">conduit</a><span class="attribution">\n        An interactive learning project from <a href="https://thinkster.io">Thinkster</a>. Code &amp; design licensed under MIT.\n        </span></div></footer>',
-        []
-      );
-    },
+    ) => template(
+      '<footer><div class="container"><a href="/" class="logo-font">conduit</a><span class="attribution">\n        An interactive learning project from <a href="https://thinkster.io">Thinkster</a>. Code &amp; design licensed under MIT.\n        </span></div></footer>',
+      []
+    ),
 
-    'name': 'footer_view'
+    name: 'footer_view'
   };
 
   var BannerView = {
-    'css': `banner_view .spotlink,[is="banner_view"] .spotlink{ color: white; } banner_view .spotlink:hover,[is="banner_view"] .spotlink:hover{ color: white; text-decoration: none; }`,
+    css: `banner_view .spotlink,[is="banner_view"] .spotlink{ color: white; } banner_view .spotlink:hover,[is="banner_view"] .spotlink:hover{ color: white; text-decoration: none; }`,
 
-    'exports': {
+    exports: {
       setVisible( visible ){
           this.state.isVisible = visible;
           this.update();
       }
     },
 
-    'template': function(
+    template: (
       template,
       expressionTypes,
       bindingTypes,
       getComponent
-    ) {
-      return template(
-        '<div expr35="expr35" class="banner"></div>',
-        [
-          {
-            'type': bindingTypes.IF,
+    ) => template(
+      '<div expr24="expr24" class="banner"></div>',
+      [
+        {
+          type: bindingTypes.IF,
+          evaluate: _scope => _scope.state.isVisible,
+          redundantAttribute: 'expr24',
+          selector: '[expr24]',
 
-            'evaluate': function(
-              _scope
-            ) {
-              return _scope.state.isVisible;
-            },
+          template: template(
+            '<div class="container"><h1 class="logo-font">conduit</h1><p>A place to share your <a class="spotlink" href="https://riot.js.org" target="blank">RIOT</a> knowledge.</p></div>',
+            []
+          )
+        }
+      ]
+    ),
 
-            'redundantAttribute': 'expr35',
-            'selector': '[expr35]',
-
-            'template': template(
-              '<div class="container"><h1 class="logo-font">conduit</h1><p>A place to share your <a class="spotlink" href="https://riot.js.org" target="blank">RIOT</a> knowledge.</p></div>',
-              []
-            )
-          }
-        ]
-      );
-    },
-
-    'name': 'banner_view'
+    name: 'banner_view'
   };
 
   var ArticleTabView = {
-    'css': null,
+    css: null,
 
-    'exports': {
+    exports: {
       setItems( items ){
           this.state.items = items;
           this.update();
@@ -4447,102 +4337,75 @@
       }
     },
 
-    'template': function(
+    template: (
       template,
       expressionTypes,
       bindingTypes,
       getComponent
-    ) {
-      return template(
-        '<div expr50="expr50"><ul class="nav nav-pills outline-active"><li expr51="expr51" class="nav-item"></li></ul></div>',
-        [
-          {
-            'redundantAttribute': 'expr50',
-            'selector': '[expr50]',
+    ) => template(
+      '<div expr34="expr34"><ul class="nav nav-pills outline-active"><li expr35="expr35" class="nav-item"></li></ul></div>',
+      [
+        {
+          redundantAttribute: 'expr34',
+          selector: '[expr34]',
 
-            'expressions': [
+          expressions: [
+            {
+              type: expressionTypes.ATTRIBUTE,
+              name: 'class',
+              evaluate: _scope => _scope.props.toggleStyle
+            }
+          ]
+        },
+        {
+          type: bindingTypes.EACH,
+          getKey: null,
+          condition: null,
+
+          template: template(
+            '<a expr36="expr36"> </a>',
+            [
               {
-                'type': expressionTypes.ATTRIBUTE,
-                'name': 'class',
+                redundantAttribute: 'expr36',
+                selector: '[expr36]',
 
-                'evaluate': function(
-                  _scope
-                ) {
-                  return _scope.props.toggleStyle;
-                }
+                expressions: [
+                  {
+                    type: expressionTypes.TEXT,
+                    childNodeIndex: 0,
+                    evaluate: _scope => _scope.item.title
+                  },
+                  {
+                    type: expressionTypes.ATTRIBUTE,
+                    name: 'class',
+                    evaluate: _scope => _scope.navItemClassName( _scope.item.isActive )
+                  },
+                  {
+                    type: expressionTypes.EVENT,
+                    name: 'onclick',
+                    evaluate: _scope => () => _scope.actionOfClickTab( _scope.item )
+                  }
+                ]
               }
             ]
-          },
-          {
-            'type': bindingTypes.EACH,
-            'getKey': null,
-            'condition': null,
+          ),
 
-            'template': template(
-              '<a expr52="expr52"> </a>',
-              [
-                {
-                  'redundantAttribute': 'expr52',
-                  'selector': '[expr52]',
+          redundantAttribute: 'expr35',
+          selector: '[expr35]',
+          itemName: 'item',
+          indexName: null,
+          evaluate: _scope => _scope.state.items
+        }
+      ]
+    ),
 
-                  'expressions': [
-                    {
-                      'type': expressionTypes.TEXT,
-                      'childNodeIndex': 0,
-
-                      'evaluate': function(
-                        _scope
-                      ) {
-                        return _scope.item.title;
-                      }
-                    },
-                    {
-                      'type': expressionTypes.ATTRIBUTE,
-                      'name': 'class',
-
-                      'evaluate': function(
-                        _scope
-                      ) {
-                        return _scope.navItemClassName( _scope.item.isActive );
-                      }
-                    },
-                    {
-                      'type': expressionTypes.EVENT,
-                      'name': 'onclick',
-
-                      'evaluate': function(
-                        _scope
-                      ) {
-                        return () => _scope.actionOfClickTab( _scope.item );
-                      }
-                    }
-                  ]
-                }
-              ]
-            ),
-
-            'redundantAttribute': 'expr51',
-            'selector': '[expr51]',
-            'itemName': 'item',
-            'indexName': null,
-
-            'evaluate': function(
-              _scope
-            ) {
-              return _scope.state.items;
-            }
-          }
-        ]
-      );
-    },
-
-    'name': 'article_tab_view'
+    name: 'article_tab_view'
   };
 
   var ArticlesTableView = {
-    'css': `articles_table_view .author-link,[is="articles_table_view"] .author-link{ color: #5cb85c; cursor: pointer; text-decoration: none; } articles_table_view .author-link:hover,[is="articles_table_view"] .author-link:hover{ color: #5cb85c; text-decoration: underline; }`,
+    css: `articles_table_view .author-link,[is="articles_table_view"] .author-link{ color: #5cb85c; cursor: pointer; text-decoration: none; } articles_table_view .author-link:hover,[is="articles_table_view"] .author-link:hover{ color: #5cb85c; text-decoration: underline; }`,
 
-    'exports': {
+    exports: {
       setArticles( articles ){
           this.state.articles = articles;
           this.update();
@@ -4565,318 +4428,237 @@
       }
     },
 
-    'template': function(
+    template: (
       template,
       expressionTypes,
       bindingTypes,
       getComponent
-    ) {
-      return template(
-        '<div expr53="expr53" class="article-preview"></div>',
-        [
-          {
-            'type': bindingTypes.EACH,
-            'getKey': null,
-            'condition': null,
+    ) => template(
+      '<div expr25="expr25" class="article-preview"></div>',
+      [
+        {
+          type: bindingTypes.EACH,
+          getKey: null,
+          condition: null,
 
-            'template': template(
-              '<div class="article-meta"><a expr54="expr54"><img expr55="expr55"/></a><div class="info"><a expr56="expr56" class="author author-link"> </a><span class="date">January 20th</span></div><button expr57="expr57"><i class="ion-heart"></i> </button></div><a expr58="expr58" class="preview-link"><h1 expr59="expr59"> </h1><p expr60="expr60"> </p><span>Read more...</span><ul class="tag-list"><li expr61="expr61" class="tag-default tag-pill tag-outline"></li></ul></a>',
-              [
-                {
-                  'redundantAttribute': 'expr54',
-                  'selector': '[expr54]',
+          template: template(
+            '<div class="article-meta"><a expr26="expr26"><img expr27="expr27"/></a><div class="info"><a expr28="expr28" class="author author-link"> </a><span class="date">January 20th</span></div><button expr29="expr29"><i class="ion-heart"></i> </button></div><a expr30="expr30" class="preview-link"><h1 expr31="expr31"> </h1><p expr32="expr32"> </p><span>Read more...</span><ul class="tag-list"><li expr33="expr33" class="tag-default tag-pill tag-outline"></li></ul></a>',
+            [
+              {
+                redundantAttribute: 'expr26',
+                selector: '[expr26]',
 
-                  'expressions': [
-                    {
-                      'type': expressionTypes.EVENT,
-                      'name': 'onclick',
-
-                      'evaluate': function(
-                        _scope
-                      ) {
-                        return _scope.actionOfClickProfile;
-                      }
-                    }
-                  ]
-                },
-                {
-                  'redundantAttribute': 'expr55',
-                  'selector': '[expr55]',
-
-                  'expressions': [
-                    {
-                      'type': expressionTypes.ATTRIBUTE,
-                      'name': 'src',
-
-                      'evaluate': function(
-                        _scope
-                      ) {
-                        return _scope.article.author.image;
-                      }
-                    }
-                  ]
-                },
-                {
-                  'redundantAttribute': 'expr56',
-                  'selector': '[expr56]',
-
-                  'expressions': [
-                    {
-                      'type': expressionTypes.TEXT,
-                      'childNodeIndex': 0,
-
-                      'evaluate': function(
-                        _scope
-                      ) {
-                        return _scope.article.author.username;
-                      }
-                    },
-                    {
-                      'type': expressionTypes.EVENT,
-                      'name': 'onclick',
-
-                      'evaluate': function(
-                        _scope
-                      ) {
-                        return () => _scope.actionOfClickProfile( _scope.article.author );
-                      }
-                    }
-                  ]
-                },
-                {
-                  'redundantAttribute': 'expr57',
-                  'selector': '[expr57]',
-
-                  'expressions': [
-                    {
-                      'type': expressionTypes.TEXT,
-                      'childNodeIndex': 1,
-
-                      'evaluate': function(
-                        _scope
-                      ) {
-                        return [
-                          _scope.article.favoritesCount
-                        ].join(
-                          ''
-                        );
-                      }
-                    },
-                    {
-                      'type': expressionTypes.EVENT,
-                      'name': 'onclick',
-
-                      'evaluate': function(
-                        _scope
-                      ) {
-                        return () => _scope.actionOfFavoriteButton(_scope.article);
-                      }
-                    },
-                    {
-                      'type': expressionTypes.ATTRIBUTE,
-                      'name': 'class',
-
-                      'evaluate': function(
-                        _scope
-                      ) {
-                        return _scope.favoriteButtonClassName(_scope.article.favorited);
-                      }
-                    }
-                  ]
-                },
-                {
-                  'redundantAttribute': 'expr58',
-                  'selector': '[expr58]',
-
-                  'expressions': [
-                    {
-                      'type': expressionTypes.EVENT,
-                      'name': 'onclick',
-
-                      'evaluate': function(
-                        _scope
-                      ) {
-                        return () => _scope.actionOfClickArticle( _scope.article );
-                      }
-                    }
-                  ]
-                },
-                {
-                  'redundantAttribute': 'expr59',
-                  'selector': '[expr59]',
-
-                  'expressions': [
-                    {
-                      'type': expressionTypes.TEXT,
-                      'childNodeIndex': 0,
-
-                      'evaluate': function(
-                        _scope
-                      ) {
-                        return [
-                          _scope.article.title
-                        ].join(
-                          ''
-                        );
-                      }
-                    }
-                  ]
-                },
-                {
-                  'redundantAttribute': 'expr60',
-                  'selector': '[expr60]',
-
-                  'expressions': [
-                    {
-                      'type': expressionTypes.TEXT,
-                      'childNodeIndex': 0,
-
-                      'evaluate': function(
-                        _scope
-                      ) {
-                        return _scope.article.description;
-                      }
-                    }
-                  ]
-                },
-                {
-                  'type': bindingTypes.EACH,
-                  'getKey': null,
-                  'condition': null,
-
-                  'template': template(
-                    ' ',
-                    [
-                      {
-                        'expressions': [
-                          {
-                            'type': expressionTypes.TEXT,
-                            'childNodeIndex': 0,
-
-                            'evaluate': function(
-                              _scope
-                            ) {
-                              return _scope.tagWord;
-                            }
-                          }
-                        ]
-                      }
-                    ]
-                  ),
-
-                  'redundantAttribute': 'expr61',
-                  'selector': '[expr61]',
-                  'itemName': 'tagWord',
-                  'indexName': null,
-
-                  'evaluate': function(
-                    _scope
-                  ) {
-                    return _scope.article.tagList;
+                expressions: [
+                  {
+                    type: expressionTypes.EVENT,
+                    name: 'onclick',
+                    evaluate: _scope => _scope.actionOfClickProfile
                   }
-                }
-              ]
-            ),
+                ]
+              },
+              {
+                redundantAttribute: 'expr27',
+                selector: '[expr27]',
 
-            'redundantAttribute': 'expr53',
-            'selector': '[expr53]',
-            'itemName': 'article',
-            'indexName': null,
+                expressions: [
+                  {
+                    type: expressionTypes.ATTRIBUTE,
+                    name: 'src',
+                    evaluate: _scope => _scope.article.author.image
+                  }
+                ]
+              },
+              {
+                redundantAttribute: 'expr28',
+                selector: '[expr28]',
 
-            'evaluate': function(
-              _scope
-            ) {
-              return _scope.state.articles;
-            }
-          }
-        ]
-      );
-    },
+                expressions: [
+                  {
+                    type: expressionTypes.TEXT,
+                    childNodeIndex: 0,
+                    evaluate: _scope => _scope.article.author.username
+                  },
+                  {
+                    type: expressionTypes.EVENT,
+                    name: 'onclick',
+                    evaluate: _scope => () => _scope.actionOfClickProfile( _scope.article.author )
+                  }
+                ]
+              },
+              {
+                redundantAttribute: 'expr29',
+                selector: '[expr29]',
 
-    'name': 'articles_table_view'
+                expressions: [
+                  {
+                    type: expressionTypes.TEXT,
+                    childNodeIndex: 1,
+
+                    evaluate: _scope => [
+                      _scope.article.favoritesCount
+                    ].join(
+                      ''
+                    )
+                  },
+                  {
+                    type: expressionTypes.EVENT,
+                    name: 'onclick',
+                    evaluate: _scope => () => _scope.actionOfFavoriteButton(_scope.article)
+                  },
+                  {
+                    type: expressionTypes.ATTRIBUTE,
+                    name: 'class',
+                    evaluate: _scope => _scope.favoriteButtonClassName(_scope.article.favorited)
+                  }
+                ]
+              },
+              {
+                redundantAttribute: 'expr30',
+                selector: '[expr30]',
+
+                expressions: [
+                  {
+                    type: expressionTypes.EVENT,
+                    name: 'onclick',
+                    evaluate: _scope => () => _scope.actionOfClickArticle( _scope.article )
+                  }
+                ]
+              },
+              {
+                redundantAttribute: 'expr31',
+                selector: '[expr31]',
+
+                expressions: [
+                  {
+                    type: expressionTypes.TEXT,
+                    childNodeIndex: 0,
+
+                    evaluate: _scope => [
+                      _scope.article.title
+                    ].join(
+                      ''
+                    )
+                  }
+                ]
+              },
+              {
+                redundantAttribute: 'expr32',
+                selector: '[expr32]',
+
+                expressions: [
+                  {
+                    type: expressionTypes.TEXT,
+                    childNodeIndex: 0,
+                    evaluate: _scope => _scope.article.description
+                  }
+                ]
+              },
+              {
+                type: bindingTypes.EACH,
+                getKey: null,
+                condition: null,
+
+                template: template(
+                  ' ',
+                  [
+                    {
+                      expressions: [
+                        {
+                          type: expressionTypes.TEXT,
+                          childNodeIndex: 0,
+                          evaluate: _scope => _scope.tagWord
+                        }
+                      ]
+                    }
+                  ]
+                ),
+
+                redundantAttribute: 'expr33',
+                selector: '[expr33]',
+                itemName: 'tagWord',
+                indexName: null,
+                evaluate: _scope => _scope.article.tagList
+              }
+            ]
+          ),
+
+          redundantAttribute: 'expr25',
+          selector: '[expr25]',
+          itemName: 'article',
+          indexName: null,
+          evaluate: _scope => _scope.state.articles
+        }
+      ]
+    ),
+
+    name: 'articles_table_view'
   };
 
   var TagsView = {
-    'css': null,
+    css: null,
 
-    'exports': {
+    exports: {
       setTagWords( tagWords ){
           this.state.tagWords = tagWords;
           this.update();
       }
     },
 
-    'template': function(
+    template: (
       template,
       expressionTypes,
       bindingTypes,
       getComponent
-    ) {
-      return template(
-        '<div class="sidebar"><p>Popular Tags</p><div class="tag-list"><a expr64="expr64" class="tag-pill tag-default"></a></div></div>',
-        [
-          {
-            'type': bindingTypes.EACH,
-            'getKey': null,
-            'condition': null,
+    ) => template(
+      '<div class="sidebar"><p>Popular Tags</p><div class="tag-list"><a expr37="expr37" class="tag-pill tag-default"></a></div></div>',
+      [
+        {
+          type: bindingTypes.EACH,
+          getKey: null,
+          condition: null,
 
-            'template': template(
-              ' ',
-              [
-                {
-                  'expressions': [
-                    {
-                      'type': expressionTypes.TEXT,
-                      'childNodeIndex': 0,
+          template: template(
+            ' ',
+            [
+              {
+                expressions: [
+                  {
+                    type: expressionTypes.TEXT,
+                    childNodeIndex: 0,
+                    evaluate: _scope => _scope.tag
+                  },
+                  {
+                    type: expressionTypes.ATTRIBUTE,
+                    name: 'href',
 
-                      'evaluate': function(
-                        _scope
-                      ) {
-                        return _scope.tag;
-                      }
-                    },
-                    {
-                      'type': expressionTypes.ATTRIBUTE,
-                      'name': 'href',
+                    evaluate: _scope => [
+                      '#/articles/tag/',
+                      _scope.tag
+                    ].join(
+                      ''
+                    )
+                  }
+                ]
+              }
+            ]
+          ),
 
-                      'evaluate': function(
-                        _scope
-                      ) {
-                        return [
-                          '#/articles/tag/',
-                          _scope.tag
-                        ].join(
-                          ''
-                        );
-                      }
-                    }
-                  ]
-                }
-              ]
-            ),
+          redundantAttribute: 'expr37',
+          selector: '[expr37]',
+          itemName: 'tag',
+          indexName: null,
+          evaluate: _scope => _scope.state.tagWords
+        }
+      ]
+    ),
 
-            'redundantAttribute': 'expr64',
-            'selector': '[expr64]',
-            'itemName': 'tag',
-            'indexName': null,
-
-            'evaluate': function(
-              _scope
-            ) {
-              return _scope.state.tagWords;
-            }
-          }
-        ]
-      );
-    },
-
-    'name': 'tags_view'
+    name: 'tags_view'
   };
 
   var PagenationView = {
-    'css': null,
+    css: null,
 
-    'exports': {
+    exports: {
       onBeforeMount(_, state){
           state.countOfPage = 1;
           state.shownPage = 1;
@@ -4901,89 +4683,67 @@
       }
     },
 
-    'template': function(
+    template: (
       template,
       expressionTypes,
       bindingTypes,
       getComponent
-    ) {
-      return template(
-        '<ul class="pagination"><li expr62="expr62"></li></ul>',
-        [
-          {
-            'type': bindingTypes.EACH,
-            'getKey': null,
-            'condition': null,
+    ) => template(
+      '<ul class="pagination"><li expr38="expr38"></li></ul>',
+      [
+        {
+          type: bindingTypes.EACH,
+          getKey: null,
+          condition: null,
 
-            'template': template(
-              '<a expr63="expr63" class="page-link"> </a>',
-              [
-                {
-                  'expressions': [
-                    {
-                      'type': expressionTypes.ATTRIBUTE,
-                      'name': 'class',
+          template: template(
+            '<a expr39="expr39" class="page-link"> </a>',
+            [
+              {
+                expressions: [
+                  {
+                    type: expressionTypes.ATTRIBUTE,
+                    name: 'class',
+                    evaluate: _scope => _scope.pageItemClassName( _scope.page )
+                  }
+                ]
+              },
+              {
+                redundantAttribute: 'expr39',
+                selector: '[expr39]',
 
-                      'evaluate': function(
-                        _scope
-                      ) {
-                        return _scope.pageItemClassName( _scope.page );
-                      }
-                    }
-                  ]
-                },
-                {
-                  'redundantAttribute': 'expr63',
-                  'selector': '[expr63]',
+                expressions: [
+                  {
+                    type: expressionTypes.TEXT,
+                    childNodeIndex: 0,
+                    evaluate: _scope => _scope.page
+                  },
+                  {
+                    type: expressionTypes.EVENT,
+                    name: 'onclick',
+                    evaluate: _scope => () => _scope.actionOfClickPageLink(_scope.page)
+                  }
+                ]
+              }
+            ]
+          ),
 
-                  'expressions': [
-                    {
-                      'type': expressionTypes.TEXT,
-                      'childNodeIndex': 0,
+          redundantAttribute: 'expr38',
+          selector: '[expr38]',
+          itemName: 'page',
+          indexName: null,
+          evaluate: _scope => _scope.arrayOfPageNumber()
+        }
+      ]
+    ),
 
-                      'evaluate': function(
-                        _scope
-                      ) {
-                        return _scope.page;
-                      }
-                    },
-                    {
-                      'type': expressionTypes.EVENT,
-                      'name': 'onclick',
-
-                      'evaluate': function(
-                        _scope
-                      ) {
-                        return () => _scope.actionOfClickPageLink(_scope.page);
-                      }
-                    }
-                  ]
-                }
-              ]
-            ),
-
-            'redundantAttribute': 'expr62',
-            'selector': '[expr62]',
-            'itemName': 'page',
-            'indexName': null,
-
-            'evaluate': function(
-              _scope
-            ) {
-              return _scope.arrayOfPageNumber();
-            }
-          }
-        ]
-      );
-    },
-
-    'name': 'pagenation_view'
+    name: 'pagenation_view'
   };
 
   var ArticlesComponent = {
-    'css': null,
+    css: null,
 
-    'exports': {
+    exports: {
       onBeforeMount(_,state) {
           state.owner = new ArticlesViewController();
           // Connect outlet
@@ -5025,19 +4785,17 @@
       }
     },
 
-    'template': function(
+    template: (
       template,
       expressionTypes,
       bindingTypes,
       getComponent
-    ) {
-      return template(
-        '<div class="home-page"><div id="headerView"></div><div id="bannerView"></div><div class="container page"><div class="row"><div class="col-md-9"><div id="articleTabView"></div><div id="articlesTableView"></div><div id="pagenationView"></div></div><div class="col-md-3"><div id="tagsView"></div></div></div></div><div id="footerView"></div></div>',
-        []
-      );
-    },
+    ) => template(
+      '<div class="home-page"><div id="headerView"></div><div id="bannerView"></div><div class="container page"><div class="row"><div class="col-md-9"><div id="articleTabView"></div><div id="articlesTableView"></div><div id="pagenationView"></div></div><div class="col-md-3"><div id="tagsView"></div></div></div></div><div id="footerView"></div></div>',
+      []
+    ),
 
-    'name': 'articles'
+    name: 'articles'
   };
 
   class ArticleUseCase {
@@ -5284,8 +5042,9 @@
 
       function map(arr, fn) {
           var res = [],
-              i;
-          for (i = 0; i < arr.length; ++i) {
+              i,
+              arrLen = arr.length;
+          for (i = 0; i < arrLen; ++i) {
               res.push(fn(arr[i], i));
           }
           return res;
@@ -5414,7 +5173,10 @@
           updateInProgress = false;
 
       function copyConfig(to, from) {
-          var i, prop, val;
+          var i,
+              prop,
+              val,
+              momentPropertiesLen = momentProperties.length;
 
           if (!isUndefined(from._isAMomentObject)) {
               to._isAMomentObject = from._isAMomentObject;
@@ -5447,8 +5209,8 @@
               to._locale = from._locale;
           }
 
-          if (momentProperties.length > 0) {
-              for (i = 0; i < momentProperties.length; i++) {
+          if (momentPropertiesLen > 0) {
+              for (i = 0; i < momentPropertiesLen; i++) {
                   prop = momentProperties[i];
                   val = from[prop];
                   if (!isUndefined(val)) {
@@ -5503,8 +5265,9 @@
                   var args = [],
                       arg,
                       i,
-                      key;
-                  for (i = 0; i < arguments.length; i++) {
+                      key,
+                      argLen = arguments.length;
+                  for (i = 0; i < argLen; i++) {
                       arg = '';
                       if (typeof arguments[i] === 'object') {
                           arg += '\n[' + i + '] ';
@@ -5654,7 +5417,8 @@
           );
       }
 
-      var formattingTokens = /(\[[^\[]*\])|(\\)?([Hh]mm(ss)?|Mo|MM?M?M?|Do|DDDo|DD?D?D?|ddd?d?|do?|w[o|w]?|W[o|W]?|Qo?|N{1,5}|YYYYYY|YYYYY|YYYY|YY|y{2,4}|yo?|gg(ggg?)?|GG(GGG?)?|e|E|a|A|hh?|HH?|kk?|mm?|ss?|S{1,9}|x|X|zz?|ZZ?|.)/g,
+      var formattingTokens =
+              /(\[[^\[]*\])|(\\)?([Hh]mm(ss)?|Mo|MM?M?M?|Do|DDDo|DD?D?D?|ddd?d?|do?|w[o|w]?|W[o|W]?|Qo?|N{1,5}|YYYYYY|YYYYY|YYYY|YY|y{2,4}|yo?|gg(ggg?)?|GG(GGG?)?|e|E|a|A|hh?|HH?|kk?|mm?|ss?|S{1,9}|x|X|zz?|ZZ?|.)/g,
           localFormattingTokens = /(\[[^\[]*\])|(\\)?(LTS|LT|LL?L?L?|l{1,4})/g,
           formatFunctions = {},
           formatTokenFunctions = {};
@@ -5958,8 +5722,9 @@
           if (typeof units === 'object') {
               units = normalizeObjectUnits(units);
               var prioritized = getPrioritizedUnits(units),
-                  i;
-              for (i = 0; i < prioritized.length; i++) {
+                  i,
+                  prioritizedLen = prioritized.length;
+              for (i = 0; i < prioritizedLen; i++) {
                   this[prioritized[i].unit](units[prioritized[i].unit]);
               }
           } else {
@@ -5989,7 +5754,8 @@
           matchTimestamp = /[+-]?\d+(\.\d{1,3})?/, // 123456789 123456789.123
           // any word (or two) characters or numbers including two/three word month in arabic.
           // includes scottish gaelic two word and hyphenated months
-          matchWord = /[0-9]{0,256}['a-z\u00A0-\u05FF\u0700-\uD7FF\uF900-\uFDCF\uFDF0-\uFF07\uFF10-\uFFEF]{1,256}|[\u0600-\u06FF\/]{1,256}(\s*?[\u0600-\u06FF]{1,256}){1,2}/i,
+          matchWord =
+              /[0-9]{0,256}['a-z\u00A0-\u05FF\u0700-\uD7FF\uF900-\uFDCF\uFDF0-\uFF07\uFF10-\uFFEF]{1,256}|[\u0600-\u06FF\/]{1,256}(\s*?[\u0600-\u06FF]{1,256}){1,2}/i,
           regexes;
 
       regexes = {};
@@ -6015,15 +5781,12 @@
           return regexEscape(
               s
                   .replace('\\', '')
-                  .replace(/\\(\[)|\\(\])|\[([^\]\[]*)\]|\\(.)/g, function (
-                      matched,
-                      p1,
-                      p2,
-                      p3,
-                      p4
-                  ) {
-                      return p1 || p2 || p3 || p4;
-                  })
+                  .replace(
+                      /\\(\[)|\\(\])|\[([^\]\[]*)\]|\\(.)/g,
+                      function (matched, p1, p2, p3, p4) {
+                          return p1 || p2 || p3 || p4;
+                      }
+                  )
           );
       }
 
@@ -6035,7 +5798,8 @@
 
       function addParseToken(token, callback) {
           var i,
-              func = callback;
+              func = callback,
+              tokenLen;
           if (typeof token === 'string') {
               token = [token];
           }
@@ -6044,7 +5808,8 @@
                   array[callback] = toInt(input);
               };
           }
-          for (i = 0; i < token.length; i++) {
+          tokenLen = token.length;
+          for (i = 0; i < tokenLen; i++) {
               tokens[token[i]] = func;
           }
       }
@@ -6155,12 +5920,12 @@
 
       // LOCALES
 
-      var defaultLocaleMonths = 'January_February_March_April_May_June_July_August_September_October_November_December'.split(
-              '_'
-          ),
-          defaultLocaleMonthsShort = 'Jan_Feb_Mar_Apr_May_Jun_Jul_Aug_Sep_Oct_Nov_Dec'.split(
-              '_'
-          ),
+      var defaultLocaleMonths =
+              'January_February_March_April_May_June_July_August_September_October_November_December'.split(
+                  '_'
+              ),
+          defaultLocaleMonthsShort =
+              'Jan_Feb_Mar_Apr_May_Jun_Jul_Aug_Sep_Oct_Nov_Dec'.split('_'),
           MONTHS_IN_FORMAT = /D[oD]?(\[[^\[\]]*\]|\s)+MMMM?/,
           defaultMonthsShortRegex = matchWord,
           defaultMonthsRegex = matchWord;
@@ -6602,14 +6367,12 @@
       addRegexToken('W', match1to2);
       addRegexToken('WW', match1to2, match2);
 
-      addWeekParseToken(['w', 'ww', 'W', 'WW'], function (
-          input,
-          week,
-          config,
-          token
-      ) {
-          week[token.substr(0, 1)] = toInt(input);
-      });
+      addWeekParseToken(
+          ['w', 'ww', 'W', 'WW'],
+          function (input, week, config, token) {
+              week[token.substr(0, 1)] = toInt(input);
+          }
+      );
 
       // HELPERS
 
@@ -6734,9 +6497,8 @@
           return ws.slice(n, 7).concat(ws.slice(0, n));
       }
 
-      var defaultLocaleWeekdays = 'Sunday_Monday_Tuesday_Wednesday_Thursday_Friday_Saturday'.split(
-              '_'
-          ),
+      var defaultLocaleWeekdays =
+              'Sunday_Monday_Tuesday_Wednesday_Thursday_Friday_Saturday'.split('_'),
           defaultLocaleWeekdaysShort = 'Sun_Mon_Tue_Wed_Thu_Fri_Sat'.split('_'),
           defaultLocaleWeekdaysMin = 'Su_Mo_Tu_We_Th_Fr_Sa'.split('_'),
           defaultWeekdaysRegex = matchWord,
@@ -7284,6 +7046,11 @@
           return globalLocale;
       }
 
+      function isLocaleNameSane(name) {
+          // Prevent names that look like filesystem paths, i.e contain '/' or '\'
+          return name.match('^[^/\\\\]*$') != null;
+      }
+
       function loadLocale(name) {
           var oldLocale = null,
               aliasedRequire;
@@ -7292,7 +7059,8 @@
               locales[name] === undefined &&
               'object' !== 'undefined' &&
               module &&
-              module.exports
+              module.exports &&
+              isLocaleNameSane(name)
           ) {
               try {
                   oldLocale = globalLocale._abbr;
@@ -7509,8 +7277,10 @@
 
       // iso 8601 regex
       // 0000-00-00 0000-W00 or 0000-W00-0 + T + 00 or 00:00 or 00:00:00 or 00:00:00.000 + +00:00 or +0000 or +00)
-      var extendedIsoRegex = /^\s*((?:[+-]\d{6}|\d{4})-(?:\d\d-\d\d|W\d\d-\d|W\d\d|\d\d\d|\d\d))(?:(T| )(\d\d(?::\d\d(?::\d\d(?:[.,]\d+)?)?)?)([+-]\d\d(?::?\d\d)?|\s*Z)?)?$/,
-          basicIsoRegex = /^\s*((?:[+-]\d{6}|\d{4})(?:\d\d\d\d|W\d\d\d|W\d\d|\d\d\d|\d\d|))(?:(T| )(\d\d(?:\d\d(?:\d\d(?:[.,]\d+)?)?)?)([+-]\d\d(?::?\d\d)?|\s*Z)?)?$/,
+      var extendedIsoRegex =
+              /^\s*((?:[+-]\d{6}|\d{4})-(?:\d\d-\d\d|W\d\d-\d|W\d\d|\d\d\d|\d\d))(?:(T| )(\d\d(?::\d\d(?::\d\d(?:[.,]\d+)?)?)?)([+-]\d\d(?::?\d\d)?|\s*Z)?)?$/,
+          basicIsoRegex =
+              /^\s*((?:[+-]\d{6}|\d{4})(?:\d\d\d\d|W\d\d\d|W\d\d|\d\d\d|\d\d|))(?:(T| )(\d\d(?:\d\d(?:\d\d(?:[.,]\d+)?)?)?)([+-]\d\d(?::?\d\d)?|\s*Z)?)?$/,
           tzRegex = /Z|[+-]\d\d(?::?\d\d)?/,
           isoDates = [
               ['YYYYYY-MM-DD', /[+-]\d{6}-\d\d-\d\d/],
@@ -7541,7 +7311,8 @@
           ],
           aspNetJsonRegex = /^\/?Date\((-?\d+)/i,
           // RFC 2822 regex: For details see https://tools.ietf.org/html/rfc2822#section-3.3
-          rfc2822 = /^(?:(Mon|Tue|Wed|Thu|Fri|Sat|Sun),?\s)?(\d{1,2})\s(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s(\d{2,4})\s(\d\d):(\d\d)(?::(\d\d))?\s(?:(UT|GMT|[ECMP][SD]T)|([Zz])|([+-]\d{4}))$/,
+          rfc2822 =
+              /^(?:(Mon|Tue|Wed|Thu|Fri|Sat|Sun),?\s)?(\d{1,2})\s(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s(\d{2,4})\s(\d\d):(\d\d)(?::(\d\d))?\s(?:(UT|GMT|[ECMP][SD]T)|([Zz])|([+-]\d{4}))$/,
           obsOffsets = {
               UT: 0,
               GMT: 0,
@@ -7564,12 +7335,13 @@
               allowTime,
               dateFormat,
               timeFormat,
-              tzFormat;
+              tzFormat,
+              isoDatesLen = isoDates.length,
+              isoTimesLen = isoTimes.length;
 
           if (match) {
               getParsingFlags(config).iso = true;
-
-              for (i = 0, l = isoDates.length; i < l; i++) {
+              for (i = 0, l = isoDatesLen; i < l; i++) {
                   if (isoDates[i][1].exec(match[1])) {
                       dateFormat = isoDates[i][0];
                       allowTime = isoDates[i][2] !== false;
@@ -7581,7 +7353,7 @@
                   return;
               }
               if (match[3]) {
-                  for (i = 0, l = isoTimes.length; i < l; i++) {
+                  for (i = 0, l = isoTimesLen; i < l; i++) {
                       if (isoTimes[i][1].exec(match[3])) {
                           // match[2] should be 'T' or space
                           timeFormat = (match[2] || ' ') + isoTimes[i][0];
@@ -7648,7 +7420,7 @@
       function preprocessRFC2822(s) {
           // Remove comments and folding whitespace and replace multiple-spaces with a single space
           return s
-              .replace(/\([^)]*\)|[\n\t]/g, ' ')
+              .replace(/\([^()]*\)|[\n\t]/g, ' ')
               .replace(/(\s\s+)/g, ' ')
               .replace(/^\s\s*/, '')
               .replace(/\s\s*$/, '');
@@ -7961,12 +7733,13 @@
               skipped,
               stringLength = string.length,
               totalParsedInputLength = 0,
-              era;
+              era,
+              tokenLen;
 
           tokens =
               expandFormat(config._f, config._locale).match(formattingTokens) || [];
-
-          for (i = 0; i < tokens.length; i++) {
+          tokenLen = tokens.length;
+          for (i = 0; i < tokenLen; i++) {
               token = tokens[i];
               parsedInput = (string.match(getParseRegexForToken(token, config)) ||
                   [])[0];
@@ -8061,15 +7834,16 @@
               i,
               currentScore,
               validFormatFound,
-              bestFormatIsValid = false;
+              bestFormatIsValid = false,
+              configfLen = config._f.length;
 
-          if (config._f.length === 0) {
+          if (configfLen === 0) {
               getParsingFlags(config).invalidFormat = true;
               config._d = new Date(NaN);
               return;
           }
 
-          for (i = 0; i < config._f.length; i++) {
+          for (i = 0; i < configfLen; i++) {
               currentScore = 0;
               validFormatFound = false;
               tempConfig = copyConfig({}, config);
@@ -8310,7 +8084,8 @@
       function isDurationValid(m) {
           var key,
               unitHasDecimal = false,
-              i;
+              i,
+              orderLen = ordering.length;
           for (key in m) {
               if (
                   hasOwnProp(m, key) &&
@@ -8323,7 +8098,7 @@
               }
           }
 
-          for (i = 0; i < ordering.length; ++i) {
+          for (i = 0; i < orderLen; ++i) {
               if (m[ordering[i]]) {
                   if (unitHasDecimal) {
                       return false; // only allow non-integers for smallest unit
@@ -8648,7 +8423,8 @@
           // from http://docs.closure-library.googlecode.com/git/closure_goog_date_date.js.source.html
           // somewhat more in line with 4.4.3.2 2004 spec, but allows decimal anywhere
           // and further modified to allow for strings containing both week and day
-          isoRegex = /^(-|\+)?P(?:([-+]?[0-9,.]*)Y)?(?:([-+]?[0-9,.]*)M)?(?:([-+]?[0-9,.]*)W)?(?:([-+]?[0-9,.]*)D)?(?:T(?:([-+]?[0-9,.]*)H)?(?:([-+]?[0-9,.]*)M)?(?:([-+]?[0-9,.]*)S)?)?$/;
+          isoRegex =
+              /^(-|\+)?P(?:([-+]?[0-9,.]*)Y)?(?:([-+]?[0-9,.]*)M)?(?:([-+]?[0-9,.]*)W)?(?:([-+]?[0-9,.]*)D)?(?:T(?:([-+]?[0-9,.]*)H)?(?:([-+]?[0-9,.]*)M)?(?:([-+]?[0-9,.]*)S)?)?$/;
 
       function createDuration(input, key) {
           var duration = input,
@@ -8869,9 +8645,10 @@
                   'ms',
               ],
               i,
-              property;
+              property,
+              propertyLen = properties.length;
 
-          for (i = 0; i < properties.length; i += 1) {
+          for (i = 0; i < propertyLen; i += 1) {
               property = properties[i];
               propertyTest = propertyTest || hasOwnProp(input, property);
           }
@@ -9494,19 +9271,17 @@
       addRegexToken('NNNN', matchEraName);
       addRegexToken('NNNNN', matchEraNarrow);
 
-      addParseToken(['N', 'NN', 'NNN', 'NNNN', 'NNNNN'], function (
-          input,
-          array,
-          config,
-          token
-      ) {
-          var era = config._locale.erasParse(input, token, config._strict);
-          if (era) {
-              getParsingFlags(config).era = era;
-          } else {
-              getParsingFlags(config).invalidEra = input;
+      addParseToken(
+          ['N', 'NN', 'NNN', 'NNNN', 'NNNNN'],
+          function (input, array, config, token) {
+              var era = config._locale.erasParse(input, token, config._strict);
+              if (era) {
+                  getParsingFlags(config).era = era;
+              } else {
+                  getParsingFlags(config).invalidEra = input;
+              }
           }
-      });
+      );
 
       addRegexToken('y', matchUnsigned);
       addRegexToken('yy', matchUnsigned);
@@ -9798,14 +9573,12 @@
       addRegexToken('GGGGG', match1to6, match6);
       addRegexToken('ggggg', match1to6, match6);
 
-      addWeekParseToken(['gggg', 'ggggg', 'GGGG', 'GGGGG'], function (
-          input,
-          week,
-          config,
-          token
-      ) {
-          week[token.substr(0, 2)] = toInt(input);
-      });
+      addWeekParseToken(
+          ['gggg', 'ggggg', 'GGGG', 'GGGGG'],
+          function (input, week, config, token) {
+              week[token.substr(0, 2)] = toInt(input);
+          }
+      );
 
       addWeekParseToken(['gg', 'GG'], function (input, week, config, token) {
           week[token] = hooks.parseTwoDigitYear(input);
@@ -10828,7 +10601,7 @@
 
       //! moment.js
 
-      hooks.version = '2.29.1';
+      hooks.version = '2.29.4';
 
       setHookCallback(createLocal);
 
@@ -10879,9 +10652,9 @@
   });
 
   var ArticleWidgetView = {
-    'css': null,
+    css: null,
 
-    'exports': {
+    exports: {
       setLoggedUserProfile( profile ){
           this.state.loggedUserProfile = profile;
           this.update();
@@ -10928,294 +10701,217 @@
       }
     },
 
-    'template': function(
+    template: (
       template,
       expressionTypes,
       bindingTypes,
       getComponent
-    ) {
-      return template(
-        '<div expr36="expr36" class="article-meta"></div>',
-        [
-          {
-            'type': bindingTypes.IF,
+    ) => template(
+      '<div expr40="expr40" class="article-meta"></div>',
+      [
+        {
+          type: bindingTypes.IF,
+          evaluate: _scope => _scope.state.article != null,
+          redundantAttribute: 'expr40',
+          selector: '[expr40]',
 
-            'evaluate': function(
-              _scope
-            ) {
-              return _scope.state.article != null;
-            },
+          template: template(
+            '<a expr41="expr41"><img expr42="expr42"/></a><div class="info"><a expr43="expr43" class="author"> </a><span expr44="expr44" class="date"> </span></div><template expr45="expr45"></template><template expr49="expr49"></template>',
+            [
+              {
+                redundantAttribute: 'expr41',
+                selector: '[expr41]',
 
-            'redundantAttribute': 'expr36',
-            'selector': '[expr36]',
+                expressions: [
+                  {
+                    type: expressionTypes.ATTRIBUTE,
+                    name: 'href',
+                    evaluate: _scope => "#/profile/" + _scope.state.article.author.username
+                  }
+                ]
+              },
+              {
+                redundantAttribute: 'expr42',
+                selector: '[expr42]',
 
-            'template': template(
-              '<a expr37="expr37"><img expr38="expr38"/></a><div class="info"><a expr39="expr39" class="author"> </a><span expr40="expr40" class="date"> </span></div><template expr41="expr41"></template><template expr45="expr45"></template>',
-              [
-                {
-                  'redundantAttribute': 'expr37',
-                  'selector': '[expr37]',
+                expressions: [
+                  {
+                    type: expressionTypes.ATTRIBUTE,
+                    name: 'src',
+                    evaluate: _scope => _scope.state.article.author.image
+                  }
+                ]
+              },
+              {
+                redundantAttribute: 'expr43',
+                selector: '[expr43]',
 
-                  'expressions': [
+                expressions: [
+                  {
+                    type: expressionTypes.TEXT,
+                    childNodeIndex: 0,
+                    evaluate: _scope => _scope.state.article.author.username
+                  },
+                  {
+                    type: expressionTypes.ATTRIBUTE,
+                    name: 'href',
+                    evaluate: _scope => "#/profile/" + _scope.state.article.author.username
+                  }
+                ]
+              },
+              {
+                redundantAttribute: 'expr44',
+                selector: '[expr44]',
+
+                expressions: [
+                  {
+                    type: expressionTypes.TEXT,
+                    childNodeIndex: 0,
+                    evaluate: _scope => _scope.formattedDate( _scope.state.article.createdAt )
+                  }
+                ]
+              },
+              {
+                type: bindingTypes.IF,
+                evaluate: _scope => _scope.isOwnArticle() == false,
+                redundantAttribute: 'expr45',
+                selector: '[expr45]',
+
+                template: template(
+                  '<button expr46="expr46"><i class="ion-plus-round"></i> </button>\n        &nbsp;\n        <button expr47="expr47"><i class="ion-heart"></i> <span expr48="expr48" class="counter"> </span></button>',
+                  [
                     {
-                      'type': expressionTypes.ATTRIBUTE,
-                      'name': 'href',
+                      redundantAttribute: 'expr46',
+                      selector: '[expr46]',
 
-                      'evaluate': function(
-                        _scope
-                      ) {
-                        return "#/profile/" + _scope.state.article.author.username;
-                      }
-                    }
-                  ]
-                },
-                {
-                  'redundantAttribute': 'expr38',
-                  'selector': '[expr38]',
+                      expressions: [
+                        {
+                          type: expressionTypes.TEXT,
+                          childNodeIndex: 1,
 
-                  'expressions': [
-                    {
-                      'type': expressionTypes.ATTRIBUTE,
-                      'name': 'src',
-
-                      'evaluate': function(
-                        _scope
-                      ) {
-                        return _scope.state.article.author.image;
-                      }
-                    }
-                  ]
-                },
-                {
-                  'redundantAttribute': 'expr39',
-                  'selector': '[expr39]',
-
-                  'expressions': [
-                    {
-                      'type': expressionTypes.TEXT,
-                      'childNodeIndex': 0,
-
-                      'evaluate': function(
-                        _scope
-                      ) {
-                        return _scope.state.article.author.username;
-                      }
+                          evaluate: _scope => [
+                            (_scope.state.article.author.following ? "Unfollow" : "Follow") + " " + _scope.state.article.author.username
+                          ].join(
+                            ''
+                          )
+                        },
+                        {
+                          type: expressionTypes.EVENT,
+                          name: 'onclick',
+                          evaluate: _scope => _scope.actionOfFollowButton
+                        },
+                        {
+                          type: expressionTypes.ATTRIBUTE,
+                          name: 'class',
+                          evaluate: _scope => _scope.followButtonClassName( _scope.state.article.author.following )
+                        }
+                      ]
                     },
                     {
-                      'type': expressionTypes.ATTRIBUTE,
-                      'name': 'href',
+                      redundantAttribute: 'expr47',
+                      selector: '[expr47]',
 
-                      'evaluate': function(
-                        _scope
-                      ) {
-                        return "#/profile/" + _scope.state.article.author.username;
-                      }
-                    }
-                  ]
-                },
-                {
-                  'redundantAttribute': 'expr40',
-                  'selector': '[expr40]',
+                      expressions: [
+                        {
+                          type: expressionTypes.TEXT,
+                          childNodeIndex: 1,
 
-                  'expressions': [
+                          evaluate: _scope => [
+                            (_scope.state.article.favorited ? "Unfavorite" : "Favorite") + " Article"
+                          ].join(
+                            ''
+                          )
+                        },
+                        {
+                          type: expressionTypes.EVENT,
+                          name: 'onclick',
+                          evaluate: _scope => _scope.actionOfFavoriteButton
+                        },
+                        {
+                          type: expressionTypes.ATTRIBUTE,
+                          name: 'class',
+                          evaluate: _scope => _scope.favoriteButtonClassName( _scope.state.article.favorited )
+                        }
+                      ]
+                    },
                     {
-                      'type': expressionTypes.TEXT,
-                      'childNodeIndex': 0,
+                      redundantAttribute: 'expr48',
+                      selector: '[expr48]',
 
-                      'evaluate': function(
-                        _scope
-                      ) {
-                        return _scope.formattedDate( _scope.state.article.createdAt );
-                      }
+                      expressions: [
+                        {
+                          type: expressionTypes.TEXT,
+                          childNodeIndex: 0,
+
+                          evaluate: _scope => [
+                            '(',
+                            _scope.state.article.favoritesCount,
+                            ')'
+                          ].join(
+                            ''
+                          )
+                        }
+                      ]
                     }
                   ]
-                },
-                {
-                  'type': bindingTypes.IF,
+                )
+              },
+              {
+                type: bindingTypes.IF,
+                evaluate: _scope => _scope.isOwnArticle(),
+                redundantAttribute: 'expr49',
+                selector: '[expr49]',
 
-                  'evaluate': function(
-                    _scope
-                  ) {
-                    return _scope.isOwnArticle() == false;
-                  },
+                template: template(
+                  '<button expr50="expr50" class="btn btn-sm btn-outline-secondary"><i class="ion-edit"></i> Edit Article\n        </button>\n        &nbsp;\n        <button expr51="expr51" class="btn btn-sm btn-outline-danger"><i class="ion-trash-a"></i> Delete Article\n        </button>',
+                  [
+                    {
+                      redundantAttribute: 'expr50',
+                      selector: '[expr50]',
 
-                  'redundantAttribute': 'expr41',
-                  'selector': '[expr41]',
+                      expressions: [
+                        {
+                          type: expressionTypes.EVENT,
+                          name: 'onclick',
+                          evaluate: _scope => _scope.actionOfEditingButton
+                        }
+                      ]
+                    },
+                    {
+                      redundantAttribute: 'expr51',
+                      selector: '[expr51]',
 
-                  'template': template(
-                    '<button expr42="expr42"><i class="ion-plus-round"></i> </button>\n        &nbsp;\n        <button expr43="expr43"><i class="ion-heart"></i> <span expr44="expr44" class="counter"> </span></button>',
-                    [
-                      {
-                        'redundantAttribute': 'expr42',
-                        'selector': '[expr42]',
+                      expressions: [
+                        {
+                          type: expressionTypes.EVENT,
+                          name: 'onclick',
+                          evaluate: _scope => _scope.actionOfDeleteButton
+                        }
+                      ]
+                    }
+                  ]
+                )
+              }
+            ]
+          )
+        }
+      ]
+    ),
 
-                        'expressions': [
-                          {
-                            'type': expressionTypes.TEXT,
-                            'childNodeIndex': 1,
-
-                            'evaluate': function(
-                              _scope
-                            ) {
-                              return [
-                                (_scope.state.article.author.following ? "Unfollow" : "Follow") + " " + _scope.state.article.author.username
-                              ].join(
-                                ''
-                              );
-                            }
-                          },
-                          {
-                            'type': expressionTypes.EVENT,
-                            'name': 'onclick',
-
-                            'evaluate': function(
-                              _scope
-                            ) {
-                              return _scope.actionOfFollowButton;
-                            }
-                          },
-                          {
-                            'type': expressionTypes.ATTRIBUTE,
-                            'name': 'class',
-
-                            'evaluate': function(
-                              _scope
-                            ) {
-                              return _scope.followButtonClassName( _scope.state.article.author.following );
-                            }
-                          }
-                        ]
-                      },
-                      {
-                        'redundantAttribute': 'expr43',
-                        'selector': '[expr43]',
-
-                        'expressions': [
-                          {
-                            'type': expressionTypes.TEXT,
-                            'childNodeIndex': 1,
-
-                            'evaluate': function(
-                              _scope
-                            ) {
-                              return [
-                                (_scope.state.article.favorited ? "Unfavorite" : "Favorite") + " Article"
-                              ].join(
-                                ''
-                              );
-                            }
-                          },
-                          {
-                            'type': expressionTypes.EVENT,
-                            'name': 'onclick',
-
-                            'evaluate': function(
-                              _scope
-                            ) {
-                              return _scope.actionOfFavoriteButton;
-                            }
-                          },
-                          {
-                            'type': expressionTypes.ATTRIBUTE,
-                            'name': 'class',
-
-                            'evaluate': function(
-                              _scope
-                            ) {
-                              return _scope.favoriteButtonClassName( _scope.state.article.favorited );
-                            }
-                          }
-                        ]
-                      },
-                      {
-                        'redundantAttribute': 'expr44',
-                        'selector': '[expr44]',
-
-                        'expressions': [
-                          {
-                            'type': expressionTypes.TEXT,
-                            'childNodeIndex': 0,
-
-                            'evaluate': function(
-                              _scope
-                            ) {
-                              return [
-                                '(',
-                                _scope.state.article.favoritesCount,
-                                ')'
-                              ].join(
-                                ''
-                              );
-                            }
-                          }
-                        ]
-                      }
-                    ]
-                  )
-                },
-                {
-                  'type': bindingTypes.IF,
-
-                  'evaluate': function(
-                    _scope
-                  ) {
-                    return _scope.isOwnArticle();
-                  },
-
-                  'redundantAttribute': 'expr45',
-                  'selector': '[expr45]',
-
-                  'template': template(
-                    '<button expr46="expr46" class="btn btn-sm btn-outline-secondary"><i class="ion-edit"></i> Edit Article\n        </button>\n        &nbsp;\n        <button expr47="expr47" class="btn btn-sm btn-outline-danger"><i class="ion-trash-a"></i> Delete Article\n        </button>',
-                    [
-                      {
-                        'redundantAttribute': 'expr46',
-                        'selector': '[expr46]',
-
-                        'expressions': [
-                          {
-                            'type': expressionTypes.EVENT,
-                            'name': 'onclick',
-
-                            'evaluate': function(
-                              _scope
-                            ) {
-                              return _scope.actionOfEditingButton;
-                            }
-                          }
-                        ]
-                      },
-                      {
-                        'redundantAttribute': 'expr47',
-                        'selector': '[expr47]',
-
-                        'expressions': [
-                          {
-                            'type': expressionTypes.EVENT,
-                            'name': 'onclick',
-
-                            'evaluate': function(
-                              _scope
-                            ) {
-                              return _scope.actionOfDeleteButton;
-                            }
-                          }
-                        ]
-                      }
-                    ]
-                  )
-                }
-              ]
-            )
-          }
-        ]
-      );
-    },
-
-    'name': 'article_widget_view'
+    name: 'article_widget_view'
   };
 
-  var defaults$5 = createCommonjsModule(function (module) {
+  /**
+   * marked - a markdown parser
+   * Copyright (c) 2011-2022, Christopher Jeffrey. (MIT Licensed)
+   * https://github.com/markedjs/marked
+   */
+
+  /**
+   * DO NOT EDIT THIS FILE
+   * The code in this file is generated from files in ./src/
+   */
+
   function getDefaults() {
     return {
       baseUrl: null,
@@ -11240,19 +10936,11 @@
     };
   }
 
-  function changeDefaults(newDefaults) {
-    module.exports.defaults = newDefaults;
-  }
+  let defaults = getDefaults();
 
-  module.exports = {
-    defaults: getDefaults(),
-    getDefaults,
-    changeDefaults
-  };
-  });
-  defaults$5.defaults;
-  defaults$5.getDefaults;
-  defaults$5.changeDefaults;
+  function changeDefaults(newDefaults) {
+    defaults = newDefaults;
+  }
 
   /**
    * Helpers
@@ -11269,7 +10957,7 @@
     "'": '&#39;'
   };
   const getEscapeReplacement = (ch) => escapeReplacements[ch];
-  function escape$3(html, encode) {
+  function escape(html, encode) {
     if (encode) {
       if (escapeTest.test(html)) {
         return html.replace(escapeReplace, getEscapeReplacement);
@@ -11285,7 +10973,7 @@
 
   const unescapeTest = /&(#(?:\d+)|(?:#x[0-9A-Fa-f]+)|(?:\w+));?/ig;
 
-  function unescape$1(html) {
+  function unescape(html) {
     // explicitly match decimal, hex, and named HTML entities
     return html.replace(unescapeTest, (_, n) => {
       n = n.toLowerCase();
@@ -11300,7 +10988,7 @@
   }
 
   const caret = /(^|[^\[])\^/g;
-  function edit$1(regex, opt) {
+  function edit(regex, opt) {
     regex = regex.source || regex;
     opt = opt || '';
     const obj = {
@@ -11319,11 +11007,11 @@
 
   const nonWordAndColonTest = /[^\w:]/g;
   const originIndependentUrl = /^$|^[a-z][a-z0-9+.-]*:|^[?#]/i;
-  function cleanUrl$1(sanitize, base, href) {
+  function cleanUrl(sanitize, base, href) {
     if (sanitize) {
       let prot;
       try {
-        prot = decodeURIComponent(unescape$1(href))
+        prot = decodeURIComponent(unescape(href))
           .replace(nonWordAndColonTest, '')
           .toLowerCase();
       } catch (e) {
@@ -11357,7 +11045,7 @@
       if (justDomain.test(base)) {
         baseUrls[' ' + base] = base + '/';
       } else {
-        baseUrls[' ' + base] = rtrim$1(base, '/', true);
+        baseUrls[' ' + base] = rtrim(base, '/', true);
       }
     }
     base = baseUrls[' ' + base];
@@ -11378,9 +11066,9 @@
     }
   }
 
-  const noopTest$1 = { exec: function noopTest() {} };
+  const noopTest = { exec: function noopTest() {} };
 
-  function merge$2(obj) {
+  function merge(obj) {
     let i = 1,
       target,
       key;
@@ -11397,7 +11085,7 @@
     return obj;
   }
 
-  function splitCells$1(tableRow, count) {
+  function splitCells(tableRow, count) {
     // ensure that every cell-delimiting pipe has a space
     // before it to distinguish it from an escaped pipe
     const row = tableRow.replace(/\|/g, (match, offset, str) => {
@@ -11416,6 +11104,10 @@
       cells = row.split(/ \|/);
     let i = 0;
 
+    // First/last cell in a row cannot be empty if it has no leading/trailing pipe
+    if (!cells[0].trim()) { cells.shift(); }
+    if (!cells[cells.length - 1].trim()) { cells.pop(); }
+
     if (cells.length > count) {
       cells.splice(count);
     } else {
@@ -11432,7 +11124,7 @@
   // Remove trailing 'c's. Equivalent to str.replace(/c*$/, '').
   // /c*$/ is vulnerable to REDOS.
   // invert: Remove suffix of non-c chars instead. Default falsey.
-  function rtrim$1(str, c, invert) {
+  function rtrim(str, c, invert) {
     const l = str.length;
     if (l === 0) {
       return '';
@@ -11456,7 +11148,7 @@
     return str.substr(0, l - suffLen);
   }
 
-  function findClosingBracket$1(str, b) {
+  function findClosingBracket(str, b) {
     if (str.indexOf(b[1]) === -1) {
       return -1;
     }
@@ -11478,14 +11170,14 @@
     return -1;
   }
 
-  function checkSanitizeDeprecation$1(opt) {
+  function checkSanitizeDeprecation(opt) {
     if (opt && opt.sanitize && !opt.silent) {
       console.warn('marked(): sanitize and sanitizer parameters are deprecated since version 0.7.0, should not be used and will be removed in the future. Read more here: https://marked.js.org/#/USING_ADVANCED.md#options');
     }
   }
 
   // copied from https://stackoverflow.com/a/5450113/806777
-  function repeatString$1(pattern, count) {
+  function repeatString(pattern, count) {
     if (count < 1) {
       return '';
     }
@@ -11500,49 +11192,30 @@
     return result + pattern;
   }
 
-  var helpers = {
-    escape: escape$3,
-    unescape: unescape$1,
-    edit: edit$1,
-    cleanUrl: cleanUrl$1,
-    resolveUrl,
-    noopTest: noopTest$1,
-    merge: merge$2,
-    splitCells: splitCells$1,
-    rtrim: rtrim$1,
-    findClosingBracket: findClosingBracket$1,
-    checkSanitizeDeprecation: checkSanitizeDeprecation$1,
-    repeatString: repeatString$1
-  };
-
-  const { defaults: defaults$4 } = defaults$5;
-  const {
-    rtrim,
-    splitCells,
-    escape: escape$2,
-    findClosingBracket
-  } = helpers;
-
-  function outputLink(cap, link, raw) {
+  function outputLink(cap, link, raw, lexer) {
     const href = link.href;
-    const title = link.title ? escape$2(link.title) : null;
+    const title = link.title ? escape(link.title) : null;
     const text = cap[1].replace(/\\([\[\]])/g, '$1');
 
     if (cap[0].charAt(0) !== '!') {
-      return {
+      lexer.state.inLink = true;
+      const token = {
         type: 'link',
         raw,
         href,
         title,
-        text
+        text,
+        tokens: lexer.inlineTokens(text, [])
       };
+      lexer.state.inLink = false;
+      return token;
     } else {
       return {
         type: 'image',
         raw,
         href,
         title,
-        text: escape$2(text)
+        text: escape(text)
       };
     }
   }
@@ -11578,21 +11251,18 @@
   /**
    * Tokenizer
    */
-  var Tokenizer_1 = class Tokenizer {
+  class Tokenizer {
     constructor(options) {
-      this.options = options || defaults$4;
+      this.options = options || defaults;
     }
 
     space(src) {
       const cap = this.rules.block.newline.exec(src);
-      if (cap) {
-        if (cap[0].length > 1) {
-          return {
-            type: 'space',
-            raw: cap[0]
-          };
-        }
-        return { raw: '\n' };
+      if (cap && cap[0].length > 0) {
+        return {
+          type: 'space',
+          raw: cap[0]
+        };
       }
     }
 
@@ -11642,48 +11312,15 @@
           }
         }
 
-        return {
+        const token = {
           type: 'heading',
           raw: cap[0],
           depth: cap[1].length,
-          text: text
+          text: text,
+          tokens: []
         };
-      }
-    }
-
-    nptable(src) {
-      const cap = this.rules.block.nptable.exec(src);
-      if (cap) {
-        const item = {
-          type: 'table',
-          header: splitCells(cap[1].replace(/^ *| *\| *$/g, '')),
-          align: cap[2].replace(/^ *|\| *$/g, '').split(/ *\| */),
-          cells: cap[3] ? cap[3].replace(/\n$/, '').split('\n') : [],
-          raw: cap[0]
-        };
-
-        if (item.header.length === item.align.length) {
-          let l = item.align.length;
-          let i;
-          for (i = 0; i < l; i++) {
-            if (/^ *-+: *$/.test(item.align[i])) {
-              item.align[i] = 'right';
-            } else if (/^ *:-+: *$/.test(item.align[i])) {
-              item.align[i] = 'center';
-            } else if (/^ *:-+ *$/.test(item.align[i])) {
-              item.align[i] = 'left';
-            } else {
-              item.align[i] = null;
-            }
-          }
-
-          l = item.cells.length;
-          for (i = 0; i < l; i++) {
-            item.cells[i] = splitCells(item.cells[i], item.header.length);
-          }
-
-          return item;
-        }
+        this.lexer.inline(token.text, token.tokens);
+        return token;
       }
     }
 
@@ -11705,138 +11342,171 @@
         return {
           type: 'blockquote',
           raw: cap[0],
+          tokens: this.lexer.blockTokens(text, []),
           text
         };
       }
     }
 
     list(src) {
-      const cap = this.rules.block.list.exec(src);
+      let cap = this.rules.block.list.exec(src);
       if (cap) {
-        let raw = cap[0];
-        const bull = cap[2];
+        let raw, istask, ischecked, indent, i, blankLine, endsWithBlankLine,
+          line, nextLine, rawLine, itemContents, endEarly;
+
+        let bull = cap[1].trim();
         const isordered = bull.length > 1;
 
         const list = {
           type: 'list',
-          raw,
+          raw: '',
           ordered: isordered,
           start: isordered ? +bull.slice(0, -1) : '',
           loose: false,
           items: []
         };
 
-        // Get each top-level item.
-        const itemMatch = cap[0].match(this.rules.block.item);
+        bull = isordered ? `\\d{1,9}\\${bull.slice(-1)}` : `\\${bull}`;
 
-        let next = false,
-          item,
-          space,
-          bcurr,
-          bnext,
-          addBack,
-          loose,
-          istask,
-          ischecked,
-          endMatch;
+        if (this.options.pedantic) {
+          bull = isordered ? bull : '[*+-]';
+        }
 
-        let l = itemMatch.length;
-        bcurr = this.rules.block.listItemStart.exec(itemMatch[0]);
-        for (let i = 0; i < l; i++) {
-          item = itemMatch[i];
-          raw = item;
+        // Get next list item
+        const itemRegex = new RegExp(`^( {0,3}${bull})((?: [^\\n]*)?(?:\\n|$))`);
 
-          if (!this.options.pedantic) {
-            // Determine if current item contains the end of the list
-            endMatch = item.match(new RegExp('\\n\\s*\\n {0,' + (bcurr[0].length - 1) + '}\\S'));
-            if (endMatch) {
-              addBack = item.length - endMatch.index + itemMatch.slice(i + 1).join('\n').length;
-              list.raw = list.raw.substring(0, list.raw.length - addBack);
+        // Check if current bullet point can start a new List Item
+        while (src) {
+          endEarly = false;
+          if (!(cap = itemRegex.exec(src))) {
+            break;
+          }
 
-              item = item.substring(0, endMatch.index);
-              raw = item;
-              l = i + 1;
+          if (this.rules.block.hr.test(src)) { // End list if bullet was actually HR (possibly move into itemRegex?)
+            break;
+          }
+
+          raw = cap[0];
+          src = src.substring(raw.length);
+
+          line = cap[2].split('\n', 1)[0];
+          nextLine = src.split('\n', 1)[0];
+
+          if (this.options.pedantic) {
+            indent = 2;
+            itemContents = line.trimLeft();
+          } else {
+            indent = cap[2].search(/[^ ]/); // Find first non-space char
+            indent = indent > 4 ? 1 : indent; // Treat indented code blocks (> 4 spaces) as having only 1 indent
+            itemContents = line.slice(indent);
+            indent += cap[1].length;
+          }
+
+          blankLine = false;
+
+          if (!line && /^ *$/.test(nextLine)) { // Items begin with at most one blank line
+            raw += nextLine + '\n';
+            src = src.substring(nextLine.length + 1);
+            endEarly = true;
+          }
+
+          if (!endEarly) {
+            const nextBulletRegex = new RegExp(`^ {0,${Math.min(3, indent - 1)}}(?:[*+-]|\\d{1,9}[.)])`);
+
+            // Check if following lines should be included in List Item
+            while (src) {
+              rawLine = src.split('\n', 1)[0];
+              line = rawLine;
+
+              // Re-align to follow commonmark nesting rules
+              if (this.options.pedantic) {
+                line = line.replace(/^ {1,4}(?=( {4})*[^ ])/g, '  ');
+              }
+
+              // End list item if found start of new bullet
+              if (nextBulletRegex.test(line)) {
+                break;
+              }
+
+              if (line.search(/[^ ]/) >= indent || !line.trim()) { // Dedent if possible
+                itemContents += '\n' + line.slice(indent);
+              } else if (!blankLine) { // Until blank line, item doesn't need indentation
+                itemContents += '\n' + line;
+              } else { // Otherwise, improper indentation ends this item
+                break;
+              }
+
+              if (!blankLine && !line.trim()) { // Check if current line is blank
+                blankLine = true;
+              }
+
+              raw += rawLine + '\n';
+              src = src.substring(rawLine.length + 1);
             }
           }
 
-          // Determine whether the next list item belongs here.
-          // Backpedal if it does not belong in this list.
-          if (i !== l - 1) {
-            bnext = this.rules.block.listItemStart.exec(itemMatch[i + 1]);
-            if (
-              !this.options.pedantic
-                ? bnext[1].length >= bcurr[0].length || bnext[1].length > 3
-                : bnext[1].length > bcurr[1].length
-            ) {
-              // nested list or continuation
-              itemMatch.splice(i, 2, itemMatch[i] + (!this.options.pedantic && bnext[1].length < bcurr[0].length && !itemMatch[i].match(/\n$/) ? '' : '\n') + itemMatch[i + 1]);
-              i--;
-              l--;
-              continue;
-            } else if (
-              // different bullet style
-              !this.options.pedantic || this.options.smartLists
-                ? bnext[2][bnext[2].length - 1] !== bull[bull.length - 1]
-                : isordered === (bnext[2].length === 1)
-            ) {
-              addBack = itemMatch.slice(i + 1).join('\n').length;
-              list.raw = list.raw.substring(0, list.raw.length - addBack);
-              i = l - 1;
+          if (!list.loose) {
+            // If the previous item ended with a blank line, the list is loose
+            if (endsWithBlankLine) {
+              list.loose = true;
+            } else if (/\n *\n *$/.test(raw)) {
+              endsWithBlankLine = true;
             }
-            bcurr = bnext;
-          }
-
-          // Remove the list item's bullet
-          // so it is seen as the next token.
-          space = item.length;
-          item = item.replace(/^ *([*+-]|\d+[.)]) ?/, '');
-
-          // Outdent whatever the
-          // list item contains. Hacky.
-          if (~item.indexOf('\n ')) {
-            space -= item.length;
-            item = !this.options.pedantic
-              ? item.replace(new RegExp('^ {1,' + space + '}', 'gm'), '')
-              : item.replace(/^ {1,4}/gm, '');
-          }
-
-          // trim item newlines at end
-          item = rtrim(item, '\n');
-          if (i !== l - 1) {
-            raw = raw + '\n';
-          }
-
-          // Determine whether item is loose or not.
-          // Use: /(^|\n)(?! )[^\n]+\n\n(?!\s*$)/
-          // for discount behavior.
-          loose = next || /\n\n(?!\s*$)/.test(raw);
-          if (i !== l - 1) {
-            next = raw.slice(-2) === '\n\n';
-            if (!loose) loose = next;
-          }
-
-          if (loose) {
-            list.loose = true;
           }
 
           // Check for task list items
           if (this.options.gfm) {
-            istask = /^\[[ xX]\] /.test(item);
-            ischecked = undefined;
+            istask = /^\[[ xX]\] /.exec(itemContents);
             if (istask) {
-              ischecked = item[1] !== ' ';
-              item = item.replace(/^\[[ xX]\] +/, '');
+              ischecked = istask[0] !== '[ ] ';
+              itemContents = itemContents.replace(/^\[[ xX]\] +/, '');
             }
           }
 
           list.items.push({
             type: 'list_item',
-            raw,
-            task: istask,
+            raw: raw,
+            task: !!istask,
             checked: ischecked,
-            loose: loose,
-            text: item
+            loose: false,
+            text: itemContents
           });
+
+          list.raw += raw;
+        }
+
+        // Do not consume newlines at end of final item. Alternatively, make itemRegex *start* with any newlines to simplify/speed up endsWithBlankLine logic
+        list.items[list.items.length - 1].raw = raw.trimRight();
+        list.items[list.items.length - 1].text = itemContents.trimRight();
+        list.raw = list.raw.trimRight();
+
+        const l = list.items.length;
+
+        // Item child tokens handled here at end because we needed to have the final item to trim it first
+        for (i = 0; i < l; i++) {
+          this.lexer.state.top = false;
+          list.items[i].tokens = this.lexer.blockTokens(list.items[i].text, []);
+          const spacers = list.items[i].tokens.filter(t => t.type === 'space');
+          const hasMultipleLineBreaks = spacers.every(t => {
+            const chars = t.raw.split('');
+            let lineBreaks = 0;
+            for (const char of chars) {
+              if (char === '\n') {
+                lineBreaks += 1;
+              }
+              if (lineBreaks > 1) {
+                return true;
+              }
+            }
+
+            return false;
+          });
+
+          if (!list.loose && spacers.length && hasMultipleLineBreaks) {
+            // Having a single line break doesn't mean a list is loose. A single line break is terminating the last list item
+            list.loose = true;
+            list.items[i].loose = true;
+          }
         }
 
         return list;
@@ -11846,15 +11516,20 @@
     html(src) {
       const cap = this.rules.block.html.exec(src);
       if (cap) {
-        return {
-          type: this.options.sanitize
-            ? 'paragraph'
-            : 'html',
+        const token = {
+          type: 'html',
           raw: cap[0],
           pre: !this.options.sanitizer
             && (cap[1] === 'pre' || cap[1] === 'script' || cap[1] === 'style'),
-          text: this.options.sanitize ? (this.options.sanitizer ? this.options.sanitizer(cap[0]) : escape$2(cap[0])) : cap[0]
+          text: cap[0]
         };
+        if (this.options.sanitize) {
+          token.type = 'paragraph';
+          token.text = this.options.sanitizer ? this.options.sanitizer(cap[0]) : escape(cap[0]);
+          token.tokens = [];
+          this.lexer.inline(token.text, token.tokens);
+        }
+        return token;
       }
     }
 
@@ -11878,16 +11553,16 @@
       if (cap) {
         const item = {
           type: 'table',
-          header: splitCells(cap[1].replace(/^ *| *\| *$/g, '')),
+          header: splitCells(cap[1]).map(c => { return { text: c }; }),
           align: cap[2].replace(/^ *|\| *$/g, '').split(/ *\| */),
-          cells: cap[3] ? cap[3].replace(/\n$/, '').split('\n') : []
+          rows: cap[3] ? cap[3].replace(/\n[ \t]*$/, '').split('\n') : []
         };
 
         if (item.header.length === item.align.length) {
           item.raw = cap[0];
 
           let l = item.align.length;
-          let i;
+          let i, j, k, row;
           for (i = 0; i < l; i++) {
             if (/^ *-+: *$/.test(item.align[i])) {
               item.align[i] = 'right';
@@ -11900,11 +11575,28 @@
             }
           }
 
-          l = item.cells.length;
+          l = item.rows.length;
           for (i = 0; i < l; i++) {
-            item.cells[i] = splitCells(
-              item.cells[i].replace(/^ *\| *| *\| *$/g, ''),
-              item.header.length);
+            item.rows[i] = splitCells(item.rows[i], item.header.length).map(c => { return { text: c }; });
+          }
+
+          // parse child tokens inside headers and cells
+
+          // header child tokens
+          l = item.header.length;
+          for (j = 0; j < l; j++) {
+            item.header[j].tokens = [];
+            this.lexer.inlineTokens(item.header[j].text, item.header[j].tokens);
+          }
+
+          // cell child tokens
+          l = item.rows.length;
+          for (j = 0; j < l; j++) {
+            row = item.rows[j];
+            for (k = 0; k < row.length; k++) {
+              row[k].tokens = [];
+              this.lexer.inlineTokens(row[k].text, row[k].tokens);
+            }
           }
 
           return item;
@@ -11915,36 +11607,45 @@
     lheading(src) {
       const cap = this.rules.block.lheading.exec(src);
       if (cap) {
-        return {
+        const token = {
           type: 'heading',
           raw: cap[0],
           depth: cap[2].charAt(0) === '=' ? 1 : 2,
-          text: cap[1]
+          text: cap[1],
+          tokens: []
         };
+        this.lexer.inline(token.text, token.tokens);
+        return token;
       }
     }
 
     paragraph(src) {
       const cap = this.rules.block.paragraph.exec(src);
       if (cap) {
-        return {
+        const token = {
           type: 'paragraph',
           raw: cap[0],
           text: cap[1].charAt(cap[1].length - 1) === '\n'
             ? cap[1].slice(0, -1)
-            : cap[1]
+            : cap[1],
+          tokens: []
         };
+        this.lexer.inline(token.text, token.tokens);
+        return token;
       }
     }
 
     text(src) {
       const cap = this.rules.block.text.exec(src);
       if (cap) {
-        return {
+        const token = {
           type: 'text',
           raw: cap[0],
-          text: cap[0]
+          text: cap[0],
+          tokens: []
         };
+        this.lexer.inline(token.text, token.tokens);
+        return token;
       }
     }
 
@@ -11954,23 +11655,23 @@
         return {
           type: 'escape',
           raw: cap[0],
-          text: escape$2(cap[1])
+          text: escape(cap[1])
         };
       }
     }
 
-    tag(src, inLink, inRawBlock) {
+    tag(src) {
       const cap = this.rules.inline.tag.exec(src);
       if (cap) {
-        if (!inLink && /^<a /i.test(cap[0])) {
-          inLink = true;
-        } else if (inLink && /^<\/a>/i.test(cap[0])) {
-          inLink = false;
+        if (!this.lexer.state.inLink && /^<a /i.test(cap[0])) {
+          this.lexer.state.inLink = true;
+        } else if (this.lexer.state.inLink && /^<\/a>/i.test(cap[0])) {
+          this.lexer.state.inLink = false;
         }
-        if (!inRawBlock && /^<(pre|code|kbd|script)(\s|>)/i.test(cap[0])) {
-          inRawBlock = true;
-        } else if (inRawBlock && /^<\/(pre|code|kbd|script)(\s|>)/i.test(cap[0])) {
-          inRawBlock = false;
+        if (!this.lexer.state.inRawBlock && /^<(pre|code|kbd|script)(\s|>)/i.test(cap[0])) {
+          this.lexer.state.inRawBlock = true;
+        } else if (this.lexer.state.inRawBlock && /^<\/(pre|code|kbd|script)(\s|>)/i.test(cap[0])) {
+          this.lexer.state.inRawBlock = false;
         }
 
         return {
@@ -11978,12 +11679,12 @@
             ? 'text'
             : 'html',
           raw: cap[0],
-          inLink,
-          inRawBlock,
+          inLink: this.lexer.state.inLink,
+          inRawBlock: this.lexer.state.inRawBlock,
           text: this.options.sanitize
             ? (this.options.sanitizer
               ? this.options.sanitizer(cap[0])
-              : escape$2(cap[0]))
+              : escape(cap[0]))
             : cap[0]
         };
       }
@@ -12041,7 +11742,7 @@
         return outputLink(cap, {
           href: href ? href.replace(this.rules.inline._escapes, '$1') : href,
           title: title ? title.replace(this.rules.inline._escapes, '$1') : title
-        }, cap[0]);
+        }, cap[0], this.lexer);
       }
     }
 
@@ -12059,7 +11760,7 @@
             text
           };
         }
-        return outputLink(cap, link, cap[0]);
+        return outputLink(cap, link, cap[0], this.lexer);
       }
     }
 
@@ -12108,18 +11809,22 @@
 
           // Create `em` if smallest delimiter has odd char count. *a***
           if (Math.min(lLength, rLength) % 2) {
+            const text = src.slice(1, lLength + match.index + rLength);
             return {
               type: 'em',
               raw: src.slice(0, lLength + match.index + rLength + 1),
-              text: src.slice(1, lLength + match.index + rLength)
+              text,
+              tokens: this.lexer.inlineTokens(text, [])
             };
           }
 
           // Create 'strong' if smallest delimiter has even char count. **a***
+          const text = src.slice(2, lLength + match.index + rLength - 1);
           return {
             type: 'strong',
             raw: src.slice(0, lLength + match.index + rLength + 1),
-            text: src.slice(2, lLength + match.index + rLength - 1)
+            text,
+            tokens: this.lexer.inlineTokens(text, [])
           };
         }
       }
@@ -12134,7 +11839,7 @@
         if (hasNonSpaceChars && hasSpaceCharsOnBothEnds) {
           text = text.substring(1, text.length - 1);
         }
-        text = escape$2(text, true);
+        text = escape(text, true);
         return {
           type: 'codespan',
           raw: cap[0],
@@ -12159,7 +11864,8 @@
         return {
           type: 'del',
           raw: cap[0],
-          text: cap[2]
+          text: cap[2],
+          tokens: this.lexer.inlineTokens(cap[2], [])
         };
       }
     }
@@ -12169,10 +11875,10 @@
       if (cap) {
         let text, href;
         if (cap[2] === '@') {
-          text = escape$2(this.options.mangle ? mangle(cap[1]) : cap[1]);
+          text = escape(this.options.mangle ? mangle(cap[1]) : cap[1]);
           href = 'mailto:' + text;
         } else {
-          text = escape$2(cap[1]);
+          text = escape(cap[1]);
           href = text;
         }
 
@@ -12197,7 +11903,7 @@
       if (cap = this.rules.inline.url.exec(src)) {
         let text, href;
         if (cap[2] === '@') {
-          text = escape$2(this.options.mangle ? mangle(cap[0]) : cap[0]);
+          text = escape(this.options.mangle ? mangle(cap[0]) : cap[0]);
           href = 'mailto:' + text;
         } else {
           // do extended autolink path validation
@@ -12206,7 +11912,7 @@
             prevCapZero = cap[0];
             cap[0] = this.rules.inline._backpedal.exec(cap[0])[0];
           } while (prevCapZero !== cap[0]);
-          text = escape$2(cap[0]);
+          text = escape(cap[0]);
           if (cap[1] === 'www.') {
             href = 'http://' + text;
           } else {
@@ -12229,14 +11935,14 @@
       }
     }
 
-    inlineText(src, inRawBlock, smartypants) {
+    inlineText(src, smartypants) {
       const cap = this.rules.inline.text.exec(src);
       if (cap) {
         let text;
-        if (inRawBlock) {
-          text = this.options.sanitize ? (this.options.sanitizer ? this.options.sanitizer(cap[0]) : escape$2(cap[0])) : cap[0];
+        if (this.lexer.state.inRawBlock) {
+          text = this.options.sanitize ? (this.options.sanitizer ? this.options.sanitizer(cap[0]) : escape(cap[0])) : cap[0];
         } else {
-          text = escape$2(this.options.smartypants ? smartypants(cap[0]) : cap[0]);
+          text = escape(this.options.smartypants ? smartypants(cap[0]) : cap[0]);
         }
         return {
           type: 'text',
@@ -12245,25 +11951,19 @@
         };
       }
     }
-  };
-
-  const {
-    noopTest,
-    edit,
-    merge: merge$1
-  } = helpers;
+  }
 
   /**
    * Block-Level Grammar
    */
-  const block$1 = {
+  const block = {
     newline: /^(?: *(?:\n|$))+/,
     code: /^( {4}[^\n]+(?:\n(?: *(?:\n|$))*)?)+/,
-    fences: /^ {0,3}(`{3,}(?=[^`\n]*\n)|~{3,})([^\n]*)\n(?:|([\s\S]*?)\n)(?: {0,3}\1[~`]* *(?:\n+|$)|$)/,
+    fences: /^ {0,3}(`{3,}(?=[^`\n]*\n)|~{3,})([^\n]*)\n(?:|([\s\S]*?)\n)(?: {0,3}\1[~`]* *(?=\n|$)|$)/,
     hr: /^ {0,3}((?:- *){3,}|(?:_ *){3,}|(?:\* *){3,})(?:\n+|$)/,
     heading: /^ {0,3}(#{1,6})(?=\s|$)(.*)(?:\n+|$)/,
     blockquote: /^( {0,3}> ?(paragraph|[^\n]*)(?:\n|$))+/,
-    list: /^( {0,3})(bull) [\s\S]+?(?:hr|def|\n{2,}(?! )(?! {0,3}bull )\n*|\s*$)/,
+    list: /^( {0,3}bull)( [^\n]+?)?(?:\n|$)/,
     html: '^ {0,3}(?:' // optional indentation
       + '<(script|pre|style|textarea)[\\s>][\\s\\S]*?(?:</\\1>[^\\n]*\\n+|$)' // (1)
       + '|comment[^\\n]*(\\n+|$)' // (2)
@@ -12274,118 +11974,110 @@
       + '|<(?!script|pre|style|textarea)([a-z][\\w-]*)(?:attribute)*? */?>(?=[ \\t]*(?:\\n|$))[\\s\\S]*?(?:(?:\\n *)+\\n|$)' // (7) open tag
       + '|</(?!script|pre|style|textarea)[a-z][\\w-]*\\s*>(?=[ \\t]*(?:\\n|$))[\\s\\S]*?(?:(?:\\n *)+\\n|$)' // (7) closing tag
       + ')',
-    def: /^ {0,3}\[(label)\]: *\n? *<?([^\s>]+)>?(?:(?: +\n? *| *\n *)(title))? *(?:\n+|$)/,
-    nptable: noopTest,
+    def: /^ {0,3}\[(label)\]: *(?:\n *)?<?([^\s>]+)>?(?:(?: +(?:\n *)?| *\n *)(title))? *(?:\n+|$)/,
     table: noopTest,
     lheading: /^([^\n]+)\n {0,3}(=+|-+) *(?:\n+|$)/,
     // regex template, placeholders will be replaced according to different paragraph
     // interruption rules of commonmark and the original markdown spec:
-    _paragraph: /^([^\n]+(?:\n(?!hr|heading|lheading|blockquote|fences|list|html| +\n)[^\n]+)*)/,
+    _paragraph: /^([^\n]+(?:\n(?!hr|heading|lheading|blockquote|fences|list|html|table| +\n)[^\n]+)*)/,
     text: /^[^\n]+/
   };
 
-  block$1._label = /(?!\s*\])(?:\\[\[\]]|[^\[\]])+/;
-  block$1._title = /(?:"(?:\\"?|[^"\\])*"|'[^'\n]*(?:\n[^'\n]+)*\n?'|\([^()]*\))/;
-  block$1.def = edit(block$1.def)
-    .replace('label', block$1._label)
-    .replace('title', block$1._title)
+  block._label = /(?!\s*\])(?:\\.|[^\[\]\\])+/;
+  block._title = /(?:"(?:\\"?|[^"\\])*"|'[^'\n]*(?:\n[^'\n]+)*\n?'|\([^()]*\))/;
+  block.def = edit(block.def)
+    .replace('label', block._label)
+    .replace('title', block._title)
     .getRegex();
 
-  block$1.bullet = /(?:[*+-]|\d{1,9}[.)])/;
-  block$1.item = /^( *)(bull) ?[^\n]*(?:\n(?! *bull ?)[^\n]*)*/;
-  block$1.item = edit(block$1.item, 'gm')
-    .replace(/bull/g, block$1.bullet)
+  block.bullet = /(?:[*+-]|\d{1,9}[.)])/;
+  block.listItemStart = edit(/^( *)(bull) */)
+    .replace('bull', block.bullet)
     .getRegex();
 
-  block$1.listItemStart = edit(/^( *)(bull) */)
-    .replace('bull', block$1.bullet)
-    .getRegex();
-
-  block$1.list = edit(block$1.list)
-    .replace(/bull/g, block$1.bullet)
+  block.list = edit(block.list)
+    .replace(/bull/g, block.bullet)
     .replace('hr', '\\n+(?=\\1?(?:(?:- *){3,}|(?:_ *){3,}|(?:\\* *){3,})(?:\\n+|$))')
-    .replace('def', '\\n+(?=' + block$1.def.source + ')')
+    .replace('def', '\\n+(?=' + block.def.source + ')')
     .getRegex();
 
-  block$1._tag = 'address|article|aside|base|basefont|blockquote|body|caption'
+  block._tag = 'address|article|aside|base|basefont|blockquote|body|caption'
     + '|center|col|colgroup|dd|details|dialog|dir|div|dl|dt|fieldset|figcaption'
     + '|figure|footer|form|frame|frameset|h[1-6]|head|header|hr|html|iframe'
     + '|legend|li|link|main|menu|menuitem|meta|nav|noframes|ol|optgroup|option'
     + '|p|param|section|source|summary|table|tbody|td|tfoot|th|thead|title|tr'
     + '|track|ul';
-  block$1._comment = /<!--(?!-?>)[\s\S]*?(?:-->|$)/;
-  block$1.html = edit(block$1.html, 'i')
-    .replace('comment', block$1._comment)
-    .replace('tag', block$1._tag)
+  block._comment = /<!--(?!-?>)[\s\S]*?(?:-->|$)/;
+  block.html = edit(block.html, 'i')
+    .replace('comment', block._comment)
+    .replace('tag', block._tag)
     .replace('attribute', / +[a-zA-Z:_][\w.:-]*(?: *= *"[^"\n]*"| *= *'[^'\n]*'| *= *[^\s"'=<>`]+)?/)
     .getRegex();
 
-  block$1.paragraph = edit(block$1._paragraph)
-    .replace('hr', block$1.hr)
+  block.paragraph = edit(block._paragraph)
+    .replace('hr', block.hr)
     .replace('heading', ' {0,3}#{1,6} ')
     .replace('|lheading', '') // setex headings don't interrupt commonmark paragraphs
+    .replace('|table', '')
     .replace('blockquote', ' {0,3}>')
     .replace('fences', ' {0,3}(?:`{3,}(?=[^`\\n]*\\n)|~{3,})[^\\n]*\\n')
     .replace('list', ' {0,3}(?:[*+-]|1[.)]) ') // only lists starting from 1 can interrupt
     .replace('html', '</?(?:tag)(?: +|\\n|/?>)|<(?:script|pre|style|textarea|!--)')
-    .replace('tag', block$1._tag) // pars can be interrupted by type (6) html blocks
+    .replace('tag', block._tag) // pars can be interrupted by type (6) html blocks
     .getRegex();
 
-  block$1.blockquote = edit(block$1.blockquote)
-    .replace('paragraph', block$1.paragraph)
+  block.blockquote = edit(block.blockquote)
+    .replace('paragraph', block.paragraph)
     .getRegex();
 
   /**
    * Normal Block Grammar
    */
 
-  block$1.normal = merge$1({}, block$1);
+  block.normal = merge({}, block);
 
   /**
    * GFM Block Grammar
    */
 
-  block$1.gfm = merge$1({}, block$1.normal, {
-    nptable: '^ *([^|\\n ].*\\|.*)\\n' // Header
-      + ' {0,3}([-:]+ *\\|[-| :]*)' // Align
-      + '(?:\\n((?:(?!\\n|hr|heading|blockquote|code|fences|list|html).*(?:\\n|$))*)\\n*|$)', // Cells
-    table: '^ *\\|(.+)\\n' // Header
-      + ' {0,3}\\|?( *[-:]+[-| :]*)' // Align
-      + '(?:\\n *((?:(?!\\n|hr|heading|blockquote|code|fences|list|html).*(?:\\n|$))*)\\n*|$)' // Cells
+  block.gfm = merge({}, block.normal, {
+    table: '^ *([^\\n ].*\\|.*)\\n' // Header
+      + ' {0,3}(?:\\| *)?(:?-+:? *(?:\\| *:?-+:? *)*)(?:\\| *)?' // Align
+      + '(?:\\n((?:(?! *\\n|hr|heading|blockquote|code|fences|list|html).*(?:\\n|$))*)\\n*|$)' // Cells
   });
 
-  block$1.gfm.nptable = edit(block$1.gfm.nptable)
-    .replace('hr', block$1.hr)
+  block.gfm.table = edit(block.gfm.table)
+    .replace('hr', block.hr)
     .replace('heading', ' {0,3}#{1,6} ')
     .replace('blockquote', ' {0,3}>')
     .replace('code', ' {4}[^\\n]')
     .replace('fences', ' {0,3}(?:`{3,}(?=[^`\\n]*\\n)|~{3,})[^\\n]*\\n')
     .replace('list', ' {0,3}(?:[*+-]|1[.)]) ') // only lists starting from 1 can interrupt
     .replace('html', '</?(?:tag)(?: +|\\n|/?>)|<(?:script|pre|style|textarea|!--)')
-    .replace('tag', block$1._tag) // tables can be interrupted by type (6) html blocks
+    .replace('tag', block._tag) // tables can be interrupted by type (6) html blocks
     .getRegex();
 
-  block$1.gfm.table = edit(block$1.gfm.table)
-    .replace('hr', block$1.hr)
+  block.gfm.paragraph = edit(block._paragraph)
+    .replace('hr', block.hr)
     .replace('heading', ' {0,3}#{1,6} ')
+    .replace('|lheading', '') // setex headings don't interrupt commonmark paragraphs
+    .replace('table', block.gfm.table) // interrupt paragraphs with table
     .replace('blockquote', ' {0,3}>')
-    .replace('code', ' {4}[^\\n]')
     .replace('fences', ' {0,3}(?:`{3,}(?=[^`\\n]*\\n)|~{3,})[^\\n]*\\n')
     .replace('list', ' {0,3}(?:[*+-]|1[.)]) ') // only lists starting from 1 can interrupt
     .replace('html', '</?(?:tag)(?: +|\\n|/?>)|<(?:script|pre|style|textarea|!--)')
-    .replace('tag', block$1._tag) // tables can be interrupted by type (6) html blocks
+    .replace('tag', block._tag) // pars can be interrupted by type (6) html blocks
     .getRegex();
-
   /**
    * Pedantic grammar (original John Gruber's loose markdown specification)
    */
 
-  block$1.pedantic = merge$1({}, block$1.normal, {
+  block.pedantic = merge({}, block.normal, {
     html: edit(
       '^ *(?:comment *(?:\\n|\\s*$)'
       + '|<(tag)[\\s\\S]+?</\\1> *(?:\\n{2,}|\\s*$)' // closed tag
       + '|<tag(?:"[^"]*"|\'[^\']*\'|\\s[^\'"/>\\s]*)*?/?> *(?:\\n{2,}|\\s*$))')
-      .replace('comment', block$1._comment)
+      .replace('comment', block._comment)
       .replace(/tag/g, '(?!(?:'
         + 'a|em|strong|small|s|cite|q|dfn|abbr|data|time|code|var|samp|kbd|sub'
         + '|sup|i|b|u|mark|ruby|rt|rp|bdi|bdo|span|br|wbr|ins|del|img)'
@@ -12394,10 +12086,10 @@
     def: /^ *\[([^\]]+)\]: *<?([^\s>]+)>?(?: +(["(][^\n]+[")]))? *(?:\n+|$)/,
     heading: /^(#{1,6})(.*)(?:\n+|$)/,
     fences: noopTest, // fences not supported
-    paragraph: edit(block$1.normal._paragraph)
-      .replace('hr', block$1.hr)
+    paragraph: edit(block.normal._paragraph)
+      .replace('hr', block.hr)
       .replace('heading', ' *#{1,6} *[^\n]')
-      .replace('lheading', block$1.lheading)
+      .replace('lheading', block.lheading)
       .replace('blockquote', ' {0,3}>')
       .replace('|fences', '')
       .replace('|list', '')
@@ -12408,7 +12100,7 @@
   /**
    * Inline-Level Grammar
    */
-  const inline$1 = {
+  const inline = {
     escape: /^\\([!"#$%&'()*+,\-./:;<=>?@\[\]\\^_`{|}~])/,
     autolink: /^<(scheme:[^\s\x00-\x1f<>]*|email)>/,
     url: noopTest,
@@ -12419,15 +12111,15 @@
       + '|^<![a-zA-Z]+\\s[\\s\\S]*?>' // declaration, e.g. <!DOCTYPE html>
       + '|^<!\\[CDATA\\[[\\s\\S]*?\\]\\]>', // CDATA section
     link: /^!?\[(label)\]\(\s*(href)(?:\s+(title))?\s*\)/,
-    reflink: /^!?\[(label)\]\[(?!\s*\])((?:\\[\[\]]?|[^\[\]\\])+)\]/,
-    nolink: /^!?\[(?!\s*\])((?:\[[^\[\]]*\]|\\[\[\]]|[^\[\]])*)\](?:\[\])?/,
+    reflink: /^!?\[(label)\]\[(ref)\]/,
+    nolink: /^!?\[(ref)\](?:\[\])?/,
     reflinkSearch: 'reflink|nolink(?!\\()',
     emStrong: {
       lDelim: /^(?:\*+(?:([punct_])|[^\s*]))|^_+(?:([punct*])|([^\s_]))/,
       //        (1) and (2) can only be a Right Delimiter. (3) and (4) can only be Left.  (5) and (6) can be either Left or Right.
-      //        () Skip other delimiter (1) #***                   (2) a***#, a***                   (3) #***a, ***a                 (4) ***#              (5) #***#                 (6) a***a
-      rDelimAst: /\_\_[^_*]*?\*[^_*]*?\_\_|[punct_](\*+)(?=[\s]|$)|[^punct*_\s](\*+)(?=[punct_\s]|$)|[punct_\s](\*+)(?=[^punct*_\s])|[\s](\*+)(?=[punct_])|[punct_](\*+)(?=[punct_])|[^punct*_\s](\*+)(?=[^punct*_\s])/,
-      rDelimUnd: /\*\*[^_*]*?\_[^_*]*?\*\*|[punct*](\_+)(?=[\s]|$)|[^punct*_\s](\_+)(?=[punct*\s]|$)|[punct*\s](\_+)(?=[^punct*_\s])|[\s](\_+)(?=[punct*])|[punct*](\_+)(?=[punct*])/ // ^- Not allowed for _
+      //        () Skip orphan delim inside strong    (1) #***                (2) a***#, a***                   (3) #***a, ***a                 (4) ***#              (5) #***#                 (6) a***a
+      rDelimAst: /^[^_*]*?\_\_[^_*]*?\*[^_*]*?(?=\_\_)|[punct_](\*+)(?=[\s]|$)|[^punct*_\s](\*+)(?=[punct_\s]|$)|[punct_\s](\*+)(?=[^punct*_\s])|[\s](\*+)(?=[punct_])|[punct_](\*+)(?=[punct_])|[^punct*_\s](\*+)(?=[^punct*_\s])/,
+      rDelimUnd: /^[^_*]*?\*\*[^_*]*?\_[^_*]*?(?=\*\*)|[punct*](\_+)(?=[\s]|$)|[^punct*_\s](\_+)(?=[punct*\s]|$)|[punct*\s](\_+)(?=[^punct*_\s])|[\s](\_+)(?=[punct*])|[punct*](\_+)(?=[punct*])/ // ^- Not allowed for _
     },
     code: /^(`+)([^`]|[^`][\s\S]*?[^`])\1(?!`)/,
     br: /^( {2,}|\\)\n(?!\s*$)/,
@@ -12438,73 +12130,78 @@
 
   // list of punctuation marks from CommonMark spec
   // without * and _ to handle the different emphasis markers * and _
-  inline$1._punctuation = '!"#$%&\'()+\\-.,/:;<=>?@\\[\\]`^{|}~';
-  inline$1.punctuation = edit(inline$1.punctuation).replace(/punctuation/g, inline$1._punctuation).getRegex();
+  inline._punctuation = '!"#$%&\'()+\\-.,/:;<=>?@\\[\\]`^{|}~';
+  inline.punctuation = edit(inline.punctuation).replace(/punctuation/g, inline._punctuation).getRegex();
 
   // sequences em should skip over [title](link), `code`, <html>
-  inline$1.blockSkip = /\[[^\]]*?\]\([^\)]*?\)|`[^`]*?`|<[^>]*?>/g;
-  inline$1.escapedEmSt = /\\\*|\\_/g;
+  inline.blockSkip = /\[[^\]]*?\]\([^\)]*?\)|`[^`]*?`|<[^>]*?>/g;
+  inline.escapedEmSt = /\\\*|\\_/g;
 
-  inline$1._comment = edit(block$1._comment).replace('(?:-->|$)', '-->').getRegex();
+  inline._comment = edit(block._comment).replace('(?:-->|$)', '-->').getRegex();
 
-  inline$1.emStrong.lDelim = edit(inline$1.emStrong.lDelim)
-    .replace(/punct/g, inline$1._punctuation)
+  inline.emStrong.lDelim = edit(inline.emStrong.lDelim)
+    .replace(/punct/g, inline._punctuation)
     .getRegex();
 
-  inline$1.emStrong.rDelimAst = edit(inline$1.emStrong.rDelimAst, 'g')
-    .replace(/punct/g, inline$1._punctuation)
+  inline.emStrong.rDelimAst = edit(inline.emStrong.rDelimAst, 'g')
+    .replace(/punct/g, inline._punctuation)
     .getRegex();
 
-  inline$1.emStrong.rDelimUnd = edit(inline$1.emStrong.rDelimUnd, 'g')
-    .replace(/punct/g, inline$1._punctuation)
+  inline.emStrong.rDelimUnd = edit(inline.emStrong.rDelimUnd, 'g')
+    .replace(/punct/g, inline._punctuation)
     .getRegex();
 
-  inline$1._escapes = /\\([!"#$%&'()*+,\-./:;<=>?@\[\]\\^_`{|}~])/g;
+  inline._escapes = /\\([!"#$%&'()*+,\-./:;<=>?@\[\]\\^_`{|}~])/g;
 
-  inline$1._scheme = /[a-zA-Z][a-zA-Z0-9+.-]{1,31}/;
-  inline$1._email = /[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+(@)[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+(?![-_])/;
-  inline$1.autolink = edit(inline$1.autolink)
-    .replace('scheme', inline$1._scheme)
-    .replace('email', inline$1._email)
+  inline._scheme = /[a-zA-Z][a-zA-Z0-9+.-]{1,31}/;
+  inline._email = /[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+(@)[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+(?![-_])/;
+  inline.autolink = edit(inline.autolink)
+    .replace('scheme', inline._scheme)
+    .replace('email', inline._email)
     .getRegex();
 
-  inline$1._attribute = /\s+[a-zA-Z:_][\w.:-]*(?:\s*=\s*"[^"]*"|\s*=\s*'[^']*'|\s*=\s*[^\s"'=<>`]+)?/;
+  inline._attribute = /\s+[a-zA-Z:_][\w.:-]*(?:\s*=\s*"[^"]*"|\s*=\s*'[^']*'|\s*=\s*[^\s"'=<>`]+)?/;
 
-  inline$1.tag = edit(inline$1.tag)
-    .replace('comment', inline$1._comment)
-    .replace('attribute', inline$1._attribute)
+  inline.tag = edit(inline.tag)
+    .replace('comment', inline._comment)
+    .replace('attribute', inline._attribute)
     .getRegex();
 
-  inline$1._label = /(?:\[(?:\\.|[^\[\]\\])*\]|\\.|`[^`]*`|[^\[\]\\`])*?/;
-  inline$1._href = /<(?:\\.|[^\n<>\\])+>|[^\s\x00-\x1f]*/;
-  inline$1._title = /"(?:\\"?|[^"\\])*"|'(?:\\'?|[^'\\])*'|\((?:\\\)?|[^)\\])*\)/;
+  inline._label = /(?:\[(?:\\.|[^\[\]\\])*\]|\\.|`[^`]*`|[^\[\]\\`])*?/;
+  inline._href = /<(?:\\.|[^\n<>\\])+>|[^\s\x00-\x1f]*/;
+  inline._title = /"(?:\\"?|[^"\\])*"|'(?:\\'?|[^'\\])*'|\((?:\\\)?|[^)\\])*\)/;
 
-  inline$1.link = edit(inline$1.link)
-    .replace('label', inline$1._label)
-    .replace('href', inline$1._href)
-    .replace('title', inline$1._title)
+  inline.link = edit(inline.link)
+    .replace('label', inline._label)
+    .replace('href', inline._href)
+    .replace('title', inline._title)
     .getRegex();
 
-  inline$1.reflink = edit(inline$1.reflink)
-    .replace('label', inline$1._label)
+  inline.reflink = edit(inline.reflink)
+    .replace('label', inline._label)
+    .replace('ref', block._label)
     .getRegex();
 
-  inline$1.reflinkSearch = edit(inline$1.reflinkSearch, 'g')
-    .replace('reflink', inline$1.reflink)
-    .replace('nolink', inline$1.nolink)
+  inline.nolink = edit(inline.nolink)
+    .replace('ref', block._label)
+    .getRegex();
+
+  inline.reflinkSearch = edit(inline.reflinkSearch, 'g')
+    .replace('reflink', inline.reflink)
+    .replace('nolink', inline.nolink)
     .getRegex();
 
   /**
    * Normal Inline Grammar
    */
 
-  inline$1.normal = merge$1({}, inline$1);
+  inline.normal = merge({}, inline);
 
   /**
    * Pedantic Inline Grammar
    */
 
-  inline$1.pedantic = merge$1({}, inline$1.normal, {
+  inline.pedantic = merge({}, inline.normal, {
     strong: {
       start: /^__|\*\*/,
       middle: /^__(?=\S)([\s\S]*?\S)__(?!_)|^\*\*(?=\S)([\s\S]*?\S)\*\*(?!\*)/,
@@ -12518,10 +12215,10 @@
       endUnd: /_(?!_)/g
     },
     link: edit(/^!?\[(label)\]\((.*?)\)/)
-      .replace('label', inline$1._label)
+      .replace('label', inline._label)
       .getRegex(),
     reflink: edit(/^!?\[(label)\]\s*\[([^\]]*)\]/)
-      .replace('label', inline$1._label)
+      .replace('label', inline._label)
       .getRegex()
   });
 
@@ -12529,8 +12226,8 @@
    * GFM Inline Grammar
    */
 
-  inline$1.gfm = merge$1({}, inline$1.normal, {
-    escape: edit(inline$1.escape).replace('])', '~|])').getRegex(),
+  inline.gfm = merge({}, inline.normal, {
+    escape: edit(inline.escape).replace('])', '~|])').getRegex(),
     _extended_email: /[A-Za-z0-9._+-]+(@)[a-zA-Z0-9-_]+(?:\.[a-zA-Z0-9-_]*[a-zA-Z0-9])+(?![-_])/,
     url: /^((?:ftp|https?):\/\/|www\.)(?:[a-zA-Z0-9\-]+\.?)+[^\s<]*|^email/,
     _backpedal: /(?:[^?!.,:;*_~()&]+|\([^)]*\)|&(?![a-zA-Z0-9]+;$)|[?!.,:;*_~)]+(?!$))+/,
@@ -12538,29 +12235,20 @@
     text: /^([`~]+|[^`~])(?:(?= {2,}\n)|(?=[a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-]+@)|[\s\S]*?(?:(?=[\\<!\[`*~_]|\b_|https?:\/\/|ftp:\/\/|www\.|$)|[^ ](?= {2,}\n)|[^a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-](?=[a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-]+@)))/
   });
 
-  inline$1.gfm.url = edit(inline$1.gfm.url, 'i')
-    .replace('email', inline$1.gfm._extended_email)
+  inline.gfm.url = edit(inline.gfm.url, 'i')
+    .replace('email', inline.gfm._extended_email)
     .getRegex();
   /**
    * GFM + Line Breaks Inline Grammar
    */
 
-  inline$1.breaks = merge$1({}, inline$1.gfm, {
-    br: edit(inline$1.br).replace('{2,}', '*').getRegex(),
-    text: edit(inline$1.gfm.text)
+  inline.breaks = merge({}, inline.gfm, {
+    br: edit(inline.br).replace('{2,}', '*').getRegex(),
+    text: edit(inline.gfm.text)
       .replace('\\b_', '\\b_| {2,}\\n')
       .replace(/\{2,\}/g, '*')
       .getRegex()
   });
-
-  var rules = {
-    block: block$1,
-    inline: inline$1
-  };
-
-  const { defaults: defaults$3 } = defaults$5;
-  const { block, inline } = rules;
-  const { repeatString } = helpers;
 
   /**
    * smartypants text replacement
@@ -12606,14 +12294,21 @@
   /**
    * Block Lexer
    */
-  var Lexer_1 = class Lexer {
+  class Lexer {
     constructor(options) {
       this.tokens = [];
       this.tokens.links = Object.create(null);
-      this.options = options || defaults$3;
-      this.options.tokenizer = this.options.tokenizer || new Tokenizer_1();
+      this.options = options || defaults;
+      this.options.tokenizer = this.options.tokenizer || new Tokenizer();
       this.tokenizer = this.options.tokenizer;
       this.tokenizer.options = this.options;
+      this.tokenizer.lexer = this;
+      this.inlineQueue = [];
+      this.state = {
+        inLink: false,
+        inRawBlock: false,
+        top: true
+      };
 
       const rules = {
         block: block.normal,
@@ -12668,9 +12363,12 @@
         .replace(/\r\n|\r/g, '\n')
         .replace(/\t/g, '    ');
 
-      this.blockTokens(src, this.tokens, true);
+      this.blockTokens(src, this.tokens);
 
-      this.inline(this.tokens);
+      let next;
+      while (next = this.inlineQueue.shift()) {
+        this.inlineTokens(next.src, next.tokens);
+      }
 
       return this.tokens;
     }
@@ -12678,17 +12376,17 @@
     /**
      * Lexing
      */
-    blockTokens(src, tokens = [], top = true) {
+    blockTokens(src, tokens = []) {
       if (this.options.pedantic) {
         src = src.replace(/^ +$/gm, '');
       }
-      let token, i, l, lastToken, cutSrc, lastParagraphClipped;
+      let token, lastToken, cutSrc, lastParagraphClipped;
 
       while (src) {
         if (this.options.extensions
           && this.options.extensions.block
           && this.options.extensions.block.some((extTokenizer) => {
-            if (token = extTokenizer.call(this, src, tokens)) {
+            if (token = extTokenizer.call({ lexer: this }, src, tokens)) {
               src = src.substring(token.raw.length);
               tokens.push(token);
               return true;
@@ -12701,7 +12399,11 @@
         // newline
         if (token = this.tokenizer.space(src)) {
           src = src.substring(token.raw.length);
-          if (token.type) {
+          if (token.raw.length === 1 && tokens.length > 0) {
+            // if there's a single \n as a spacer, it's terminating the last line,
+            // so move it there so that we don't get unecessary paragraph tags
+            tokens[tokens.length - 1].raw += '\n';
+          } else {
             tokens.push(token);
           }
           continue;
@@ -12712,9 +12414,10 @@
           src = src.substring(token.raw.length);
           lastToken = tokens[tokens.length - 1];
           // An indented code block cannot interrupt a paragraph.
-          if (lastToken && lastToken.type === 'paragraph') {
+          if (lastToken && (lastToken.type === 'paragraph' || lastToken.type === 'text')) {
             lastToken.raw += '\n' + token.raw;
             lastToken.text += '\n' + token.text;
+            this.inlineQueue[this.inlineQueue.length - 1].src = lastToken.text;
           } else {
             tokens.push(token);
           }
@@ -12735,13 +12438,6 @@
           continue;
         }
 
-        // table no leading pipe (gfm)
-        if (token = this.tokenizer.nptable(src)) {
-          src = src.substring(token.raw.length);
-          tokens.push(token);
-          continue;
-        }
-
         // hr
         if (token = this.tokenizer.hr(src)) {
           src = src.substring(token.raw.length);
@@ -12752,7 +12448,6 @@
         // blockquote
         if (token = this.tokenizer.blockquote(src)) {
           src = src.substring(token.raw.length);
-          token.tokens = this.blockTokens(token.text, [], top);
           tokens.push(token);
           continue;
         }
@@ -12760,10 +12455,6 @@
         // list
         if (token = this.tokenizer.list(src)) {
           src = src.substring(token.raw.length);
-          l = token.items.length;
-          for (i = 0; i < l; i++) {
-            token.items[i].tokens = this.blockTokens(token.items[i].text, [], false);
-          }
           tokens.push(token);
           continue;
         }
@@ -12776,9 +12467,14 @@
         }
 
         // def
-        if (top && (token = this.tokenizer.def(src))) {
+        if (token = this.tokenizer.def(src)) {
           src = src.substring(token.raw.length);
-          if (!this.tokens.links[token.tag]) {
+          lastToken = tokens[tokens.length - 1];
+          if (lastToken && (lastToken.type === 'paragraph' || lastToken.type === 'text')) {
+            lastToken.raw += '\n' + token.raw;
+            lastToken.text += '\n' + token.raw;
+            this.inlineQueue[this.inlineQueue.length - 1].src = lastToken.text;
+          } else if (!this.tokens.links[token.tag]) {
             this.tokens.links[token.tag] = {
               href: token.href,
               title: token.title
@@ -12809,18 +12505,20 @@
           const tempSrc = src.slice(1);
           let tempStart;
           this.options.extensions.startBlock.forEach(function(getStartIndex) {
-            tempStart = getStartIndex.call(this, tempSrc);
+            tempStart = getStartIndex.call({ lexer: this }, tempSrc);
             if (typeof tempStart === 'number' && tempStart >= 0) { startIndex = Math.min(startIndex, tempStart); }
           });
           if (startIndex < Infinity && startIndex >= 0) {
             cutSrc = src.substring(0, startIndex + 1);
           }
         }
-        if (top && (token = this.tokenizer.paragraph(cutSrc))) {
+        if (this.state.top && (token = this.tokenizer.paragraph(cutSrc))) {
           lastToken = tokens[tokens.length - 1];
           if (lastParagraphClipped && lastToken.type === 'paragraph') {
             lastToken.raw += '\n' + token.raw;
             lastToken.text += '\n' + token.text;
+            this.inlineQueue.pop();
+            this.inlineQueue[this.inlineQueue.length - 1].src = lastToken.text;
           } else {
             tokens.push(token);
           }
@@ -12836,6 +12534,8 @@
           if (lastToken && lastToken.type === 'text') {
             lastToken.raw += '\n' + token.raw;
             lastToken.text += '\n' + token.text;
+            this.inlineQueue.pop();
+            this.inlineQueue[this.inlineQueue.length - 1].src = lastToken.text;
           } else {
             tokens.push(token);
           }
@@ -12853,75 +12553,18 @@
         }
       }
 
+      this.state.top = true;
       return tokens;
     }
 
-    inline(tokens) {
-      let i,
-        j,
-        k,
-        l2,
-        row,
-        token;
-
-      const l = tokens.length;
-      for (i = 0; i < l; i++) {
-        token = tokens[i];
-        switch (token.type) {
-          case 'paragraph':
-          case 'text':
-          case 'heading': {
-            token.tokens = [];
-            this.inlineTokens(token.text, token.tokens);
-            break;
-          }
-          case 'table': {
-            token.tokens = {
-              header: [],
-              cells: []
-            };
-
-            // header
-            l2 = token.header.length;
-            for (j = 0; j < l2; j++) {
-              token.tokens.header[j] = [];
-              this.inlineTokens(token.header[j], token.tokens.header[j]);
-            }
-
-            // cells
-            l2 = token.cells.length;
-            for (j = 0; j < l2; j++) {
-              row = token.cells[j];
-              token.tokens.cells[j] = [];
-              for (k = 0; k < row.length; k++) {
-                token.tokens.cells[j][k] = [];
-                this.inlineTokens(row[k], token.tokens.cells[j][k]);
-              }
-            }
-
-            break;
-          }
-          case 'blockquote': {
-            this.inline(token.tokens);
-            break;
-          }
-          case 'list': {
-            l2 = token.items.length;
-            for (j = 0; j < l2; j++) {
-              this.inline(token.items[j].tokens);
-            }
-            break;
-          }
-        }
-      }
-
-      return tokens;
+    inline(src, tokens) {
+      this.inlineQueue.push({ src, tokens });
     }
 
     /**
      * Lexing/Compiling
      */
-    inlineTokens(src, tokens = [], inLink = false, inRawBlock = false) {
+    inlineTokens(src, tokens = []) {
       let token, lastToken, cutSrc;
 
       // String with links masked to avoid interference with em and strong
@@ -12960,7 +12603,7 @@
         if (this.options.extensions
           && this.options.extensions.inline
           && this.options.extensions.inline.some((extTokenizer) => {
-            if (token = extTokenizer.call(this, src, tokens)) {
+            if (token = extTokenizer.call({ lexer: this }, src, tokens)) {
               src = src.substring(token.raw.length);
               tokens.push(token);
               return true;
@@ -12978,10 +12621,8 @@
         }
 
         // tag
-        if (token = this.tokenizer.tag(src, inLink, inRawBlock)) {
+        if (token = this.tokenizer.tag(src)) {
           src = src.substring(token.raw.length);
-          inLink = token.inLink;
-          inRawBlock = token.inRawBlock;
           lastToken = tokens[tokens.length - 1];
           if (lastToken && token.type === 'text' && lastToken.type === 'text') {
             lastToken.raw += token.raw;
@@ -12995,9 +12636,6 @@
         // link
         if (token = this.tokenizer.link(src)) {
           src = src.substring(token.raw.length);
-          if (token.type === 'link') {
-            token.tokens = this.inlineTokens(token.text, [], true, inRawBlock);
-          }
           tokens.push(token);
           continue;
         }
@@ -13006,10 +12644,7 @@
         if (token = this.tokenizer.reflink(src, this.tokens.links)) {
           src = src.substring(token.raw.length);
           lastToken = tokens[tokens.length - 1];
-          if (token.type === 'link') {
-            token.tokens = this.inlineTokens(token.text, [], true, inRawBlock);
-            tokens.push(token);
-          } else if (lastToken && token.type === 'text' && lastToken.type === 'text') {
+          if (lastToken && token.type === 'text' && lastToken.type === 'text') {
             lastToken.raw += token.raw;
             lastToken.text += token.text;
           } else {
@@ -13021,7 +12656,6 @@
         // em & strong
         if (token = this.tokenizer.emStrong(src, maskedSrc, prevChar)) {
           src = src.substring(token.raw.length);
-          token.tokens = this.inlineTokens(token.text, [], inLink, inRawBlock);
           tokens.push(token);
           continue;
         }
@@ -13043,7 +12677,6 @@
         // del (gfm)
         if (token = this.tokenizer.del(src)) {
           src = src.substring(token.raw.length);
-          token.tokens = this.inlineTokens(token.text, [], inLink, inRawBlock);
           tokens.push(token);
           continue;
         }
@@ -13056,7 +12689,7 @@
         }
 
         // url (gfm)
-        if (!inLink && (token = this.tokenizer.url(src, mangle))) {
+        if (!this.state.inLink && (token = this.tokenizer.url(src, mangle))) {
           src = src.substring(token.raw.length);
           tokens.push(token);
           continue;
@@ -13070,14 +12703,14 @@
           const tempSrc = src.slice(1);
           let tempStart;
           this.options.extensions.startInline.forEach(function(getStartIndex) {
-            tempStart = getStartIndex.call(this, tempSrc);
+            tempStart = getStartIndex.call({ lexer: this }, tempSrc);
             if (typeof tempStart === 'number' && tempStart >= 0) { startIndex = Math.min(startIndex, tempStart); }
           });
           if (startIndex < Infinity && startIndex >= 0) {
             cutSrc = src.substring(0, startIndex + 1);
           }
         }
-        if (token = this.tokenizer.inlineText(cutSrc, inRawBlock, smartypants)) {
+        if (token = this.tokenizer.inlineText(cutSrc, smartypants)) {
           src = src.substring(token.raw.length);
           if (token.raw.slice(-1) !== '_') { // Track prevChar before string of ____ started
             prevChar = token.raw.slice(-1);
@@ -13106,20 +12739,14 @@
 
       return tokens;
     }
-  };
-
-  const { defaults: defaults$2 } = defaults$5;
-  const {
-    cleanUrl,
-    escape: escape$1
-  } = helpers;
+  }
 
   /**
    * Renderer
    */
-  var Renderer_1 = class Renderer {
+  class Renderer {
     constructor(options) {
-      this.options = options || defaults$2;
+      this.options = options || defaults;
     }
 
     code(code, infostring, escaped) {
@@ -13136,15 +12763,15 @@
 
       if (!lang) {
         return '<pre><code>'
-          + (escaped ? code : escape$1(code, true))
+          + (escaped ? code : escape(code, true))
           + '</code></pre>\n';
       }
 
       return '<pre><code class="'
         + this.options.langPrefix
-        + escape$1(lang, true)
+        + escape(lang, true)
         + '">'
-        + (escaped ? code : escape$1(code, true))
+        + (escaped ? code : escape(code, true))
         + '</code></pre>\n';
     }
 
@@ -13248,7 +12875,7 @@
       if (href === null) {
         return text;
       }
-      let out = '<a href="' + escape$1(href) + '"';
+      let out = '<a href="' + escape(href) + '"';
       if (title) {
         out += ' title="' + title + '"';
       }
@@ -13273,13 +12900,13 @@
     text(text) {
       return text;
     }
-  };
+  }
 
   /**
    * TextRenderer
    * returns only the textual part of the token
    */
-  var TextRenderer_1 = class TextRenderer {
+  class TextRenderer {
     // no need for block level renderers
     strong(text) {
       return text;
@@ -13316,12 +12943,12 @@
     br() {
       return '';
     }
-  };
+  }
 
   /**
    * Slugger generates header id
    */
-  var Slugger_1 = class Slugger {
+  class Slugger {
     constructor() {
       this.seen = {};
     }
@@ -13366,24 +12993,19 @@
       const slug = this.serialize(value);
       return this.getNextSafeSlug(slug, options.dryrun);
     }
-  };
-
-  const { defaults: defaults$1 } = defaults$5;
-  const {
-    unescape
-  } = helpers;
+  }
 
   /**
    * Parsing & Compiling
    */
-  var Parser_1 = class Parser {
+  class Parser {
     constructor(options) {
-      this.options = options || defaults$1;
-      this.options.renderer = this.options.renderer || new Renderer_1();
+      this.options = options || defaults;
+      this.options.renderer = this.options.renderer || new Renderer();
       this.renderer = this.options.renderer;
       this.renderer.options = this.options;
-      this.textRenderer = new TextRenderer_1();
-      this.slugger = new Slugger_1();
+      this.textRenderer = new TextRenderer();
+      this.slugger = new Slugger();
     }
 
     /**
@@ -13433,7 +13055,7 @@
 
         // Run any renderer extensions
         if (this.options.extensions && this.options.extensions.renderers && this.options.extensions.renderers[token.type]) {
-          ret = this.options.extensions.renderers[token.type].call(this, token);
+          ret = this.options.extensions.renderers[token.type].call({ parser: this }, token);
           if (ret !== false || !['space', 'hr', 'heading', 'code', 'table', 'blockquote', 'list', 'html', 'paragraph', 'text'].includes(token.type)) {
             out += ret || '';
             continue;
@@ -13470,22 +13092,22 @@
             l2 = token.header.length;
             for (j = 0; j < l2; j++) {
               cell += this.renderer.tablecell(
-                this.parseInline(token.tokens.header[j]),
+                this.parseInline(token.header[j].tokens),
                 { header: true, align: token.align[j] }
               );
             }
             header += this.renderer.tablerow(cell);
 
             body = '';
-            l2 = token.cells.length;
+            l2 = token.rows.length;
             for (j = 0; j < l2; j++) {
-              row = token.tokens.cells[j];
+              row = token.rows[j];
 
               cell = '';
               l3 = row.length;
               for (k = 0; k < l3; k++) {
                 cell += this.renderer.tablecell(
-                  this.parseInline(row[k]),
+                  this.parseInline(row[k].tokens),
                   { header: false, align: token.align[k] }
                 );
               }
@@ -13516,7 +13138,7 @@
               if (item.task) {
                 checkbox = this.renderer.checkbox(checked);
                 if (loose) {
-                  if (item.tokens.length > 0 && item.tokens[0].type === 'text') {
+                  if (item.tokens.length > 0 && item.tokens[0].type === 'paragraph') {
                     item.tokens[0].text = checkbox + ' ' + item.tokens[0].text;
                     if (item.tokens[0].tokens && item.tokens[0].tokens.length > 0 && item.tokens[0].tokens[0].type === 'text') {
                       item.tokens[0].tokens[0].text = checkbox + ' ' + item.tokens[0].tokens[0].text;
@@ -13589,7 +13211,7 @@
 
         // Run any renderer extensions
         if (this.options.extensions && this.options.extensions.renderers && this.options.extensions.renderers[token.type]) {
-          ret = this.options.extensions.renderers[token.type].call(this, token);
+          ret = this.options.extensions.renderers[token.type].call({ parser: this }, token);
           if (ret !== false || !['escape', 'html', 'link', 'image', 'strong', 'em', 'codespan', 'br', 'del', 'text'].includes(token.type)) {
             out += ret || '';
             continue;
@@ -13650,18 +13272,7 @@
       }
       return out;
     }
-  };
-
-  const {
-    merge,
-    checkSanitizeDeprecation,
-    escape
-  } = helpers;
-  const {
-    getDefaults,
-    changeDefaults,
-    defaults
-  } = defaults$5;
+  }
 
   /**
    * Marked
@@ -13689,7 +13300,7 @@
       let tokens;
 
       try {
-        tokens = Lexer_1.lex(src, opt);
+        tokens = Lexer.lex(src, opt);
       } catch (e) {
         return callback(e);
       }
@@ -13702,7 +13313,7 @@
             if (opt.walkTokens) {
               marked.walkTokens(tokens, opt.walkTokens);
             }
-            out = Parser_1.parse(tokens, opt);
+            out = Parser.parse(tokens, opt);
           } catch (e) {
             err = e;
           }
@@ -13754,11 +13365,11 @@
     }
 
     try {
-      const tokens = Lexer_1.lex(src, opt);
+      const tokens = Lexer.lex(src, opt);
       if (opt.walkTokens) {
         marked.walkTokens(tokens, opt.walkTokens);
       }
-      return Parser_1.parse(tokens, opt);
+      return Parser.parse(tokens, opt);
     } catch (e) {
       e.message += '\nPlease report this to https://github.com/markedjs/marked.';
       if (opt.silent) {
@@ -13850,7 +13461,7 @@
 
       // ==-- Parse "overwrite" extensions --== //
       if (pack.renderer) {
-        const renderer = marked.defaults.renderer || new Renderer_1();
+        const renderer = marked.defaults.renderer || new Renderer();
         for (const prop in pack.renderer) {
           const prevRenderer = renderer[prop];
           // Replace renderer with func to run extension, but fall back if false
@@ -13865,7 +13476,7 @@
         opts.renderer = renderer;
       }
       if (pack.tokenizer) {
-        const tokenizer = marked.defaults.tokenizer || new Tokenizer_1();
+        const tokenizer = marked.defaults.tokenizer || new Tokenizer();
         for (const prop in pack.tokenizer) {
           const prevTokenizer = tokenizer[prop];
           // Replace tokenizer with func to run extension, but fall back if false
@@ -13883,10 +13494,10 @@
       // ==-- Parse WalkTokens extensions --== //
       if (pack.walkTokens) {
         const walkTokens = marked.defaults.walkTokens;
-        opts.walkTokens = (token) => {
+        opts.walkTokens = function(token) {
           pack.walkTokens.call(this, token);
           if (walkTokens) {
-            walkTokens(token);
+            walkTokens.call(this, token);
           }
         };
       }
@@ -13905,15 +13516,15 @@
 
   marked.walkTokens = function(tokens, callback) {
     for (const token of tokens) {
-      callback(token);
+      callback.call(marked, token);
       switch (token.type) {
         case 'table': {
-          for (const cell of token.tokens.header) {
-            marked.walkTokens(cell, callback);
+          for (const cell of token.header) {
+            marked.walkTokens(cell.tokens, callback);
           }
-          for (const row of token.tokens.cells) {
+          for (const row of token.rows) {
             for (const cell of row) {
-              marked.walkTokens(cell, callback);
+              marked.walkTokens(cell.tokens, callback);
             }
           }
           break;
@@ -13952,11 +13563,11 @@
     checkSanitizeDeprecation(opt);
 
     try {
-      const tokens = Lexer_1.lexInline(src, opt);
+      const tokens = Lexer.lexInline(src, opt);
       if (opt.walkTokens) {
         marked.walkTokens(tokens, opt.walkTokens);
       }
-      return Parser_1.parseInline(tokens, opt);
+      return Parser.parseInline(tokens, opt);
     } catch (e) {
       e.message += '\nPlease report this to https://github.com/markedjs/marked.';
       if (opt.silent) {
@@ -13971,28 +13582,28 @@
   /**
    * Expose
    */
-
-  marked.Parser = Parser_1;
-  marked.parser = Parser_1.parse;
-
-  marked.Renderer = Renderer_1;
-  marked.TextRenderer = TextRenderer_1;
-
-  marked.Lexer = Lexer_1;
-  marked.lexer = Lexer_1.lex;
-
-  marked.Tokenizer = Tokenizer_1;
-
-  marked.Slugger = Slugger_1;
-
+  marked.Parser = Parser;
+  marked.parser = Parser.parse;
+  marked.Renderer = Renderer;
+  marked.TextRenderer = TextRenderer;
+  marked.Lexer = Lexer;
+  marked.lexer = Lexer.lex;
+  marked.Tokenizer = Tokenizer;
+  marked.Slugger = Slugger;
   marked.parse = marked;
 
-  var marked_1 = marked;
+  marked.options;
+  marked.setOptions;
+  marked.use;
+  marked.walkTokens;
+  marked.parseInline;
+  Parser.parse;
+  Lexer.lex;
 
   var MarkdownView = {
-    'css': null,
+    css: null,
 
-    'exports': {
+    exports: {
       onMounted(props){
           this.setBody( props.body );
       },
@@ -14002,18 +13613,18 @@
       },
 
       setBody( body ){
-          this.root.innerHTML = body ? marked_1( body ) : "";
+          this.root.innerHTML = body ? marked( body ) : "";
       }
     },
 
-    'template': null,
-    'name': 'markdown_view'
+    template: null,
+    name: 'markdown_view'
   };
 
   var ArticleView = {
-    'css': null,
+    css: null,
 
-    'exports': {
+    exports: {
       onUpdated(){
           let bodyField = this.$("#articleBodyField");
           if (bodyField){
@@ -14027,80 +13638,62 @@
       }
     },
 
-    'template': function(
+    template: (
       template,
       expressionTypes,
       bindingTypes,
       getComponent
-    ) {
-      return template(
-        '<template expr48="expr48"></template>',
-        [
-          {
-            'type': bindingTypes.IF,
+    ) => template(
+      '<template expr52="expr52"></template>',
+      [
+        {
+          type: bindingTypes.IF,
+          evaluate: _scope => _scope.state.article != null,
+          redundantAttribute: 'expr52',
+          selector: '[expr52]',
 
-            'evaluate': function(
-              _scope
-            ) {
-              return _scope.state.article != null;
-            },
+          template: template(
+            '<div id="articleBodyField"></div><ul class="tag-list"><li expr53="expr53" class="tag-default tag-pill tag-outline"></li></ul>',
+            [
+              {
+                type: bindingTypes.EACH,
+                getKey: null,
+                condition: null,
 
-            'redundantAttribute': 'expr48',
-            'selector': '[expr48]',
+                template: template(
+                  ' ',
+                  [
+                    {
+                      expressions: [
+                        {
+                          type: expressionTypes.TEXT,
+                          childNodeIndex: 0,
+                          evaluate: _scope => _scope.tagWord
+                        }
+                      ]
+                    }
+                  ]
+                ),
 
-            'template': template(
-              '<div id="articleBodyField"></div><ul class="tag-list"><li expr49="expr49" class="tag-default tag-pill tag-outline"></li></ul>',
-              [
-                {
-                  'type': bindingTypes.EACH,
-                  'getKey': null,
-                  'condition': null,
+                redundantAttribute: 'expr53',
+                selector: '[expr53]',
+                itemName: 'tagWord',
+                indexName: null,
+                evaluate: _scope => _scope.state.article.tagList
+              }
+            ]
+          )
+        }
+      ]
+    ),
 
-                  'template': template(
-                    ' ',
-                    [
-                      {
-                        'expressions': [
-                          {
-                            'type': expressionTypes.TEXT,
-                            'childNodeIndex': 0,
-
-                            'evaluate': function(
-                              _scope
-                            ) {
-                              return _scope.tagWord;
-                            }
-                          }
-                        ]
-                      }
-                    ]
-                  ),
-
-                  'redundantAttribute': 'expr49',
-                  'selector': '[expr49]',
-                  'itemName': 'tagWord',
-                  'indexName': null,
-
-                  'evaluate': function(
-                    _scope
-                  ) {
-                    return _scope.state.article.tagList;
-                  }
-                }
-              ]
-            )
-          }
-        ]
-      );
-    },
-
-    'name': 'article_view'
+    name: 'article_view'
   };
 
   var CommentFormView = {
-    'css': null,
+    css: null,
 
-    'exports': {
+    exports: {
       setProfile( profile ){
           this.state.profile = profile;
           this.update();
@@ -14117,78 +13710,60 @@
       }
     },
 
-    'template': function(
+    template: (
       template,
       expressionTypes,
       bindingTypes,
       getComponent
-    ) {
-      return template(
-        '<form class="card comment-form"><div class="card-block"><textarea id="commentArea" class="form-control" placeholder="Write a comment..." rows="3"></textarea></div><div class="card-footer"><template expr24="expr24"></template><button expr26="expr26" type="button" class="btn btn-sm btn-primary">\n        Post Comment\n        </button></div></form>',
-        [
-          {
-            'type': bindingTypes.IF,
+    ) => template(
+      '<form class="card comment-form"><div class="card-block"><textarea id="commentArea" class="form-control" placeholder="Write a comment..." rows="3"></textarea></div><div class="card-footer"><template expr62="expr62"></template><button expr64="expr64" type="button" class="btn btn-sm btn-primary">\n        Post Comment\n        </button></div></form>',
+      [
+        {
+          type: bindingTypes.IF,
+          evaluate: _scope => _scope.state.profile != null,
+          redundantAttribute: 'expr62',
+          selector: '[expr62]',
 
-            'evaluate': function(
-              _scope
-            ) {
-              return _scope.state.profile != null;
-            },
-
-            'redundantAttribute': 'expr24',
-            'selector': '[expr24]',
-
-            'template': template(
-              '<img expr25="expr25" class="comment-author-img"/>',
-              [
-                {
-                  'redundantAttribute': 'expr25',
-                  'selector': '[expr25]',
-
-                  'expressions': [
-                    {
-                      'type': expressionTypes.ATTRIBUTE,
-                      'name': 'src',
-
-                      'evaluate': function(
-                        _scope
-                      ) {
-                        return _scope.state.profile.image;
-                      }
-                    }
-                  ]
-                }
-              ]
-            )
-          },
-          {
-            'redundantAttribute': 'expr26',
-            'selector': '[expr26]',
-
-            'expressions': [
+          template: template(
+            '<img expr63="expr63" class="comment-author-img"/>',
+            [
               {
-                'type': expressionTypes.EVENT,
-                'name': 'onclick',
+                redundantAttribute: 'expr63',
+                selector: '[expr63]',
 
-                'evaluate': function(
-                  _scope
-                ) {
-                  return _scope.actionOfPostCommentButton;
-                }
+                expressions: [
+                  {
+                    type: expressionTypes.ATTRIBUTE,
+                    name: 'src',
+                    evaluate: _scope => _scope.state.profile.image
+                  }
+                ]
               }
             ]
-          }
-        ]
-      );
-    },
+          )
+        },
+        {
+          redundantAttribute: 'expr64',
+          selector: '[expr64]',
 
-    'name': 'comment_form_view'
+          expressions: [
+            {
+              type: expressionTypes.EVENT,
+              name: 'onclick',
+              evaluate: _scope => _scope.actionOfPostCommentButton
+            }
+          ]
+        }
+      ]
+    ),
+
+    name: 'comment_form_view'
   };
 
   var CommentTableView = {
-    'css': null,
+    css: null,
 
-    'exports': {
+    exports: {
       onUpdated(){
           let bodyFields = this.$$("div.comment_body_view");
           if (bodyFields){
@@ -14221,182 +13796,135 @@
       }
     },
 
-    'template': function(
+    template: (
       template,
       expressionTypes,
       bindingTypes,
       getComponent
-    ) {
-      return template(
-        '<div expr27="expr27" class="card"></div>',
-        [
-          {
-            'type': bindingTypes.EACH,
-            'getKey': null,
-            'condition': null,
+    ) => template(
+      '<div expr54="expr54" class="card"></div>',
+      [
+        {
+          type: bindingTypes.EACH,
+          getKey: null,
+          condition: null,
 
-            'template': template(
-              '<div class="card-block"><p class="card-text"><div expr28="expr28" class="comment_body_view"></div></p></div><div class="card-footer"><a expr29="expr29" class="comment-author"><img expr30="expr30" class="comment-author-img"/></a>\n        &nbsp;\n        <a expr31="expr31" class="comment-author"> </a><span expr32="expr32" class="date-posted"> </span><template expr33="expr33"></template></div>',
-              [
-                {
-                  'redundantAttribute': 'expr28',
-                  'selector': '[expr28]',
+          template: template(
+            '<div class="card-block"><p class="card-text"><div expr55="expr55" class="comment_body_view"></div></p></div><div class="card-footer"><a expr56="expr56" class="comment-author"><img expr57="expr57" class="comment-author-img"/></a>\n        &nbsp;\n        <a expr58="expr58" class="comment-author"> </a><span expr59="expr59" class="date-posted"> </span><template expr60="expr60"></template></div>',
+            [
+              {
+                redundantAttribute: 'expr55',
+                selector: '[expr55]',
 
-                  'expressions': [
-                    {
-                      'type': expressionTypes.ATTRIBUTE,
-                      'name': 'body',
+                expressions: [
+                  {
+                    type: expressionTypes.ATTRIBUTE,
+                    name: 'body',
+                    evaluate: _scope => _scope.comment.body
+                  }
+                ]
+              },
+              {
+                redundantAttribute: 'expr56',
+                selector: '[expr56]',
 
-                      'evaluate': function(
-                        _scope
-                      ) {
-                        return _scope.comment.body;
-                      }
-                    }
-                  ]
-                },
-                {
-                  'redundantAttribute': 'expr29',
-                  'selector': '[expr29]',
+                expressions: [
+                  {
+                    type: expressionTypes.ATTRIBUTE,
+                    name: 'href',
+                    evaluate: _scope => "#/profile/" + _scope.comment.author.username
+                  }
+                ]
+              },
+              {
+                redundantAttribute: 'expr57',
+                selector: '[expr57]',
 
-                  'expressions': [
-                    {
-                      'type': expressionTypes.ATTRIBUTE,
-                      'name': 'href',
+                expressions: [
+                  {
+                    type: expressionTypes.ATTRIBUTE,
+                    name: 'src',
+                    evaluate: _scope => _scope.comment.author.image
+                  }
+                ]
+              },
+              {
+                redundantAttribute: 'expr58',
+                selector: '[expr58]',
 
-                      'evaluate': function(
-                        _scope
-                      ) {
-                        return "#/profile/" + _scope.comment.author.username;
-                      }
-                    }
-                  ]
-                },
-                {
-                  'redundantAttribute': 'expr30',
-                  'selector': '[expr30]',
+                expressions: [
+                  {
+                    type: expressionTypes.TEXT,
+                    childNodeIndex: 0,
 
-                  'expressions': [
-                    {
-                      'type': expressionTypes.ATTRIBUTE,
-                      'name': 'src',
-
-                      'evaluate': function(
-                        _scope
-                      ) {
-                        return _scope.comment.author.image;
-                      }
-                    }
-                  ]
-                },
-                {
-                  'redundantAttribute': 'expr31',
-                  'selector': '[expr31]',
-
-                  'expressions': [
-                    {
-                      'type': expressionTypes.TEXT,
-                      'childNodeIndex': 0,
-
-                      'evaluate': function(
-                        _scope
-                      ) {
-                        return [
-                          _scope.comment.author.username
-                        ].join(
-                          ''
-                        );
-                      }
-                    },
-                    {
-                      'type': expressionTypes.ATTRIBUTE,
-                      'name': 'href',
-
-                      'evaluate': function(
-                        _scope
-                      ) {
-                        return "#/profile/" + _scope.comment.author.username;
-                      }
-                    }
-                  ]
-                },
-                {
-                  'redundantAttribute': 'expr32',
-                  'selector': '[expr32]',
-
-                  'expressions': [
-                    {
-                      'type': expressionTypes.TEXT,
-                      'childNodeIndex': 0,
-
-                      'evaluate': function(
-                        _scope
-                      ) {
-                        return _scope.formattedDate( _scope.comment.createdAt );
-                      }
-                    }
-                  ]
-                },
-                {
-                  'type': bindingTypes.IF,
-
-                  'evaluate': function(
-                    _scope
-                  ) {
-                    return _scope.isDeletable( _scope.comment );
+                    evaluate: _scope => [
+                      _scope.comment.author.username
+                    ].join(
+                      ''
+                    )
                   },
+                  {
+                    type: expressionTypes.ATTRIBUTE,
+                    name: 'href',
+                    evaluate: _scope => "#/profile/" + _scope.comment.author.username
+                  }
+                ]
+              },
+              {
+                redundantAttribute: 'expr59',
+                selector: '[expr59]',
 
-                  'redundantAttribute': 'expr33',
-                  'selector': '[expr33]',
+                expressions: [
+                  {
+                    type: expressionTypes.TEXT,
+                    childNodeIndex: 0,
+                    evaluate: _scope => _scope.formattedDate( _scope.comment.createdAt )
+                  }
+                ]
+              },
+              {
+                type: bindingTypes.IF,
+                evaluate: _scope => _scope.isDeletable( _scope.comment ),
+                redundantAttribute: 'expr60',
+                selector: '[expr60]',
 
-                  'template': template(
-                    '<span class="mod-options"><i expr34="expr34" class="ion-trash-a"></i></span>',
-                    [
-                      {
-                        'redundantAttribute': 'expr34',
-                        'selector': '[expr34]',
+                template: template(
+                  '<span class="mod-options"><i expr61="expr61" class="ion-trash-a"></i></span>',
+                  [
+                    {
+                      redundantAttribute: 'expr61',
+                      selector: '[expr61]',
 
-                        'expressions': [
-                          {
-                            'type': expressionTypes.EVENT,
-                            'name': 'onclick',
+                      expressions: [
+                        {
+                          type: expressionTypes.EVENT,
+                          name: 'onclick',
+                          evaluate: _scope => () => _scope.actionOfTrashButton( _scope.comment.id )
+                        }
+                      ]
+                    }
+                  ]
+                )
+              }
+            ]
+          ),
 
-                            'evaluate': function(
-                              _scope
-                            ) {
-                              return () => _scope.actionOfTrashButton( _scope.comment.id );
-                            }
-                          }
-                        ]
-                      }
-                    ]
-                  )
-                }
-              ]
-            ),
+          redundantAttribute: 'expr54',
+          selector: '[expr54]',
+          itemName: 'comment',
+          indexName: null,
+          evaluate: _scope => _scope.state.comments
+        }
+      ]
+    ),
 
-            'redundantAttribute': 'expr27',
-            'selector': '[expr27]',
-            'itemName': 'comment',
-            'indexName': null,
-
-            'evaluate': function(
-              _scope
-            ) {
-              return _scope.state.comments;
-            }
-          }
-        ]
-      );
-    },
-
-    'name': 'comment_table_view'
+    name: 'comment_table_view'
   };
 
   var ArticleComponent = {
-    'css': null,
+    css: null,
 
-    'exports': {
+    exports: {
       onBeforeMount(_,state) {
           state.owner = new ArticleViewController();
           // Connect outlet
@@ -14443,37 +13971,30 @@
       }
     },
 
-    'template': function(
+    template: (
       template,
       expressionTypes,
       bindingTypes,
       getComponent
-    ) {
-      return template(
-        '<div id="headerView"></div><div class="article-page"><div class="banner"><div class="container"><h1 expr5="expr5"> </h1><div id="aboveArticleWidgetView"></div></div></div><div class="container page"><div class="row article-content"><div class="col-md-12"><div id="articleView"></div></div></div></div><hr/><div class="article-actions"><div id="belowArticleWidgetView"></div></div><div class="row"><div class="col-xs-12 col-md-8 offset-md-2"><div id="commentFormView"></div><div id="commentTableView"></div></div></div></div><div id="footerView"></div>',
-        [
-          {
-            'redundantAttribute': 'expr5',
-            'selector': '[expr5]',
+    ) => template(
+      '<div id="headerView"></div><div class="article-page"><div class="banner"><div class="container"><h1 expr0="expr0"> </h1><div id="aboveArticleWidgetView"></div></div></div><div class="container page"><div class="row article-content"><div class="col-md-12"><div id="articleView"></div></div></div></div><hr/><div class="article-actions"><div id="belowArticleWidgetView"></div></div><div class="row"><div class="col-xs-12 col-md-8 offset-md-2"><div id="commentFormView"></div><div id="commentTableView"></div></div></div></div><div id="footerView"></div>',
+      [
+        {
+          redundantAttribute: 'expr0',
+          selector: '[expr0]',
 
-            'expressions': [
-              {
-                'type': expressionTypes.TEXT,
-                'childNodeIndex': 0,
+          expressions: [
+            {
+              type: expressionTypes.TEXT,
+              childNodeIndex: 0,
+              evaluate: _scope => _scope.state.owner.currentArticleTitle()
+            }
+          ]
+        }
+      ]
+    ),
 
-                'evaluate': function(
-                  _scope
-                ) {
-                  return _scope.state.owner.currentArticleTitle();
-                }
-              }
-            ]
-          }
-        ]
-      );
-    },
-
-    'name': 'article'
+    name: 'article'
   };
 
   class LoginUseCase {
@@ -14528,9 +14049,9 @@
   }
 
   var LoginComponent = {
-    'css': null,
+    css: null,
 
-    'exports': {
+    exports: {
       onBeforeMount(_,state) {
           state.owner = new LoginViewController();
           // Connect outlet
@@ -14563,125 +14084,92 @@
       }
     },
 
-    'template': function(
+    template: (
       template,
       expressionTypes,
       bindingTypes,
       getComponent
-    ) {
-      return template(
-        '<div id="headerView"></div><div class="auth-page"><div class="container page"><div class="row"><div class="col-md-6 offset-md-3 col-xs-12"><h1 class="text-xs-center">Sign In</h1><p class="text-xs-center"><a href="#/register">Need an account?</a></p><ul expr0="expr0" class="error-messages"></ul><fieldset class="form-group"><input expr2="expr2" id="emailField" class="form-control form-control-lg" type="text" placeholder="Email"/></fieldset><fieldset class="form-group"><input expr3="expr3" id="passwordField" class="form-control form-control-lg" type="password" placeholder="Password"/></fieldset><button expr4="expr4" id="submitButton" class="btn btn-lg btn-primary pull-xs-right" disabled>\n                Sign in\n            </button></div></div></div></div><div id="footerView"></div>',
-        [
-          {
-            'type': bindingTypes.IF,
+    ) => template(
+      '<div id="headerView"></div><div class="auth-page"><div class="container page"><div class="row"><div class="col-md-6 offset-md-3 col-xs-12"><h1 class="text-xs-center">Sign In</h1><p class="text-xs-center"><a href="#/register">Need an account?</a></p><ul expr10="expr10" class="error-messages"></ul><fieldset class="form-group"><input expr12="expr12" id="emailField" class="form-control form-control-lg" type="text" placeholder="Email"/></fieldset><fieldset class="form-group"><input expr13="expr13" id="passwordField" class="form-control form-control-lg" type="password" placeholder="Password"/></fieldset><button expr14="expr14" id="submitButton" class="btn btn-lg btn-primary pull-xs-right" disabled>\n                Sign in\n            </button></div></div></div></div><div id="footerView"></div>',
+      [
+        {
+          type: bindingTypes.IF,
+          evaluate: _scope => _scope.state.errorMessages != null,
+          redundantAttribute: 'expr10',
+          selector: '[expr10]',
 
-            'evaluate': function(
-              _scope
-            ) {
-              return _scope.state.errorMessages != null;
-            },
-
-            'redundantAttribute': 'expr0',
-            'selector': '[expr0]',
-
-            'template': template(
-              '<li expr1="expr1"></li>',
-              [
-                {
-                  'type': bindingTypes.EACH,
-                  'getKey': null,
-                  'condition': null,
-
-                  'template': template(
-                    ' ',
-                    [
-                      {
-                        'expressions': [
-                          {
-                            'type': expressionTypes.TEXT,
-                            'childNodeIndex': 0,
-
-                            'evaluate': function(
-                              _scope
-                            ) {
-                              return _scope.message;
-                            }
-                          }
-                        ]
-                      }
-                    ]
-                  ),
-
-                  'redundantAttribute': 'expr1',
-                  'selector': '[expr1]',
-                  'itemName': 'message',
-                  'indexName': null,
-
-                  'evaluate': function(
-                    _scope
-                  ) {
-                    return _scope.state.errorMessages;
-                  }
-                }
-              ]
-            )
-          },
-          {
-            'redundantAttribute': 'expr2',
-            'selector': '[expr2]',
-
-            'expressions': [
+          template: template(
+            '<li expr11="expr11"></li>',
+            [
               {
-                'type': expressionTypes.EVENT,
-                'name': 'oninput',
+                type: bindingTypes.EACH,
+                getKey: null,
+                condition: null,
 
-                'evaluate': function(
-                  _scope
-                ) {
-                  return _scope.shouldSubmit;
-                }
+                template: template(
+                  ' ',
+                  [
+                    {
+                      expressions: [
+                        {
+                          type: expressionTypes.TEXT,
+                          childNodeIndex: 0,
+                          evaluate: _scope => _scope.message
+                        }
+                      ]
+                    }
+                  ]
+                ),
+
+                redundantAttribute: 'expr11',
+                selector: '[expr11]',
+                itemName: 'message',
+                indexName: null,
+                evaluate: _scope => _scope.state.errorMessages
               }
             ]
-          },
-          {
-            'redundantAttribute': 'expr3',
-            'selector': '[expr3]',
+          )
+        },
+        {
+          redundantAttribute: 'expr12',
+          selector: '[expr12]',
 
-            'expressions': [
-              {
-                'type': expressionTypes.EVENT,
-                'name': 'oninput',
+          expressions: [
+            {
+              type: expressionTypes.EVENT,
+              name: 'oninput',
+              evaluate: _scope => _scope.shouldSubmit
+            }
+          ]
+        },
+        {
+          redundantAttribute: 'expr13',
+          selector: '[expr13]',
 
-                'evaluate': function(
-                  _scope
-                ) {
-                  return _scope.shouldSubmit;
-                }
-              }
-            ]
-          },
-          {
-            'redundantAttribute': 'expr4',
-            'selector': '[expr4]',
+          expressions: [
+            {
+              type: expressionTypes.EVENT,
+              name: 'oninput',
+              evaluate: _scope => _scope.shouldSubmit
+            }
+          ]
+        },
+        {
+          redundantAttribute: 'expr14',
+          selector: '[expr14]',
 
-            'expressions': [
-              {
-                'type': expressionTypes.EVENT,
-                'name': 'onclick',
+          expressions: [
+            {
+              type: expressionTypes.EVENT,
+              name: 'onclick',
+              evaluate: _scope => _scope.actionOfSubmitButton
+            }
+          ]
+        }
+      ]
+    ),
 
-                'evaluate': function(
-                  _scope
-                ) {
-                  return _scope.actionOfSubmitButton;
-                }
-              }
-            ]
-          }
-        ]
-      );
-    },
-
-    'name': 'login'
+    name: 'login'
   };
 
   class RegisterUseCase {
@@ -14736,9 +14224,9 @@
   }
 
   var RegisterComponent = {
-    'css': null,
+    css: null,
 
-    'exports': {
+    exports: {
       onBeforeMount(_,state) {
           state.owner = new RegisterViewController();
           // Connect outlet
@@ -14775,142 +14263,104 @@
       }
     },
 
-    'template': function(
+    template: (
       template,
       expressionTypes,
       bindingTypes,
       getComponent
-    ) {
-      return template(
-        '<div id="headerView"></div><div class="auth-page"><div class="container page"><div class="row"><div class="col-md-6 offset-md-3 col-xs-12"><h1 class="text-xs-center">Sign Up</h1><p class="text-xs-center"><a href="#/login">Have an account?</a></p><ul expr6="expr6" class="error-messages"></ul><fieldset class="form-group"><input expr8="expr8" id="usernameField" class="form-control form-control-lg" type="text" placeholder="Username"/></fieldset><fieldset class="form-group"><input expr9="expr9" id="emailField" class="form-control form-control-lg" type="text" placeholder="Email"/></fieldset><fieldset class="form-group"><input expr10="expr10" id="passwordField" class="form-control form-control-lg" type="password" placeholder="Password"/></fieldset><button expr11="expr11" id="submitButton" class="btn btn-lg btn-primary pull-xs-right" disabled>\n                Sign up\n            </button></div></div></div></div><div id="footerView"></div>',
-        [
-          {
-            'type': bindingTypes.IF,
+    ) => template(
+      '<div id="headerView"></div><div class="auth-page"><div class="container page"><div class="row"><div class="col-md-6 offset-md-3 col-xs-12"><h1 class="text-xs-center">Sign Up</h1><p class="text-xs-center"><a href="#/login">Have an account?</a></p><ul expr1="expr1" class="error-messages"></ul><fieldset class="form-group"><input expr3="expr3" id="usernameField" class="form-control form-control-lg" type="text" placeholder="Username"/></fieldset><fieldset class="form-group"><input expr4="expr4" id="emailField" class="form-control form-control-lg" type="text" placeholder="Email"/></fieldset><fieldset class="form-group"><input expr5="expr5" id="passwordField" class="form-control form-control-lg" type="password" placeholder="Password"/></fieldset><button expr6="expr6" id="submitButton" class="btn btn-lg btn-primary pull-xs-right" disabled>\n                Sign up\n            </button></div></div></div></div><div id="footerView"></div>',
+      [
+        {
+          type: bindingTypes.IF,
+          evaluate: _scope => _scope.state.errorMessages != null,
+          redundantAttribute: 'expr1',
+          selector: '[expr1]',
 
-            'evaluate': function(
-              _scope
-            ) {
-              return _scope.state.errorMessages != null;
-            },
-
-            'redundantAttribute': 'expr6',
-            'selector': '[expr6]',
-
-            'template': template(
-              '<li expr7="expr7"></li>',
-              [
-                {
-                  'type': bindingTypes.EACH,
-                  'getKey': null,
-                  'condition': null,
-
-                  'template': template(
-                    ' ',
-                    [
-                      {
-                        'expressions': [
-                          {
-                            'type': expressionTypes.TEXT,
-                            'childNodeIndex': 0,
-
-                            'evaluate': function(
-                              _scope
-                            ) {
-                              return _scope.message;
-                            }
-                          }
-                        ]
-                      }
-                    ]
-                  ),
-
-                  'redundantAttribute': 'expr7',
-                  'selector': '[expr7]',
-                  'itemName': 'message',
-                  'indexName': null,
-
-                  'evaluate': function(
-                    _scope
-                  ) {
-                    return _scope.state.errorMessages;
-                  }
-                }
-              ]
-            )
-          },
-          {
-            'redundantAttribute': 'expr8',
-            'selector': '[expr8]',
-
-            'expressions': [
+          template: template(
+            '<li expr2="expr2"></li>',
+            [
               {
-                'type': expressionTypes.EVENT,
-                'name': 'oninput',
+                type: bindingTypes.EACH,
+                getKey: null,
+                condition: null,
 
-                'evaluate': function(
-                  _scope
-                ) {
-                  return _scope.shouldSubmit;
-                }
+                template: template(
+                  ' ',
+                  [
+                    {
+                      expressions: [
+                        {
+                          type: expressionTypes.TEXT,
+                          childNodeIndex: 0,
+                          evaluate: _scope => _scope.message
+                        }
+                      ]
+                    }
+                  ]
+                ),
+
+                redundantAttribute: 'expr2',
+                selector: '[expr2]',
+                itemName: 'message',
+                indexName: null,
+                evaluate: _scope => _scope.state.errorMessages
               }
             ]
-          },
-          {
-            'redundantAttribute': 'expr9',
-            'selector': '[expr9]',
+          )
+        },
+        {
+          redundantAttribute: 'expr3',
+          selector: '[expr3]',
 
-            'expressions': [
-              {
-                'type': expressionTypes.EVENT,
-                'name': 'oninput',
+          expressions: [
+            {
+              type: expressionTypes.EVENT,
+              name: 'oninput',
+              evaluate: _scope => _scope.shouldSubmit
+            }
+          ]
+        },
+        {
+          redundantAttribute: 'expr4',
+          selector: '[expr4]',
 
-                'evaluate': function(
-                  _scope
-                ) {
-                  return _scope.shouldSubmit;
-                }
-              }
-            ]
-          },
-          {
-            'redundantAttribute': 'expr10',
-            'selector': '[expr10]',
+          expressions: [
+            {
+              type: expressionTypes.EVENT,
+              name: 'oninput',
+              evaluate: _scope => _scope.shouldSubmit
+            }
+          ]
+        },
+        {
+          redundantAttribute: 'expr5',
+          selector: '[expr5]',
 
-            'expressions': [
-              {
-                'type': expressionTypes.EVENT,
-                'name': 'oninput',
+          expressions: [
+            {
+              type: expressionTypes.EVENT,
+              name: 'oninput',
+              evaluate: _scope => _scope.shouldSubmit
+            }
+          ]
+        },
+        {
+          redundantAttribute: 'expr6',
+          selector: '[expr6]',
 
-                'evaluate': function(
-                  _scope
-                ) {
-                  return _scope.shouldSubmit;
-                }
-              }
-            ]
-          },
-          {
-            'redundantAttribute': 'expr11',
-            'selector': '[expr11]',
+          expressions: [
+            {
+              type: expressionTypes.EVENT,
+              name: 'onclick',
+              evaluate: _scope => _scope.actionOfSubmitButton
+            }
+          ]
+        }
+      ]
+    ),
 
-            'expressions': [
-              {
-                'type': expressionTypes.EVENT,
-                'name': 'onclick',
-
-                'evaluate': function(
-                  _scope
-                ) {
-                  return _scope.actionOfSubmitButton;
-                }
-              }
-            ]
-          }
-        ]
-      );
-    },
-
-    'name': 'register'
+    name: 'register'
   };
 
   class PostArticle {
@@ -15018,9 +14468,9 @@
   }
 
   var EditerComponent = {
-    'css': null,
+    css: null,
 
-    'exports': {
+    exports: {
       onBeforeMount(_,state) {
           state.owner = new EditerViewController();
           // Connect outlet
@@ -15060,105 +14510,78 @@
       }
     },
 
-    'template': function(
+    template: (
       template,
       expressionTypes,
       bindingTypes,
       getComponent
-    ) {
-      return template(
-        '<div id="headerView"></div><div class="editor-page"><div class="container page"><div class="row"><div class="col-md-10 offset-md-1 col-xs-12"><ul expr13="expr13" class="error-messages"></ul><form><fieldset><fieldset class="form-group"><input id="titleField" type="text" class="form-control form-control-lg" placeholder="Article Title"/></fieldset><fieldset class="form-group"><input id="descriptionField" type="text" class="form-control" placeholder="What\'s this article about?"/></fieldset><fieldset class="form-group"><textarea id="bodyField" class="form-control" rows="8" placeholder="Write your article (in markdown)"></textarea></fieldset><fieldset class="form-group"><input id="tagListField" type="text" class="form-control" placeholder="Enter tags"/><div class="tag-list"></div></fieldset><button expr15="expr15" class="btn btn-lg pull-xs-right btn-primary" type="button"> </button></fieldset></form></div></div></div></div><div id="footerView"></div>',
-        [
-          {
-            'type': bindingTypes.IF,
+    ) => template(
+      '<div id="headerView"></div><div class="editor-page"><div class="container page"><div class="row"><div class="col-md-10 offset-md-1 col-xs-12"><ul expr7="expr7" class="error-messages"></ul><form><fieldset><fieldset class="form-group"><input id="titleField" type="text" class="form-control form-control-lg" placeholder="Article Title"/></fieldset><fieldset class="form-group"><input id="descriptionField" type="text" class="form-control" placeholder="What\'s this article about?"/></fieldset><fieldset class="form-group"><textarea id="bodyField" class="form-control" rows="8" placeholder="Write your article (in markdown)"></textarea></fieldset><fieldset class="form-group"><input id="tagListField" type="text" class="form-control" placeholder="Enter tags"/><div class="tag-list"></div></fieldset><button expr9="expr9" class="btn btn-lg pull-xs-right btn-primary" type="button"> </button></fieldset></form></div></div></div></div><div id="footerView"></div>',
+      [
+        {
+          type: bindingTypes.IF,
+          evaluate: _scope => _scope.state.errorMessages != null,
+          redundantAttribute: 'expr7',
+          selector: '[expr7]',
 
-            'evaluate': function(
-              _scope
-            ) {
-              return _scope.state.errorMessages != null;
-            },
-
-            'redundantAttribute': 'expr13',
-            'selector': '[expr13]',
-
-            'template': template(
-              '<li expr14="expr14"></li>',
-              [
-                {
-                  'type': bindingTypes.EACH,
-                  'getKey': null,
-                  'condition': null,
-
-                  'template': template(
-                    ' ',
-                    [
-                      {
-                        'expressions': [
-                          {
-                            'type': expressionTypes.TEXT,
-                            'childNodeIndex': 0,
-
-                            'evaluate': function(
-                              _scope
-                            ) {
-                              return _scope.message;
-                            }
-                          }
-                        ]
-                      }
-                    ]
-                  ),
-
-                  'redundantAttribute': 'expr14',
-                  'selector': '[expr14]',
-                  'itemName': 'message',
-                  'indexName': null,
-
-                  'evaluate': function(
-                    _scope
-                  ) {
-                    return _scope.state.errorMessages;
-                  }
-                }
-              ]
-            )
-          },
-          {
-            'redundantAttribute': 'expr15',
-            'selector': '[expr15]',
-
-            'expressions': [
+          template: template(
+            '<li expr8="expr8"></li>',
+            [
               {
-                'type': expressionTypes.TEXT,
-                'childNodeIndex': 0,
+                type: bindingTypes.EACH,
+                getKey: null,
+                condition: null,
 
-                'evaluate': function(
-                  _scope
-                ) {
-                  return [
-                    _scope.state.owner.submitButtonTitle()
-                  ].join(
-                    ''
-                  );
-                }
-              },
-              {
-                'type': expressionTypes.EVENT,
-                'name': 'onclick',
+                template: template(
+                  ' ',
+                  [
+                    {
+                      expressions: [
+                        {
+                          type: expressionTypes.TEXT,
+                          childNodeIndex: 0,
+                          evaluate: _scope => _scope.message
+                        }
+                      ]
+                    }
+                  ]
+                ),
 
-                'evaluate': function(
-                  _scope
-                ) {
-                  return _scope.actionOfSubmitButton;
-                }
+                redundantAttribute: 'expr8',
+                selector: '[expr8]',
+                itemName: 'message',
+                indexName: null,
+                evaluate: _scope => _scope.state.errorMessages
               }
             ]
-          }
-        ]
-      );
-    },
+          )
+        },
+        {
+          redundantAttribute: 'expr9',
+          selector: '[expr9]',
 
-    'name': 'editer'
+          expressions: [
+            {
+              type: expressionTypes.TEXT,
+              childNodeIndex: 0,
+
+              evaluate: _scope => [
+                _scope.state.owner.submitButtonTitle()
+              ].join(
+                ''
+              )
+            },
+            {
+              type: expressionTypes.EVENT,
+              name: 'onclick',
+              evaluate: _scope => _scope.actionOfSubmitButton
+            }
+          ]
+        }
+      ]
+    ),
+
+    name: 'editer'
   };
 
   class ProfileUseCase {
@@ -15368,9 +14791,9 @@
   }
 
   var ProfileView = {
-    'css': null,
+    css: null,
 
-    'exports': {
+    exports: {
       onBeforeMount(_,state){
           state.isLoggedIn = false;
           state.isOwn = false;
@@ -15396,153 +14819,111 @@
       }
     },
 
-    'template': function(
+    template: (
       template,
       expressionTypes,
       bindingTypes,
       getComponent
-    ) {
-      return template(
-        '<template expr65="expr65"></template>',
-        [
-          {
-            'type': bindingTypes.IF,
+    ) => template(
+      '<template expr65="expr65"></template>',
+      [
+        {
+          type: bindingTypes.IF,
+          evaluate: _scope => _scope.state.profile != null,
+          redundantAttribute: 'expr65',
+          selector: '[expr65]',
 
-            'evaluate': function(
-              _scope
-            ) {
-              return _scope.state.profile != null;
-            },
+          template: template(
+            '<img expr66="expr66" class="user-img"/><h4 expr67="expr67"> </h4><p expr68="expr68"> </p><button expr69="expr69"><i expr70="expr70"></i> </button>',
+            [
+              {
+                redundantAttribute: 'expr66',
+                selector: '[expr66]',
 
-            'redundantAttribute': 'expr65',
-            'selector': '[expr65]',
+                expressions: [
+                  {
+                    type: expressionTypes.ATTRIBUTE,
+                    name: 'src',
+                    evaluate: _scope => _scope.state.profile.image
+                  }
+                ]
+              },
+              {
+                redundantAttribute: 'expr67',
+                selector: '[expr67]',
 
-            'template': template(
-              '<img expr66="expr66" class="user-img"/><h4 expr67="expr67"> </h4><p expr68="expr68"> </p><button expr69="expr69"><i expr70="expr70"></i> </button>',
-              [
-                {
-                  'redundantAttribute': 'expr66',
-                  'selector': '[expr66]',
+                expressions: [
+                  {
+                    type: expressionTypes.TEXT,
+                    childNodeIndex: 0,
+                    evaluate: _scope => _scope.state.profile.username
+                  }
+                ]
+              },
+              {
+                redundantAttribute: 'expr68',
+                selector: '[expr68]',
 
-                  'expressions': [
-                    {
-                      'type': expressionTypes.ATTRIBUTE,
-                      'name': 'src',
+                expressions: [
+                  {
+                    type: expressionTypes.TEXT,
+                    childNodeIndex: 0,
+                    evaluate: _scope => _scope.state.profile.bio
+                  }
+                ]
+              },
+              {
+                redundantAttribute: 'expr69',
+                selector: '[expr69]',
 
-                      'evaluate': function(
-                        _scope
-                      ) {
-                        return _scope.state.profile.image;
-                      }
-                    }
-                  ]
-                },
-                {
-                  'redundantAttribute': 'expr67',
-                  'selector': '[expr67]',
+                expressions: [
+                  {
+                    type: expressionTypes.TEXT,
+                    childNodeIndex: 1,
 
-                  'expressions': [
-                    {
-                      'type': expressionTypes.TEXT,
-                      'childNodeIndex': 0,
+                    evaluate: _scope => [
+                      _scope.buttonTitle()
+                    ].join(
+                      ''
+                    )
+                  },
+                  {
+                    type: expressionTypes.EVENT,
+                    name: 'onclick',
+                    evaluate: _scope => _scope.actionOfProfileButton
+                  },
+                  {
+                    type: expressionTypes.ATTRIBUTE,
+                    name: 'class',
+                    evaluate: _scope => "btn btn-sm action-btn" + ( _scope.state.profile.following ? " btn-secondary" : " btn-outline-secondary" )
+                  }
+                ]
+              },
+              {
+                redundantAttribute: 'expr70',
+                selector: '[expr70]',
 
-                      'evaluate': function(
-                        _scope
-                      ) {
-                        return _scope.state.profile.username;
-                      }
-                    }
-                  ]
-                },
-                {
-                  'redundantAttribute': 'expr68',
-                  'selector': '[expr68]',
+                expressions: [
+                  {
+                    type: expressionTypes.ATTRIBUTE,
+                    name: 'class',
+                    evaluate: _scope => _scope.isOwn === true ? "ion-gear-a" : "ion-plus-round"
+                  }
+                ]
+              }
+            ]
+          )
+        }
+      ]
+    ),
 
-                  'expressions': [
-                    {
-                      'type': expressionTypes.TEXT,
-                      'childNodeIndex': 0,
-
-                      'evaluate': function(
-                        _scope
-                      ) {
-                        return _scope.state.profile.bio;
-                      }
-                    }
-                  ]
-                },
-                {
-                  'redundantAttribute': 'expr69',
-                  'selector': '[expr69]',
-
-                  'expressions': [
-                    {
-                      'type': expressionTypes.TEXT,
-                      'childNodeIndex': 1,
-
-                      'evaluate': function(
-                        _scope
-                      ) {
-                        return [
-                          _scope.buttonTitle()
-                        ].join(
-                          ''
-                        );
-                      }
-                    },
-                    {
-                      'type': expressionTypes.EVENT,
-                      'name': 'onclick',
-
-                      'evaluate': function(
-                        _scope
-                      ) {
-                        return _scope.actionOfProfileButton;
-                      }
-                    },
-                    {
-                      'type': expressionTypes.ATTRIBUTE,
-                      'name': 'class',
-
-                      'evaluate': function(
-                        _scope
-                      ) {
-                        return "btn btn-sm action-btn" + ( _scope.state.profile.following ? " btn-secondary" : " btn-outline-secondary" );
-                      }
-                    }
-                  ]
-                },
-                {
-                  'redundantAttribute': 'expr70',
-                  'selector': '[expr70]',
-
-                  'expressions': [
-                    {
-                      'type': expressionTypes.ATTRIBUTE,
-                      'name': 'class',
-
-                      'evaluate': function(
-                        _scope
-                      ) {
-                        return _scope.isOwn === true ? "ion-gear-a" : "ion-plus-round";
-                      }
-                    }
-                  ]
-                }
-              ]
-            )
-          }
-        ]
-      );
-    },
-
-    'name': 'profile_view'
+    name: 'profile_view'
   };
 
   var ProfileComponent = {
-    'css': null,
+    css: null,
 
-    'exports': {
+    exports: {
       onBeforeMount(_,state) {
           state.owner = new ProfileViewController();
           // Connect outlet
@@ -15584,19 +14965,17 @@
       }
     },
 
-    'template': function(
+    template: (
       template,
       expressionTypes,
       bindingTypes,
       getComponent
-    ) {
-      return template(
-        '<div id="headerView"></div><div class="profile-page"><div class="user-info"><div class="container"><div class="row"><div class="col-xs-12 col-md-10 offset-md-1"><div id="profileView"></div></div></div></div></div><div class="container"><div class="row"><div class="col-xs-12 col-md-10 offset-md-1"><div id="articleTabView"></div><div id="articlesTableView"></div><div id="pagenationView"></div></div></div></div></div><div id="footerView"></div>',
-        []
-      );
-    },
+    ) => template(
+      '<div id="headerView"></div><div class="profile-page"><div class="user-info"><div class="container"><div class="row"><div class="col-xs-12 col-md-10 offset-md-1"><div id="profileView"></div></div></div></div></div><div class="container"><div class="row"><div class="col-xs-12 col-md-10 offset-md-1"><div id="articleTabView"></div><div id="articlesTableView"></div><div id="pagenationView"></div></div></div></div></div><div id="footerView"></div>',
+      []
+    ),
 
-    'name': 'profile'
+    name: 'profile'
   };
 
   class PostUser {
@@ -15699,9 +15078,9 @@
   }
 
   var SettingsComponent = {
-    'css': null,
+    css: null,
 
-    'exports': {
+    exports: {
       onBeforeMount(_,state) {
           state.owner = new SettingsViewController();
           // Connect outlet
@@ -15746,114 +15125,86 @@
       }
     },
 
-    'template': function(
+    template: (
       template,
       expressionTypes,
       bindingTypes,
       getComponent
-    ) {
-      return template(
-        '<div id="headerView"></div><div class="settings-page"><div class="container page"><div class="row"><div class="col-md-6 offset-md-3 col-xs-12"><h1 class="text-xs-center">Your Settings</h1><ul expr16="expr16" class="error-messages"></ul><form><fieldset><fieldset class="form-group"><input id="iconUrlField" class="form-control" type="text" placeholder="URL of profile picture"/></fieldset><fieldset class="form-group"><input id="usernameField" class="form-control form-control-lg" type="text" placeholder="Your Name"/></fieldset><fieldset class="form-group"><textarea id="bioField" class="form-control form-control-lg" rows="8" placeholder="Short bio about you"></textarea></fieldset><fieldset class="form-group"><input id="emailField" class="form-control form-control-lg" type="text" placeholder="Email"/></fieldset><fieldset class="form-group"><input id="passwordField" class="form-control form-control-lg" type="password" placeholder="Password"/></fieldset><button expr18="expr18" class="btn btn-lg btn-primary pull-xs-right" type="button">\n                        Update Settings\n                    </button></fieldset></form><hr/><button expr19="expr19" class="btn btn-outline-danger"> Or click here to logout. </button></div></div></div></div><div id="footerView"></div>',
-        [
-          {
-            'type': bindingTypes.IF,
+    ) => template(
+      '<div id="headerView"></div><div class="settings-page"><div class="container page"><div class="row"><div class="col-md-6 offset-md-3 col-xs-12"><h1 class="text-xs-center">Your Settings</h1><ul expr15="expr15" class="error-messages"></ul><form><fieldset><fieldset class="form-group"><input id="iconUrlField" class="form-control" type="text" placeholder="URL of profile picture"/></fieldset><fieldset class="form-group"><input id="usernameField" class="form-control form-control-lg" type="text" placeholder="Your Name"/></fieldset><fieldset class="form-group"><textarea id="bioField" class="form-control form-control-lg" rows="8" placeholder="Short bio about you"></textarea></fieldset><fieldset class="form-group"><input id="emailField" class="form-control form-control-lg" type="text" placeholder="Email"/></fieldset><fieldset class="form-group"><input id="passwordField" class="form-control form-control-lg" type="password" placeholder="Password"/></fieldset><button expr17="expr17" class="btn btn-lg btn-primary pull-xs-right" type="button">\n                        Update Settings\n                    </button></fieldset></form><hr/><button expr18="expr18" class="btn btn-outline-danger"> Or click here to logout. </button></div></div></div></div><div id="footerView"></div>',
+      [
+        {
+          type: bindingTypes.IF,
+          evaluate: _scope => _scope.state.errorMessages != null,
+          redundantAttribute: 'expr15',
+          selector: '[expr15]',
 
-            'evaluate': function(
-              _scope
-            ) {
-              return _scope.state.errorMessages != null;
-            },
-
-            'redundantAttribute': 'expr16',
-            'selector': '[expr16]',
-
-            'template': template(
-              '<li expr17="expr17"></li>',
-              [
-                {
-                  'type': bindingTypes.EACH,
-                  'getKey': null,
-                  'condition': null,
-
-                  'template': template(
-                    ' ',
-                    [
-                      {
-                        'expressions': [
-                          {
-                            'type': expressionTypes.TEXT,
-                            'childNodeIndex': 0,
-
-                            'evaluate': function(
-                              _scope
-                            ) {
-                              return _scope.message;
-                            }
-                          }
-                        ]
-                      }
-                    ]
-                  ),
-
-                  'redundantAttribute': 'expr17',
-                  'selector': '[expr17]',
-                  'itemName': 'message',
-                  'indexName': null,
-
-                  'evaluate': function(
-                    _scope
-                  ) {
-                    return _scope.state.errorMessages;
-                  }
-                }
-              ]
-            )
-          },
-          {
-            'redundantAttribute': 'expr18',
-            'selector': '[expr18]',
-
-            'expressions': [
+          template: template(
+            '<li expr16="expr16"></li>',
+            [
               {
-                'type': expressionTypes.EVENT,
-                'name': 'onclick',
+                type: bindingTypes.EACH,
+                getKey: null,
+                condition: null,
 
-                'evaluate': function(
-                  _scope
-                ) {
-                  return _scope.actionOfUpdateButton;
-                }
+                template: template(
+                  ' ',
+                  [
+                    {
+                      expressions: [
+                        {
+                          type: expressionTypes.TEXT,
+                          childNodeIndex: 0,
+                          evaluate: _scope => _scope.message
+                        }
+                      ]
+                    }
+                  ]
+                ),
+
+                redundantAttribute: 'expr16',
+                selector: '[expr16]',
+                itemName: 'message',
+                indexName: null,
+                evaluate: _scope => _scope.state.errorMessages
               }
             ]
-          },
-          {
-            'redundantAttribute': 'expr19',
-            'selector': '[expr19]',
+          )
+        },
+        {
+          redundantAttribute: 'expr17',
+          selector: '[expr17]',
 
-            'expressions': [
-              {
-                'type': expressionTypes.EVENT,
-                'name': 'onclick',
+          expressions: [
+            {
+              type: expressionTypes.EVENT,
+              name: 'onclick',
+              evaluate: _scope => _scope.actionOfUpdateButton
+            }
+          ]
+        },
+        {
+          redundantAttribute: 'expr18',
+          selector: '[expr18]',
 
-                'evaluate': function(
-                  _scope
-                ) {
-                  return _scope.actionOfLogoutButton;
-                }
-              }
-            ]
-          }
-        ]
-      );
-    },
+          expressions: [
+            {
+              type: expressionTypes.EVENT,
+              name: 'onclick',
+              evaluate: _scope => _scope.actionOfLogoutButton
+            }
+          ]
+        }
+      ]
+    ),
 
-    'name': 'settings'
+    name: 'settings'
   };
 
   var ShowErrorComponent = {
-    'css': `show_error .spotlink,[is="show_error"] .spotlink{ color: white; text-decoration: underline; } show_error .spotlink:hover,[is="show_error"] .spotlink:hover{ color: white; }`,
+    css: `show_error .spotlink,[is="show_error"] .spotlink{ color: white; text-decoration: underline; } show_error .spotlink:hover,[is="show_error"] .spotlink:hover{ color: white; }`,
 
-    'exports': {
+    exports: {
       onMounted(){
           // Mount child components
           component(HeaderView)( this.$("#headerView") );
@@ -15861,41 +15212,35 @@
       }
     },
 
-    'template': function(
+    template: (
       template,
       expressionTypes,
       bindingTypes,
       getComponent
-    ) {
-      return template(
-        '<div class="home-page"><div id="headerView"></div><div class="banner"><div class="container"><h1 expr12="expr12" class="logo-font"> <br/>\n            Sorry, Please back <a class="spotlink" href="/">home</a>.\n            </h1></div></div><div id="footerView"></div></div>',
-        [
-          {
-            'redundantAttribute': 'expr12',
-            'selector': '[expr12]',
+    ) => template(
+      '<div class="home-page"><div id="headerView"></div><div class="banner"><div class="container"><h1 expr19="expr19" class="logo-font"> <br/>\n            Sorry, Please back <a class="spotlink" href="/">home</a>.\n            </h1></div></div><div id="footerView"></div></div>',
+      [
+        {
+          redundantAttribute: 'expr19',
+          selector: '[expr19]',
 
-            'expressions': [
-              {
-                'type': expressionTypes.TEXT,
-                'childNodeIndex': 0,
+          expressions: [
+            {
+              type: expressionTypes.TEXT,
+              childNodeIndex: 0,
 
-                'evaluate': function(
-                  _scope
-                ) {
-                  return [
-                    _scope.props.message
-                  ].join(
-                    ''
-                  );
-                }
-              }
-            ]
-          }
-        ]
-      );
-    },
+              evaluate: _scope => [
+                _scope.props.message
+              ].join(
+                ''
+              )
+            }
+          ]
+        }
+      ]
+    ),
 
-    'name': 'show_error'
+    name: 'show_error'
   };
 
   // Usecase
@@ -15932,9 +15277,9 @@
   }
 
   var application = {
-    'css': null,
+    css: null,
 
-    'exports': {
+    exports: {
       onBeforeMount( _, state) {
           state.owner = new ApplicationController();
           state.owner.willFinishLaunching();
@@ -15945,19 +15290,17 @@
       }
     },
 
-    'template': function(
+    template: (
       template,
       expressionTypes,
       bindingTypes,
       getComponent
-    ) {
-      return template(
-        '<div id="mainView"></div>',
-        []
-      );
-    },
+    ) => template(
+      '<div id="mainView"></div>',
+      []
+    ),
 
-    'name': 'application'
+    name: 'application'
   };
 
   // Import Polyfill

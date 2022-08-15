@@ -17,7 +17,7 @@ For more information on how to this works with other frontends/backends, head ov
 
 | ℹ️ Important Notices                                          |
 | :----------------------------------------------------------- |
-| Here's the document from when I updated from v3 to v4. I was able to update v5 **without any difficulty at all**. And so far, **v6 works fine**. Riot.js is awesome!!😊 |
+| Here's the document from when I updated from v3 to v4. I was able to update v5 **without any difficulty at all**. And so far, **v7 works fine**. Riot.js is awesome!!😊 |
 
 
 
